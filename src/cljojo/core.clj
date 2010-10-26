@@ -2,7 +2,9 @@
 
 (declare *css* *html*)
 
-
+(def *comment* #"^\s*;;\s?")
+(def *divider-text* "\n;;DIVIDER\n")
+(def *divider-html* #"\n*<span class=\"c[1]?\">;;DIVIDER</span>\n*")
 
 
 
