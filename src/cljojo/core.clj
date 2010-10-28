@@ -2,12 +2,27 @@
 
 (declare *css* *html*)
 
+(def *test* "./src/cljojo/core.clj")
+(def *docs* "docs")
 (def *comment* #"^\s*;;\s?")
 (def *divider-text* "\n;;DIVIDER\n")
 (def *divider-html* #"\n*<span class=\"c[1]?\">;;DIVIDER</span>\n*")
 
+(def path "./foo.txt")
 
+(defn ls
+  [path]
+  (let [file (java.io.File. path)]
+    (if (.isDirectory file)
+      (seq (.list file))
+      (when (.exists file)
+        [path]))))
 
+(ls "./foo.txt")
+(ls "README.md")
+
+(defn ensure-directory []
+  )
 
 (def {:dynamic true} *html*
 "
