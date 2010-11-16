@@ -1,17 +1,10 @@
-# cljojo
+Marginalia
+==========
+*lightweight literate programming for clojure inspired by [docco](http://jashkenas.github.com/docco/)*
 
-FIXME: write description
+License
+-------
 
-## Usage
-
-FIXME: write
-
-## Installation
-
-FIXME: write
-
-## License
-
-Copyright (C) 2010 FIXME
+Copyright (C) 2010 Fogus
 
 Distributed under the Eclipse Public License, the same as Clojure.
