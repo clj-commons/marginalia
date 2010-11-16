@@ -1,7 +1,7 @@
 (ns marginalia.core
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
-  (:use [cljojo.aux :only [*css* *html*]]))
+  (:use [marginalia.aux :only [*css* *html*]]))
 
 
 (def *test* "./src/cljojo/core.clj")
@@ -44,10 +44,10 @@
         (recur more
                cnum
                (inc dnum)
-               (conj sections {:docs-text (str (str/replace line *comment* "")) :line (+ cnum dnum)}))
+               (conj sections {:docs-text (str (str/replace line *comment* "")) :line (+ cnum (dec dnum))}))
         (recur more
-               (inc cnum)
-               0
+               (+ dnum cnum)
+               1
                (conj sections {:code-text (str line) :line cnum})))
       sections)))
 
