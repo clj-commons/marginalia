@@ -1,4 +1,4 @@
-(ns cljojo.aux)
+(ns marginalia.aux)
 
 
 (def ^{:dynamic true} *html*

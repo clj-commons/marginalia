@@ -1,4 +1,4 @@
-(ns cljojo.core
+(ns marginalia.core
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
   (:use [cljojo.aux :only [*css* *html*]]))
