@@ -8,6 +8,8 @@
 
    Typically used like so:
    (browse-output (output-html (group-lines (gen-doc! \"./src/marginalia/core.clj\""
-  (do (spit "/tmp/marg.html" s)
-      (browse-url "file:///tmp/marg.html")))
+  (do (spit "./example-output/marg.html" s)
+      (let [path (.getAbsolutePath (java.io.File. ""))
+            url (str "file://" path "/example-output/marg.html")]
+        (browse-url url))))
 
