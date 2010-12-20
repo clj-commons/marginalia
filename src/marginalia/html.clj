@@ -35,6 +35,14 @@
   [s]
   (str/replace s #"-&gt;" "&rarr;"))
 
+;; As a result of docifying then grouping, you'll end up with a seq like this one:
+;;
+;;     [{:docs [{:docs-text "Some doc text"}]
+;;      :codes [{code-text "(def something \"hi\")"}]}]
+;;
+;; `docs-to-html` and `codes-to-html` convert their respective entries into html,
+;; and `group-to-html` calls them on each seq item to do so.
+
 
 (defn docs-to-html
   "Converts a docs section to html by threading each doc line through the forms
@@ -98,7 +106,18 @@
     (html [:style {:type "text/css"}
            (slurp-resource resource)])))
 
-(defn output-html [project-name groups]
+;; Syntax highlighting is done a bit differently than docco.  Instead of embedding
+;; the higlighting metadata on the parse / html gen phase, we use [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/)
+;; to do it in javascript.
+
+(defn output-html
+  "This function's the one that ties the whole html namespace together, and probably
+   the only var you'll touch on.
+
+   Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
+   & `inline-css`) to be able to package the output as a single file.  It goes without
+   saying that all this is WIP and will prabably change in the future."
+  [project-name groups]
   (html
    (doctype :html5)
    [:html
@@ -108,6 +127,8 @@
      (inline-js "shBrushClojure.js")
      (inline-css "shCore.css")
      (inline-css "shThemeEclipse.css")
+
+     ;; quick and dirty dsl for inline css rules, similar to hiccup.
      (css
       [:body {:margin 0
               :padding 0
