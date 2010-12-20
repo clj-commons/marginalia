@@ -2,7 +2,8 @@
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
   (:use [marginalia.aux :only [*css* *html*]]
-        [marginalia.html :only (output-html)]))
+        [marginalia.html :only (output-html)]
+        [clojure.contrib.find-namespaces :only (read-file-ns-decl)]))
 
 
 (def *test* "./src/cljojo/core.clj")
@@ -61,7 +62,10 @@
          lines doc-lines]
     (cond
      (empty? lines) (conj groups cur-group)
-     (end-of-block? cur-group groups lines) (recur (merge-line (first lines) {}) (conj groups cur-group) (rest lines))
+
+     (end-of-block? cur-group groups lines)
+     (recur (merge-line (first lines) {}) (conj groups cur-group) (rest lines))
+
      :else (recur (merge-line (first lines) cur-group) groups (rest lines))
      )))
 
@@ -129,12 +133,29 @@
       (gen-doc! src))))
 
 (use 'clojure.pprint)
-
-(pprint (gen-doc! "./src/marginalia/html.clj"))
-
 (use 'marginalia.dev-helper)
 
-(browse-output (output-html "marginalia.core" (group-lines (gen-doc! "./src/marginalia/aux.clj"))))
+(defn path-to-doc [fn]
+  (let [ns (-> (java.io.File. fn)
+               (read-file-ns-decl)
+               (second)
+               (str))
+        groups (->> fn
+                    (gen-doc!)
+                    (group-lines))]
+    {:ns ns
+     :groups groups}))
+
+(defn single-page-doc [fs]
+  (output-html (map path-to-doc fs)))
+
+
+
+#_(browse-output (->> (java.io.File. "./src")
+                    (file-seq)
+                    (filter #(re-find #"\.clj$" (.getAbsolutePath %)))
+                    (map #(.getAbsolutePath %))
+                    (single-page-doc)))
 
 (comment (merge-line {:docstring-text "hello world" :line 3} {:docs ["stuff"]})
          (merge-line {:code-text "(defn asdf" :line 4} {:docs ["stuff"]})

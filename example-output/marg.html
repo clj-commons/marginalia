@@ -2264,7 +2264,438 @@ SyntaxHighlighter.brushes.Clojure.aliases   = ['clojure', 'Clojure', 'clj'];
   font-style: italic !important;
   color: #2a00ff !important;
 }
-</style><style type="text/css">body{margin:0;padding:0;font-family:'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;;font-size:16px;}h1{font-size:20px;margin-top:0;}h1.project-name{font-size:34px;border-bottom:dotted #aaa 1px;padding-bottom:10px;}h2{font-size:18px;margin-top:0;}table{border-spacing:0;}code{display:inline;}p{margin-top:8px;}tr{margin:0px;padding:0px;}td.docs{width:45%;vertical-align:top;margin:0px;padding-left:55px;padding-right:20px;border:none;}td.codes{border:none;margin:0px;padding-left:20px;width:55%;border-left:solid #ddd 1px;font-size:10pt;vertical-align:top;overflow:hidden;background-color:#F5F5FF;}</style><title>Marginalia Output</title></head><body><table><tr><td class="docs"><h1 class="project-name">marginalia</h1></td><td class="codes" /></tr><tr><td class="docs"><h1>Utilities for converting parse results into html.</h1>
+</style><style type="text/css">body{margin:0;padding:0;font-family:'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;;font-size:16px;color:#252519;}.toc-link{font-size:12px;margin-left:10px;color:#252519;text-decoration:none;}.toc-link:hover{color:#5050A6;}.docs-header{border-bottom:dotted #aaa 1px;padding-bottom:10px;margin-bottom:25px;}.anchor{text-decoration:none;color:#252519;}.anchor:hover{color:#5050A6;}h1{font-size:20px;margin-top:0;}h1.project-name{font-size:34px;display:inline;}h2{font-size:18px;margin-top:0;}table{border-spacing:0;border-bottom:solid #ddd 1px;;margin-bottom:10px;}code{display:inline;}p{margin-top:8px;}tr{margin:0px;padding:0px;}td.docs{width:45%;vertical-align:top;margin:0px;padding-left:55px;padding-right:20px;border:none;}td.codes{border:none;margin:0px;padding-left:20px;width:55%;border-left:solid #ddd 1px;font-size:10pt;vertical-align:top;overflow:hidden;background-color:#F5F5FF;}td.spacer{padding-bottom:40px;}.footer{text-align:center;}</style><title>Marginalia Output</title></head><body><a name="toc"><h1>Table of Contents</h1></a><ul><li><a href="#marginalia.aux">marginalia.aux</a></li><li><a href="#marginalia.core">marginalia.core</a></li><li><a href="#marginalia.dev-helper">marginalia.dev-helper</a></li><li><a href="#marginalia.html">marginalia.html</a></li></ul><table><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#marginalia.aux" name="marginalia.aux"><h1 class="project-name">marginalia.aux</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns marginalia.aux)
+</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(def ^{:dynamic true} *html*
+&quot;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta http-equiv='content-type' content='text/html;charset=utf-8'&gt;
+  &lt;title&gt;{{ title }}&lt;/title&gt;
+  &lt;link rel='stylesheet' href='{{ stylesheet }}'&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id='container'&gt;
+  &lt;div id='background'&gt;&lt;/div&gt;
+  {{#sources?}}
+  &lt;div id='jump_to'&gt;
+    Jump To &amp;hellip;
+    &lt;div id='jump_wrapper'&gt;
+      &lt;div id='jump_page'&gt;
+        {{#sources}}
+          &lt;a class='source' href='{{ url }}'&gt;{{ basename }}&lt;/a&gt;
+        {{/sources}}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  {{/sources?}}
+  &lt;table cellspacing=0 cellpadding=0&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th class=docs&gt;&lt;h1&gt;{{ title }}&lt;/h1&gt;&lt;/th&gt;
+      &lt;th class=code&gt;&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    {{#sections}}
+    &lt;tr id='section-{{ num }}'&gt;
+      &lt;td class=docs&gt;
+        &lt;div class='octowrap'&gt;
+          &lt;a class='octothorpe' href='#section-{{ num }}'&gt;#&lt;/a&gt;
+        &lt;/div&gt;
+        {{{ docs_html }}}
+      &lt;/td&gt;
+      &lt;td class=code&gt;
+        &lt;div class='highlight'&gt;&lt;pre&gt;{{{ code_html }}}&lt;/pre&gt;&lt;/div&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    {{/sections}}
+  &lt;/table&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&quot;)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(def ^{:dynamic true} *css*
+&quot;
+/*--------------------- Layout and Typography ----------------------------*/
+body {
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #252519;
+  margin: 0; padding: 0;
+}
+a {
+  color: #261a3b;
+}
+  a:visited {
+    color: #261a3b;
+  }
+p {
+  margin: 0 0 15px 0;
+}
+h1, h2, h3, h4, h5, h6 {
+  margin: 40px 0 15px 0;
+}
+  h3, h4, h5, h6 {
+    margin-top: 20px;
+  }
+#container {
+  position: relative;
+}
+#background {
+  position: fixed;
+  top: 0; left: 580px; right: 0; bottom: 0;
+  background: #f5f5ff;
+  border-left: 1px solid #e5e5ee;
+  z-index: -1;
+}
+#jump_to, #jump_page {
+  background: white;
+  -webkit-box-shadow: 0 0 25px #777; -moz-box-shadow: 0 0 25px #777;
+  -webkit-border-bottom-left-radius: 5px; -moz-border-radius-bottomleft: 5px;
+  font: 10px Arial;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: right;
+}
+#jump_to, #jump_wrapper {
+  position: fixed;
+  right: 0; top: 0;
+  padding: 5px 10px;
+}
+  #jump_wrapper {
+    padding: 0;
+    display: none;
+  }
+    #jump_to:hover #jump_wrapper {
+      display: block;
+    }
+    #jump_page {
+      padding: 5px 0 3px;
+      margin: 0 0 25px 25px;
+    }
+      #jump_page .source {
+        display: block;
+        padding: 5px 10px;
+        text-decoration: none;
+        border-top: 1px solid #eee;
+      }
+        #jump_page .source:hover {
+          background: #f5f5ff;
+        }
+        #jump_page .source:first-child {
+        }
+table td {
+  border: 0;
+  outline: 0;
+}
+  td.docs, th.docs {
+    max-width: 500px;
+    min-width: 500px;
+    min-height: 5px;
+    padding: 10px 25px 1px 50px;
+    vertical-align: top;
+    text-align: left;
+  }
+    .docs pre {
+      margin: 15px 0 15px;
+      padding-left: 15px;
+    }
+    .docs p tt, .docs p code {
+      background: #f8f8ff;
+      border: 1px solid #dedede;
+      font-size: 12px;
+      padding: 0 0.2em;
+    }
+    .octowrap {
+      position: relative;
+    }
+      .octothorpe {
+        font: 12px Arial;
+        text-decoration: none;
+        color: #454545;
+        position: absolute;
+        top: 3px; left: -20px;
+        padding: 1px 2px;
+        opacity: 0;
+        -webkit-transition: opacity 0.2s linear;
+      }
+        td.docs:hover .octothorpe {
+          opacity: 1;
+        }
+  td.code, th.code {
+    padding: 14px 15px 16px 50px;
+    width: 100%;
+    vertical-align: top;
+    background: #f5f5ff;
+    border-left: 1px solid #e5e5ee;
+  }
+    pre, tt, code {
+      font-size: 12px; line-height: 18px;
+      font-family: Monaco, Consolas, \&quot;Lucida Console\&quot;, monospace;
+      margin: 0; padding: 0;
+    }
+
+
+/*---------------------- Syntax Highlighting -----------------------------*/
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+body .hll { background-color: #ffffcc }
+body .c { color: #408080; font-style: italic }  /* Comment */
+body .err { border: 1px solid #FF0000 }         /* Error */
+body .k { color: #954121 }                      /* Keyword */
+body .o { color: #666666 }                      /* Operator */
+body .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+body .cp { color: #BC7A00 }                     /* Comment.Preproc */
+body .c1 { color: #408080; font-style: italic } /* Comment.Single */
+body .cs { color: #408080; font-style: italic } /* Comment.Special */
+body .gd { color: #A00000 }                     /* Generic.Deleted */
+body .ge { font-style: italic }                 /* Generic.Emph */
+body .gr { color: #FF0000 }                     /* Generic.Error */
+body .gh { color: #000080; font-weight: bold }  /* Generic.Heading */
+body .gi { color: #00A000 }                     /* Generic.Inserted */
+body .go { color: #808080 }                     /* Generic.Output */
+body .gp { color: #000080; font-weight: bold }  /* Generic.Prompt */
+body .gs { font-weight: bold }                  /* Generic.Strong */
+body .gu { color: #800080; font-weight: bold }  /* Generic.Subheading */
+body .gt { color: #0040D0 }                     /* Generic.Traceback */
+body .kc { color: #954121 }                     /* Keyword.Constant */
+body .kd { color: #954121; font-weight: bold }  /* Keyword.Declaration */
+body .kn { color: #954121; font-weight: bold }  /* Keyword.Namespace */
+body .kp { color: #954121 }                     /* Keyword.Pseudo */
+body .kr { color: #954121; font-weight: bold }  /* Keyword.Reserved */
+body .kt { color: #B00040 }                     /* Keyword.Type */
+body .m { color: #666666 }                      /* Literal.Number */
+body .s { color: #219161 }                      /* Literal.String */
+body .na { color: #7D9029 }                     /* Name.Attribute */
+body .nb { color: #954121 }                     /* Name.Builtin */
+body .nc { color: #0000FF; font-weight: bold }  /* Name.Class */
+body .no { color: #880000 }                     /* Name.Constant */
+body .nd { color: #AA22FF }                     /* Name.Decorator */
+body .ni { color: #999999; font-weight: bold }  /* Name.Entity */
+body .ne { color: #D2413A; font-weight: bold }  /* Name.Exception */
+body .nf { color: #0000FF }                     /* Name.Function */
+body .nl { color: #A0A000 }                     /* Name.Label */
+body .nn { color: #0000FF; font-weight: bold }  /* Name.Namespace */
+body .nt { color: #954121; font-weight: bold }  /* Name.Tag */
+body .nv { color: #19469D }                     /* Name.Variable */
+body .ow { color: #AA22FF; font-weight: bold }  /* Operator.Word */
+body .w { color: #bbbbbb }                      /* Text.Whitespace */
+body .mf { color: #666666 }                     /* Literal.Number.Float */
+body .mh { color: #666666 }                     /* Literal.Number.Hex */
+body .mi { color: #666666 }                     /* Literal.Number.Integer */
+body .mo { color: #666666 }                     /* Literal.Number.Oct */
+body .sb { color: #219161 }                     /* Literal.String.Backtick */
+body .sc { color: #219161 }                     /* Literal.String.Char */
+body .sd { color: #219161; font-style: italic } /* Literal.String.Doc */
+body .s2 { color: #219161 }                     /* Literal.String.Double */
+body .se { color: #BB6622; font-weight: bold }  /* Literal.String.Escape */
+body .sh { color: #219161 }                     /* Literal.String.Heredoc */
+body .si { color: #BB6688; font-weight: bold }  /* Literal.String.Interpol */
+body .sx { color: #954121 }                     /* Literal.String.Other */
+body .sr { color: #BB6688 }                     /* Literal.String.Regex */
+body .s1 { color: #219161 }                     /* Literal.String.Single */
+body .ss { color: #19469D }                     /* Literal.String.Symbol */
+body .bp { color: #954121 }                     /* Name.Builtin.Pseudo */
+body .vc { color: #19469D }                     /* Name.Variable.Class */
+body .vg { color: #19469D }                     /* Name.Variable.Global */
+body .vi { color: #19469D }                     /* Name.Variable.Instance */
+body .il { color: #666666 }                     /* Literal.Number.Integer.Long */</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#marginalia.core" name="marginalia.core"><h1 class="project-name">marginalia.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns marginalia.core
+  (:require [clojure.java.io :as io]
+            [clojure.string  :as str])
+  (:use [marginalia.aux :only [*css* *html*]]
+        [marginalia.html :only (output-html)]
+        [clojure.contrib.find-namespaces :only (read-file-ns-decl)]))
+</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def *test* &quot;./src/cljojo/core.clj&quot;)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def *docs* &quot;docs&quot;)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def *comment* #&quot;^\s*;;\s?&quot;)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def *divider-text* &quot;\n;;DIVIDER\n&quot;)
+(def *divider-html* #&quot;\n*&lt;span class=\&quot;c[1]?\&quot;&gt;;;DIVIDER&lt;/span&gt;\n*&quot;)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn ls
+  [path]
+  (let [file (java.io.File. path)]
+    (if (.isDirectory file)
+      (seq (.list file))
+      (when (.exists file)
+        [path]))))</pre></td></tr><tr><td class="docs"><p>mkdir docstring</p>
+</td><td class="codes"><pre class="brush: clojure">
+(defn mkdir [path]
+  (.mkdirs (io/file path)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn ensure-directory! [path]
+  (when-not (ls path)
+    (mkdir path)))
+</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn usage []
+  (println &quot;cljojo &lt;src1&gt; ... &lt;src-n&gt;&quot;))</pre></td></tr><tr><td class="docs"><p>This line should be replaced</p>
+</td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs"><p>and this one too!</p>
+</td><td class="codes"><pre class="brush: clojure">(defn parse [src]
+  (for [line (line-seq src)]
+    (if (re-find *comment* line)
+      {:docs-text (str (str/replace line *comment* &quot;&quot;))}
+      {:code-text (str line)})))
+</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn end-of-block? [cur-group groups lines]
+  (let [line (first lines)
+        next-line (second lines)
+        next-line-code (get next-line :code-text &quot;&quot;)]
+    (when (or (and (:code-text line)
+                   (:docs-text next-line))
+              (re-find #&quot;^\(def&quot; (str/trim next-line-code)))
+      true)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn merge-line [line m]
+  (cond
+   (:docstring-text line) (assoc m :docs (conj (get m :docs []) line))
+   (:code-text line) (assoc m :codes (conj (get m :codes []) line))
+   (:docs-text line) (assoc m :docs (conj (get m :docs []) line))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn group-lines [doc-lines]
+  (loop [cur-group {}
+         groups []
+         lines doc-lines]
+    (cond
+     (empty? lines) (conj groups cur-group)
+
+     (end-of-block? cur-group groups lines)
+     (recur (merge-line (first lines) {}) (conj groups cur-group) (rest lines))
+
+     :else (recur (merge-line (first lines) cur-group) groups (rest lines))
+     )))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn docstring-line? [line sections]
+  (let [l (last sections)
+        last-code-text (get l :code-text &quot;&quot;)]
+    (try
+      (or (and (re-find #&quot;\(defn&quot; last-code-text)
+               (re-find #&quot;^\&quot;&quot; (str/trim (str line))))
+          (and (re-find #&quot;\(ns&quot; last-code-text)
+               (re-find #&quot;^\&quot;&quot; (str/trim (str line))))
+          (and (:docstring-text l)
+               (not (re-find #&quot;^\(&quot; (str/trim (str line))))
+               (not (re-find #&quot;^\[&quot; (str/trim (str line))))
+               (not= &quot;&quot; (str/trim (str line))))
+          (and (:docstring-text l)
+               (not (re-find #&quot;\&quot;$&quot; (str/trim (:docstring-text l))))
+               (= &quot;&quot; (str/trim (str line)))))
+      (catch Exception e nil))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn parse [src]
+  (loop [[line &amp; more] (line-seq src) cnum 1 dnum 0 sections []]
+    (if more
+      (if (re-find *comment* line)
+        (recur more
+               cnum
+               (inc dnum)
+               (conj sections {:docs-text (str (str/replace line *comment* &quot;&quot;)) :line (+ cnum dnum)}))
+        (recur more
+               (inc cnum)
+               0
+               (if (docstring-line? (str line) sections)
+                 (conj sections {:docstring-text (str line) :line cnum})
+                 (conj sections {:code-text (str line) :line cnum}))))
+      sections)))
+</pre></td></tr><tr><td class="docs"><p>How is this handled?
+I wonder?</p>
+</td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs"><p>No idea ne</p>
+</td><td class="codes"><pre class="brush: clojure">(defn gen-doc! [path]
+  (println &quot;Generating documentation for &quot; path)
+  (with-open [src (io/reader (io/file path))]</pre></td></tr><tr><td class="docs"><p>and this?</p>
+</td><td class="codes"><pre class="brush: clojure">    (doseq [section (parse src)]
+      (println section))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn gen-doc! [path]
+  (with-open [src (io/reader (io/file path))]
+    (parse src)))
+
+(re-find *comment* &quot;  ;; this is a comment&quot;)</pre></td></tr><tr><td class="docs"><p>main docstring
+Multi line</p>
+</td><td class="codes"><pre class="brush: clojure">
+(defn -main [sources]
+  (if-not sources
+    (do
+      (println &quot;Wrong number of arguments passed to cljojo.&quot;)
+      (println &quot;Please present paths to source files as follows:&quot;)
+      (usage))
+    (doseq [src sources]
+      (ensure-directory!  &quot;./docs&quot;)
+      (spit (io/file (str &quot;./docs/&quot; &quot;marginalia.css&quot;)) *css*)
+      (gen-doc! src))))
+
+(use 'clojure.pprint)
+
+(pprint (gen-doc! &quot;./src/marginalia/html.clj&quot;))
+
+(use 'marginalia.dev-helper)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn path-to-doc [fn]
+  (let [ns (-&gt; (java.io.File. fn)
+               (read-file-ns-decl)
+               (second)
+               (str))
+        groups (-&gt;&gt; fn
+                    (gen-doc!)
+                    (group-lines))]
+    {:ns ns
+     :groups groups}))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn single-page-doc [fs]
+  (output-html (map path-to-doc fs)))
+
+
+(browse-output (single-page-doc ))
+
+(map #(.getAbsolutePath %) )
+
+(browse-output )
+
+(browse-output (-&gt;&gt; (java.io.File. &quot;./src&quot;)
+                    (file-seq)
+                    (filter #(re-find #&quot;\.clj$&quot; (.getAbsolutePath %)))
+                    (map #(.getAbsolutePath %))
+                    (single-page-doc)))
+
+
+
+
+(browse-output (output-html  (group-lines (gen-doc! &quot;./src/marginalia/aux.clj&quot;))))
+
+(comment (merge-line {:docstring-text &quot;hello world&quot; :line 3} {:docs [&quot;stuff&quot;]})
+         (merge-line {:code-text &quot;(defn asdf&quot; :line 4} {:docs [&quot;stuff&quot;]})
+         (merge-line {:docs-text &quot;There's only one method in this module&quot;, :line 4} {})
+</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+         (def g (group-lines (gen-doc! &quot;./test/parse_test.clj&quot;)))
+
+         (pprint g)
+
+
+         (pprint  (gen-doc! &quot;./test/parse_test.clj&quot;))
+
+
+         #_(-main *command-line-args*))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#marginalia.dev-helper" name="marginalia.dev-helper"><h1 class="project-name">marginalia.dev-helper</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Utilities for helping with marginalia development</p>
+</td><td class="codes"><pre class="brush: clojure">(ns marginalia.dev-helper
+  (:use [clojure.pprint :only (pprint)]
+        [clojure.java.browse :only (browse-url)]))</pre></td></tr><tr><td class="docs"><p>Writes s to a temp file, then opens the file with your system's default browser.</p>
+
+<p>Typically used like so:
+ex. (browse-output (output-html (group-lines (gen-doc! &quot;./src/marginalia/core.clj&quot;</p>
+</td><td class="codes"><pre class="brush: clojure">
+(defn browse-output [s]
+  (do (spit &quot;./example-output/marg.html&quot; s)
+      (let [path (.getAbsolutePath (java.io.File. &quot;&quot;))
+            url (str &quot;file://&quot; path &quot;/example-output/marg.html&quot;)]
+        (browse-url url))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#marginalia.html" name="marginalia.html"><h1 class="project-name">marginalia.html</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h1>Utilities for converting parse results into html.</h1>
 
 <h2>Plus a few other goodies.</h2>
 
@@ -2364,18 +2795,34 @@ and returns it. See <a href="http://clojuredocs.org/clojure_core/clojure.core/sl
 (defn inline-css [resource]
   (let [src (slurp-resource resource)]
     (html [:style {:type &quot;text/css&quot;}
-           (slurp-resource resource)])))</pre></td></tr><tr><td class="docs"><p>Syntax highlighting is done a bit differently than docco.  Instead of embedding
-the higlighting metadata on the parse / html gen phase, we use <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
-to do it in javascript.</p>
-</td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs"><p>This function's the one that ties the whole html namespace together, and probably
-the only var you'll touch on.</p>
-
-<p>Notice that we're inlining the css &amp; javascript for <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a> (<code>inline-js</code>
-&amp; <code>inline-css</code>) to be able to package the output as a single file.  It goes without
-saying that all this is WIP and will prabably change in the future.</p>
+           (slurp-resource resource)])))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">
-(defn output-html
-  [project-name groups]
+(defn toc [docs]
+  (html
+   [:a {:name &quot;toc&quot;} [:h1 &quot;Table of Contents&quot;]]
+   [:ul
+    (map #(vector :li [:a {:href (str &quot;#&quot; (:ns %))} (:ns %)])
+         docs)]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn groups-html [doc]
+  (html 
+   [:tr
+    [:td {:class &quot;docs&quot;}
+     [:div {:class &quot;docs-header&quot;}
+      [:a {:class &quot;anchor&quot; :name (:ns doc) :href (str &quot;#&quot; (:ns doc))}
+       [:h1 {:class &quot;project-name&quot;}
+        (:ns doc)]
+       [:a {:href &quot;#toc&quot; :class &quot;toc-link&quot;}
+        &quot;toc&quot;]]]]
+    [:td {:class &quot;codes&quot;}]]
+   (map group-to-html (:groups doc))
+   [:tr
+    [:td {:class &quot;spacer docs&quot;} &quot;&amp;nbsp;&quot;]
+    [:td {:class &quot;codes&quot;}]]))
+
+</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn page-template [toc content]
   (html
    (doctype :html5)
    [:html
@@ -2390,15 +2837,28 @@ saying that all this is WIP and will prabably change in the future.</p>
       [:body {:margin 0
               :padding 0
               :font-family &quot;'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;&quot;
-              :font-size &quot;16px&quot;}]
+              :font-size &quot;16px&quot;
+              :color &quot;#252519&quot;}]
+      [:.toc-link {:font-size &quot;12px&quot;
+                   :margin-left &quot;10px&quot;
+                   :color &quot;#252519&quot;
+                   :text-decoration &quot;none&quot;}]
+      [:.toc-link:hover {:color &quot;#5050A6&quot;}]
+      [:.docs-header {:border-bottom &quot;dotted #aaa 1px&quot;
+                      :padding-bottom &quot;10px&quot;
+                      :margin-bottom &quot;25px&quot;}]
+      [:.anchor {:text-decoration &quot;none&quot;
+                 :color &quot;#252519&quot;}]
+      [:.anchor:hover {:color &quot;#5050A6&quot;}]
       [:h1 {:font-size &quot;20px&quot;
             :margin-top 0}]
       [:h1.project-name {:font-size &quot;34px&quot;
-                         :border-bottom &quot;dotted #aaa 1px&quot;
-                         :padding-bottom &quot;10px&quot;}]
+                         :display &quot;inline&quot;}]
       [:h2 {:font-size &quot;18px&quot;
             :margin-top 0}]
-      [:table {:border-spacing 0}]
+      [:table {:border-spacing 0
+               :border-bottom &quot;solid #ddd 1px;&quot;
+               :margin-bottom &quot;10px&quot;}]
       [:code {:display &quot;inline&quot;}]
       [:p {:margin-top &quot;8px&quot;}]
       [:tr {:margin &quot;0px&quot;
@@ -2417,17 +2877,39 @@ saying that all this is WIP and will prabably change in the future.</p>
                   :border &quot;none&quot;
                   :overflow &quot;hidden&quot;
                   :font-size &quot;10pt&quot;
-                  :border-left &quot;solid #ddd 1px&quot;}])
+                  :border-left &quot;solid #ddd 1px&quot;}]
+      [:td.spacer {:padding-bottom &quot;40px&quot;}]
+      [:.footer {:text-align &quot;center&quot;}])
      [:title &quot;Marginalia Output&quot;]]
     [:body
+     toc
      [:table
-      [:tr
-       [:td {:class &quot;docs&quot;}
-        [:h1 {:class &quot;project-name&quot;}
-         project-name]]
-       [:td {:class &quot;codes&quot;}]]
-      (map group-to-html groups)]
+      content]
+     [:div {:class &quot;footer&quot;}
+      &quot;Generated by &quot;
+      [:a {:href &quot;https://github.com/fogus/marginalia&quot;} &quot;marginalia&quot;]
+      &quot;.&amp;nbsp;&amp;nbsp;&quot;
+      &quot;Syntax highlighting provided by Alex Gorbatchev's &quot;
+      [:a {:href &quot;http://alexgorbatchev.com/SyntaxHighlighter/&quot;}
+       &quot;SyntaxHighlighter&quot;]]
      [:script {:type &quot;text/javascript&quot;}
       &quot;SyntaxHighlighter.defaults['gutter'] = false;
-       SyntaxHighlighter.all()&quot;]]]))</pre></td></tr></table><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+       SyntaxHighlighter.all()&quot;]]]))
+
+
+</pre></td></tr><tr><td class="docs"><p>Syntax highlighting is done a bit differently than docco.  Instead of embedding
+the higlighting metadata on the parse / html gen phase, we use <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+to do it in javascript.</p>
+</td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs"><p>This function's the one that ties the whole html namespace together, and probably
+the only var you'll touch on.</p>
+
+<p>Notice that we're inlining the css &amp; javascript for <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a> (<code>inline-js</code>
+&amp; <code>inline-css</code>) to be able to package the output as a single file.  It goes without
+saying that all this is WIP and will prabably change in the future.</p>
+</td><td class="codes"><pre class="brush: clojure">
+(defn output-html
+  [docs]
+  (page-template
+   (toc docs)
+   (map groups-html docs)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
