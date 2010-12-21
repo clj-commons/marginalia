@@ -12,10 +12,19 @@ $(document).ready(function() {
 
     ft.css('height', (liHeight) + 'px')
 
+
     showNs = function(ns) {
-        var el = $("[id='floating-toc_" + ns + "']")
-        
-        var index = lis.index(el)
+        //this is killing performance, lookup table.
+        //var el = $("[id='floating-toc_" + ns + "']")
+        //var index = lis.index(el)
+
+        var index = 0
+
+        for(i in nsPositions.nss) {
+            if(ns == nsPositions.nss[i]) index = i
+        }
+
+        console.log(index)
 
         if(index == lastNsIndex) return;
 
@@ -50,11 +59,13 @@ $(document).ready(function() {
 
     var lastNsIndex = -1
 
+    var $window = $(window)
+
     var currentSection = function(nsp) {
 
         var ps = nsp.positions
         var nss = nsp.nss
-        var scroll = $(window).scrollTop() + 300
+        var scroll = $window.scrollTop() + 300
         var nsIndex = -1
         for(var i in ps) {
             var p = ps[i]

@@ -11,6 +11,49 @@
   (:require [clojure.string :as str])
   (:import [com.petebevin.markdown MarkdownProcessor]))
 
+
+(defn css-rule [rule]
+  (let [sels (reverse (rest (reverse rule)))
+        props (last rule)]
+    (str (apply str (interpose " " (map name sels)))
+         "{" (apply str (map #(str (name (key %)) ":" (val %) ";") props)) "}")))
+
+(defn css [& rules]
+  "Quick and dirty dsl for inline css rules, similar to hiccup.
+
+   ex. (css [:h1 {:color \"blue\"}] [:div.content p {:text-indent \"1em\"}])
+   -> h1 {color: blue;} div.content p {text-indent: 1em;}"
+  (html [:style {:type "text/css"}
+         (apply str (map css-rule rules))]))
+
+(defn slurp-resource
+  "Modified version of clojure.core/[slurp](http://clojuredocs.org/clojure_core/clojure.core/slurp). Reads the resource named by f into a string and returns it."
+  ([f]
+     (let [sb (StringBuilder.)]
+       (with-open [#^java.io.Reader r (java.io.InputStreamReader.
+                                       (.getResourceAsStream
+                                        (.getClassLoader clojure.main)
+                                        f))]
+         (loop [c (.read r)]
+           (if (neg? c)
+             (str sb)
+             (do
+               (.append sb (char c))
+               (recur (.read r)))))))))
+
+(defn inline-js [resource]
+  (let [src (slurp-resource resource)]
+    (html [:script {:type "text/javascript"}
+            src])))
+
+(defn inline-css [resource]
+  (let [src (slurp-resource resource)]
+    (html [:style {:type "text/css"}
+           (slurp-resource resource)])))
+
+
+
+
 ;; The following functions handle preparation of doc text (both comment and docstring
 ;; based) for display through html & css.
 
@@ -71,43 +114,7 @@
     [:td {:class "docs"} (docs-to-html (:docs group))]
     [:td {:class "codes"} (codes-to-html (:codes group))]]))
 
-(defn css-rule [rule]
-  (let [sels (reverse (rest (reverse rule)))
-        props (last rule)]
-    (str (apply str (interpose " " (map name sels)))
-         "{" (apply str (map #(str (name (key %)) ":" (val %) ";") props)) "}")))
-
-(defn css [& rules]
-  (html [:style {:type "text/css"}
-         (apply str (map css-rule rules))]))
-
-(defn slurp-resource
-  "Reads the resource named by f using the encoding enc into a string
-  and returns it. See [slurp](http://clojuredocs.org/clojure_core/clojure.core/slurp)."
-  ([f]
-     (let [sb (StringBuilder.)]
-       (with-open [#^java.io.Reader r (java.io.InputStreamReader.
-                                       (.getResourceAsStream
-                                        (.getClassLoader clojure.main)
-                                        f))]
-         (loop [c (.read r)]
-           (if (neg? c)
-             (str sb)
-             (do
-               (.append sb (char c))
-               (recur (.read r)))))))))
-
-(defn inline-js [resource]
-  (let [src (slurp-resource resource)]
-    (html [:script {:type "text/javascript"}
-            src])))
-
-(defn inline-css [resource]
-  (let [src (slurp-resource resource)]
-    (html [:style {:type "text/css"}
-           (slurp-resource resource)])))
-
-(defn toc [docs]
+(defn toc-html [docs]
   (html
    [:tr
     [:td {:class "docs"}
@@ -118,7 +125,7 @@
             docs)]]]
     [:td {:class "codes"} "&nbsp;"]]))
 
-(defn floating-toc [docs]
+(defn floating-toc-html [docs]
   [:div {:id "floating-toc"}
    [:ul
     (map #(vector :li {:class "floating-toc-li" :id (str "floating-toc_" (:ns %))} (:ns %)) docs)]])
@@ -142,6 +149,9 @@
 
 
 (defn page-template [toc floating-toc content]
+  "Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
+   & `inline-css`) to be able to package the output as a single file (uberdoc if you will).  It goes without
+   saying that all this is WIP and will prabably change in the future."
   (html
    (doctype :html5)
    [:html
@@ -154,9 +164,6 @@
      [:script {:type "text/javascript" :src "./../resources/app.js"}]
      (inline-css "shCore.css")
      (inline-css "shThemeEclipse.css")
-     
-
-     ;; quick and dirty dsl for inline css rules, similar to hiccup.
      (css
       [:html {:margin 0 :padding 0}]
       [:body {:margin 0
@@ -247,16 +254,12 @@
 ;; the higlighting metadata on the parse / html gen phase, we use [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/)
 ;; to do it in javascript.
 
-(defn output-html
-  "This function's the one that ties the whole html namespace together, and probably
-   the only var you'll touch on.
-
-   Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
-   & `inline-css`) to be able to package the output as a single file.  It goes without
-   saying that all this is WIP and will prabably change in the future."
-  [docs]
+(defn uberdoc-html
+  "This generates a stand alone html file (think `lein uberjar`).
+   It's probably the only var consumers will use."
+  [output-file-name docs]
   (page-template
-   (toc docs)
-   (floating-toc docs)
+   (toc-html docs)
+   (floating-toc-html docs)
    (map groups-html docs)))
 

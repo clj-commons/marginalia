@@ -1,8 +1,9 @@
 (ns marginalia.core
+  "**Core** provides all of the functionality around parsing clojure source files
+   into an easily consumable format."
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
-  (:use [marginalia.aux :only [*css* *html*]]
-        [marginalia.html :only (output-html)]
+  (:use [marginalia.html :only (uberdoc-html)]
         [clojure.contrib.find-namespaces :only (read-file-ns-decl)]))
 
 
@@ -21,16 +22,23 @@
         [path]))))
 
 (defn mkdir [path]
-  "mkdir docstring"
+  "Creates a directory identified by `path`."
   (.mkdirs (io/file path)))
 
 (defn ensure-directory! [path]
   (when-not (ls path)
     (mkdir path)))
 
+(defn find-clojure-file-paths [dir]
+  "Returns a seq of clojure file paths (strings) in alphabetical depth-first order (I think?)."
+  (->> (java.io.File. "./src")
+       (file-seq)
+       (filter #(re-find #"\.clj$" (.getAbsolutePath %)))
+       (map #(.getAbsolutePath %))))
+
 
 (defn usage []
-  (println "cljojo <src1> ... <src-n>"))
+  (println "marginalia <src1> ... <src-n>"))
 
 ;; This line should be replaced
 ;; and this one too!
@@ -68,22 +76,32 @@
 
      :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))
 
-;; hacktastic
+;; hacktastic, these ad-hoc checks should be replaced with something
+;; more robust.
 (defn docstring-line? [line sections]
   (let [l (last sections)
         last-code-text (get l :code-text "")]
     (try
-      (or (and (re-find #"\(defn" last-code-text)
-               (re-find #"^\"" (str/trim (str line))))
-          (and (re-find #"\(ns" last-code-text)
-               (re-find #"^\"" (str/trim (str line))))
-          (and (:docstring-text l)
-               (not (re-find #"^\(" (str/trim (str line))))
-               (not (re-find #"^\[" (str/trim (str line))))
-               (not= "" (str/trim (str line))))
-          (and (:docstring-text l)
-               (not (re-find #"\"$" (str/trim (:docstring-text l))))
-               (= "" (str/trim (str line)))))
+      (or
+       ;; Is the last line's code-text a defn, and does the
+       ;; current line start with a quote?
+       (and (re-find #"\(defn" last-code-text)
+            (re-find #"^\"" (str/trim (str line))))
+       ;; Is the last line's code-text the start of a ns
+       ;; decl, and does the current line start with a quote?
+       (and (re-find #"\(ns" last-code-text)
+            (re-find #"^\"" (str/trim (str line))))
+       ;; Is the prev line a docstring line, the current line _not_
+       ;; start with a ( or [, and the current line not an empty string?
+       (and (:docstring-text l)
+            (not (re-find #"^\(" (str/trim (str line))))
+            (not (re-find #"^\[" (str/trim (str line))))
+            (not= "" (str/trim (str line))))
+       ;; Is the prev line a docstring, the prev line not end with a quote,
+       ;; and the current line not an empty string?
+       (and (:docstring-text l)
+            (not (re-find #"\"$" (str/trim (:docstring-text l))))
+            (= "" (str/trim (str line)))))
       (catch Exception e nil))))
 
 (defn parse [src]
@@ -119,22 +137,6 @@
 
 (re-find *comment* "  ;; this is a comment")
 
-(defn -main [sources]
-  "main docstring
-   Multi line"
-  (if-not sources
-    (do
-      (println "Wrong number of arguments passed to cljojo.")
-      (println "Please present paths to source files as follows:")
-      (usage))
-    (doseq [src sources]
-      (ensure-directory!  "./docs")
-      (spit (io/file (str "./docs/" "marginalia.css")) *css*)
-      (gen-doc! src))))
-
-(use 'clojure.pprint)
-(use 'marginalia.dev-helper)
-
 (defn path-to-doc [fn]
   (let [ns (-> (java.io.File. fn)
                (read-file-ns-decl)
@@ -146,29 +148,43 @@
     {:ns ns
      :groups groups}))
 
-(defn single-page-doc [fs]
-  (output-html (map path-to-doc fs)))
+(defn uberdoc! [output-file-name files-to-analyze]
+  (let [source (uberdoc-html output-file-name (map path-to-doc files-to-analyze))]
+    (spit output-file-name source)))
 
 
+(defn -main [sources]
+  "main docstring
+   Multi line"
+  (if-not sources
+    (do
+      (println "Wrong number of arguments passed to marginalia.")
+      (println "Please present paths to source files as follows:")
+      (usage))
+    (do
+      (println "Generating uberdoc for the following source files:")
+      (doseq [s sources]
+        (println "  " s))
+      (println)
+      (ensure-directory! "./docs")
+      (uberdoc! "./docs/uberdoc.html" sources)
+      (println "Done generating your docs, please see ./docs/marg.html")
+      (println))))
 
-#_(browse-output (->> (java.io.File. "./src")
-                    (file-seq)
-                    (filter #(re-find #"\.clj$" (.getAbsolutePath %)))
-                    (map #(.getAbsolutePath %))
-                    (single-page-doc)))
-
-(comment (merge-line {:docstring-text "hello world" :line 3} {:docs ["stuff"]})
-         (merge-line {:code-text "(defn asdf" :line 4} {:docs ["stuff"]})
-         (merge-line {:docs-text "There's only one method in this module", :line 4} {})
+(-main (find-clojure-file-paths "./src"))
 
 
-         (def g (group-lines (gen-doc! "./test/parse_test.clj")))
+;; # Example Usage
+(comment
 
-         (pprint g)
+  ;; What would happen if you ran <insert command line example here>
+  (-main ["./src/marginalia/core.clj" "./src/marginalia/html.clj"])
+  
+  ;; This will find all marginalia source files, and then generate an uberdoc.
+  (-main (find-clojure-file-paths "./src"))
 
-
-         (pprint  (gen-doc! "./test/parse_test.clj"))
-
-
-         #_(-main *command-line-args*))
+;; Move these to tests
+  (merge-line {:docstring-text "hello world" :line 3} {:docs ["stuff"]})
+  (merge-line {:code-text "(defn asdf" :line 4} {:docs ["stuff"]})
+  (merge-line {:docs-text "There's only one method in this module", :line 4} {}))
 
