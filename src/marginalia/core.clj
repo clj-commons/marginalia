@@ -37,6 +37,37 @@
        (map #(.getAbsolutePath %))))
 
 
+;; # Project Info Parsing
+;; Marginalia will parse info out of your project.clj to display in
+;; the generated html file's header.
+;;
+;; TODO: add pom.xml support.
+
+(defn parse-project-file
+  "Parses a project.clj file and returns a map in the following form:
+   ex. {:name 
+        :version
+        :dependencies
+        :dev-dependencies
+        etc...}
+
+   Basically, it reads a `defproject` to obtain name and version, then
+   merges the rest of the defproject forms (a key value list)."
+  ([] (parse-project-file "./project.clj"))
+  ([path]
+      (try
+        (let [rdr (clojure.lang.LineNumberingPushbackReader.
+                   (java.io.FileReader.
+                    (java.io.File. path)))
+              project-form (read rdr)]
+          (merge {:name (str (second project-form))
+                  :version (nth project-form 2)}
+                 (apply hash-map (drop 3 project-form))))
+        (catch Exception e
+          (throw (Exception. (str "There was a problem reading the project definition from " path)))))))
+
+#_(println (read-project-file "./project.clj"))
+
 (defn usage []
   (println "marginalia <src1> ... <src-n>"))
 
@@ -149,7 +180,13 @@
      :groups groups}))
 
 (defn uberdoc! [output-file-name files-to-analyze]
-  (let [source (uberdoc-html output-file-name (map path-to-doc files-to-analyze))]
+  "Generates an uberdoc html file from 3 pieces of information:
+
+   1. Results from processing source files (`path-to-doc`)
+   2. Project metadata obtained from `parse-project-file`.
+   3. The path to spit the result (`output-file-name`)"
+  (let [docs (map path-to-doc files-to-analyze)
+        source (uberdoc-html output-file-name (parse-project-file) (map path-to-doc files-to-analyze))]
     (spit output-file-name source)))
 
 

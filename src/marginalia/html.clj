@@ -114,12 +114,43 @@
     [:td {:class "docs"} (docs-to-html (:docs group))]
     [:td {:class "codes"} (codes-to-html (:codes group))]]))
 
+(defn dependencies-html [deps & header-name]
+  (let [header-name (or header-name "dependencies")]
+    (html [:div {:class "dependencies"}
+           [:h3 header-name]
+           [:table
+            (map #(html [:tr
+                         [:td {:class "dep-name"} (str (first %))]
+                         [:td {:class "dotted"} [:hr]]
+                         [:td {:class "dep-version"} (second %)]])
+                 deps)]])))
+
+;; Is <h1/> overloaded?  Maybe we should consider redistributing
+;; header numbers instead of adding classes to all the h1 tags.
+(defn header-html [project-info]
+  (html
+   [:tr
+    [:td {:class "docs"}
+     [:div {:class "header"}
+      [:h1 {:class "project-name"} (:name project-info)]
+      [:h2 {:class "project-version"} (:version project-info)]
+      [:br]
+      (md (:description project-info))]
+     (dependencies-html (:dependencies project-info))
+     (dependencies-html (:dev-dependencies project-info) "dev dependencies")]
+    [:td {:class "codes"
+          :style "text-align: center; vertical-align: middle;color: #666"}
+     [:br]
+     [:br]
+     [:br]
+     "(this space intentionally left blank)"]]))
+
 (defn toc-html [docs]
   (html
    [:tr
     [:td {:class "docs"}
      [:div {:class "toc"}
-      [:a {:name "toc"} [:h1 "namespaces"]]
+      [:a {:name "toc"} [:h3 "namespaces"]]
       [:ul
        (map #(vector :li [:a {:href (str "#" (:ns %))} (:ns %)])
             docs)]]]
@@ -146,9 +177,7 @@
     [:td {:class "spacer docs"} "&nbsp;"]
     [:td {:class "codes"}]]))
 
-
-
-(defn page-template [toc floating-toc content]
+(defn page-template [header toc floating-toc content]
   "Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
    & `inline-css`) to be able to package the output as a single file (uberdoc if you will).  It goes without
    saying that all this is WIP and will prabably change in the future."
@@ -166,6 +195,11 @@
      (inline-css "shThemeEclipse.css")
      (css
       [:html {:margin 0 :padding 0}]
+      [:h1 {:margin 0 :padding 0}]
+      [:h2 {:margin 0 :padding 0}]
+      [:h3 {:margin 0 :padding 0}]
+      [:h4 {:margin 0 :padding 0}]
+            
       [:body {:margin 0
               :padding 0
               :font-family "'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;"
@@ -188,8 +222,10 @@
             :margin-top 0}]
       [:h1.project-name {:font-size "34px"
                          :display "inline"}]
-      [:h2 {:font-size "18px"
-            :margin-top 0}]
+      [:h2.project-version {:font-size "18px"
+                            :margin-top 0
+                            :display "inline"
+                            :margin-left "10px"}]
       [:table {:border-spacing 0
                :border-bottom "solid #ddd 1px;"
                :margin-bottom "10px"}]
@@ -213,6 +249,7 @@
                   :font-size "10pt"
                   :border-left "solid #ddd 1px"}]
       [:td.spacer {:padding-bottom "40px"}]
+      [:.toc :h1 {:font-size "24px"}]
       [:.toc {:border-bottom "solid #bbb 1px"
               :margin-bottom "40px"}]
       [:.toc :ul {:margin-left "20px"
@@ -229,10 +266,30 @@
                        :overflow "hidden"}]
       [:#floating-toc :li {:list-style-type "none"
                            :margin 0
-                           :padding 0}])
+                           :padding 0}]
+      [:.dependencies {}]
+      [:.dependencies :table {:font-size "16px"
+                              :width "99.99%"
+                              :border "none"
+                              :margin-left "20px"}]
+      [:.dependencies :td {:padding-right "20px;"
+                           :white-space "nowrap"}]
+      [:.dependencies :.dotted {:width "99%"}]
+      [:.dependencies :.dotted :hr {:height 0
+                                    :noshade "noshade"
+                                    :color "transparent"
+                                    :background-color "transparent"
+                                    :border-bottom "dotted #bbb 1px"
+                                    :border-top "none"
+                                    :border-left "none"
+                                    :border-right "none"
+                                    :margin-bottom "-6px"}]
+      [:.dependencies :.dep-version {:text-align "right"}]
+      [:.header :p {:margin-left "20px"}])
      [:title "Marginalia Output"]]
     [:body
      [:table
+      header
       toc
       content]
      [:div {:class "footer"}
@@ -250,6 +307,7 @@
 
 
 
+
 ;; Syntax highlighting is done a bit differently than docco.  Instead of embedding
 ;; the higlighting metadata on the parse / html gen phase, we use [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/)
 ;; to do it in javascript.
@@ -257,8 +315,9 @@
 (defn uberdoc-html
   "This generates a stand alone html file (think `lein uberjar`).
    It's probably the only var consumers will use."
-  [output-file-name docs]
+  [output-file-name project-metadata docs]
   (page-template
+   (header-html project-metadata)
    (toc-html docs)
    (floating-toc-html docs)
    (map groups-html docs)))

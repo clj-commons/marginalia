@@ -1,5 +1,5 @@
-(defproject cljojo "0.0.1"
-  :description "A port of Docco to Clojure."
+(defproject marginalia "0.0.1"
+  :description "A port of [Docco](http://jashkenas.github.com/docco/) to Clojure."
   :dependencies
     [[org.clojure/clojure "1.2.0"]
      [org.clojars.nakkaya/markdownj "1.0.2b4"]
