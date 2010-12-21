@@ -139,7 +139,7 @@
      (dependencies-html (:dependencies project-info))
      (dependencies-html (:dev-dependencies project-info) "dev dependencies")]
     [:td {:class "codes"
-          :style "text-align: center; vertical-align: middle;color: #666"}
+          :style "text-align: center; vertical-align: middle;color: #666;padding-right:20px"}
      [:br]
      [:br]
      [:br]
@@ -182,10 +182,13 @@
        [:h1 {:margin 0 :padding 0}]
        [:h2 {:margin 0 :padding 0}]
        [:h3 {:margin 0 :padding 0}]
-       [:h4 {:margin 0 :padding 0}]))
+       [:h4 {:margin 0 :padding 0}]
+       [:a {:color "#261A3B"}]
+       [:a:visited {:color "#261A3B"}]))
 
 (def header-css
-  (css [:h1.project-name {:font-size "34px"
+  (css [:.header {:margin-top "30px"}]
+       [:h1.project-name {:font-size "34px"
                           :display "inline"}]
        [:h2.project-version {:font-size "18px"
                              :margin-top 0
@@ -250,9 +253,9 @@
            :color "#252519"}]
    [:h1 {:font-size "20px"
          :margin-top 0}]
-   [:.anchor {:text-decoration "none"
+   [:a.anchor {:text-decoration "none"
               :color "#252519"}]
-   [:.anchor:hover {:color "#5050A6"}]
+   [:a.anchor:hover {:color "#5050A6"}]
    [:table {:border-spacing 0
             :border-bottom "solid #ddd 1px;"
             :margin-bottom "10px"}]
@@ -274,7 +277,7 @@
                :border "none"
                :overflow "hidden"
                :font-size "10pt"
-               :border-left "solid #ddd 1px"}]
+               :border-left "solid #E5E5EE 1px"}]
    [:td.spacer {:padding-bottom "40px"}]
    [:.footer {:text-align "center"}]))
 
