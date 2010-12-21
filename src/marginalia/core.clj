@@ -66,9 +66,9 @@
      (end-of-block? cur-group groups lines)
      (recur (merge-line (first lines) {}) (conj groups cur-group) (rest lines))
 
-     :else (recur (merge-line (first lines) cur-group) groups (rest lines))
-     )))
+     :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))
 
+;; hacktastic
 (defn docstring-line? [line sections]
   (let [l (last sections)
         last-code-text (get l :code-text "")]
