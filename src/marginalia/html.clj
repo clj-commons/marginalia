@@ -192,6 +192,8 @@
      #_     (inline-js "app.js")
      [:script {:type "text/javascript" :src "./../resources/app.js"}]
      (inline-css "shCore.css")
+     (css
+      [:.syntaxhighlighter {:overflow "hidden !important"}])
      (inline-css "shThemeEclipse.css")
      (css
       [:html {:margin 0 :padding 0}]
