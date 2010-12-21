@@ -177,6 +177,107 @@
     [:td {:class "spacer docs"} "&nbsp;"]
     [:td {:class "codes"}]]))
 
+(def reset-css
+  (css [:html {:margin 0 :padding 0}]
+       [:h1 {:margin 0 :padding 0}]
+       [:h2 {:margin 0 :padding 0}]
+       [:h3 {:margin 0 :padding 0}]
+       [:h4 {:margin 0 :padding 0}]))
+
+(def header-css
+  (css [:h1.project-name {:font-size "34px"
+                          :display "inline"}]
+       [:h2.project-version {:font-size "18px"
+                             :margin-top 0
+                             :display "inline"
+                             :margin-left "10px"}]
+       [:.toc-link {:font-size "12px"
+                    :margin-left "10px"
+                    :color "#252519"
+                    :text-decoration "none"}]
+       [:.toc-link:hover {:color "#5050A6"}]
+       [:.toc :h1 {:font-size "34px"
+                   :margin 0}]
+       [:.docs-header {:border-bottom "dotted #aaa 1px"
+                       :padding-bottom "10px"
+                       :margin-bottom "25px"}]
+       [:.toc :h1 {:font-size "24px"}]
+       [:.toc {:border-bottom "solid #bbb 1px"
+               :margin-bottom "40px"}]
+       [:.toc :ul {:margin-left "20px"
+                   :padding-left "0px"
+                   :padding-top 0
+                   :margin-top 0}]
+       [:.toc :li {:list-style-type "none"
+                   :padding-left 0}]
+       [:.dependencies {}]
+       [:.dependencies :table {:font-size "16px"
+                               :width "99.99%"
+                               :border "none"
+                               :margin-left "20px"}]
+       [:.dependencies :td {:padding-right "20px;"
+                            :white-space "nowrap"}]
+       [:.dependencies :.dotted {:width "99%"}]
+       [:.dependencies :.dotted :hr {:height 0
+                                     :noshade "noshade"
+                                     :color "transparent"
+                                     :background-color "transparent"
+                                     :border-bottom "dotted #bbb 1px"
+                                     :border-top "none"
+                                     :border-left "none"
+                                     :border-right "none"
+                                     :margin-bottom "-6px"}]
+       [:.dependencies :.dep-version {:text-align "right"}]
+       [:.header :p {:margin-left "20px"}]))
+
+(def floating-toc-css
+  (css [:#floating-toc {:position "fixed"
+                        :top "10px"
+                        :right "20px"
+                        :height "20px"
+                        :overflow "hidden"
+                        :text-align "right"}]
+       [:#floating-toc :li {:list-style-type "none"
+                            :margin 0
+                            :padding 0}]))
+
+(def general-css
+  (css
+   [:body {:margin 0
+           :padding 0
+           :font-family "'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;"
+           :font-size "16px"
+           :color "#252519"}]
+   [:h1 {:font-size "20px"
+         :margin-top 0}]
+   [:.anchor {:text-decoration "none"
+              :color "#252519"}]
+   [:.anchor:hover {:color "#5050A6"}]
+   [:table {:border-spacing 0
+            :border-bottom "solid #ddd 1px;"
+            :margin-bottom "10px"}]
+   [:code {:display "inline"}]
+   [:p {:margin-top "8px"}]
+   [:tr {:margin "0px"
+         :padding "0px"}]
+   [:td.docs {:width "45%"
+              :vertical-align "top"
+              :margin "0px"
+              :padding-left "55px"
+              :padding-right "20px"
+              :border "none"}]
+   [:td.codes {:width "55%"
+               :background-color "#F5F5FF"
+               :vertical-align "top"
+               :margin "0px"
+               :padding-left "20px"
+               :border "none"
+               :overflow "hidden"
+               :font-size "10pt"
+               :border-left "solid #ddd 1px"}]
+   [:td.spacer {:padding-bottom "40px"}]
+   [:.footer {:text-align "center"}]))
+
 (defn page-template [header toc floating-toc content]
   "Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
    & `inline-css`) to be able to package the output as a single file (uberdoc if you will).  It goes without
@@ -189,105 +290,16 @@
      (inline-js "xregexp-min.js")
      (inline-js "shCore.js")
      (inline-js "shBrushClojure.js")
-     #_     (inline-js "app.js")
-     [:script {:type "text/javascript" :src "./../resources/app.js"}]
+     (inline-js "app.js")
+     #_[:script {:type "text/javascript" :src "./../resources/app.js"}]
      (inline-css "shCore.css")
      (css
       [:.syntaxhighlighter {:overflow "hidden !important"}])
      (inline-css "shThemeEclipse.css")
-     (css
-      [:html {:margin 0 :padding 0}]
-      [:h1 {:margin 0 :padding 0}]
-      [:h2 {:margin 0 :padding 0}]
-      [:h3 {:margin 0 :padding 0}]
-      [:h4 {:margin 0 :padding 0}]
-            
-      [:body {:margin 0
-              :padding 0
-              :font-family "'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;"
-              :font-size "16px"
-              :color "#252519"}]
-      [:.toc-link {:font-size "12px"
-                   :margin-left "10px"
-                   :color "#252519"
-                   :text-decoration "none"}]
-      [:.toc-link:hover {:color "#5050A6"}]
-      [:.docs-header {:border-bottom "dotted #aaa 1px"
-                      :padding-bottom "10px"
-                      :margin-bottom "25px"}]
-      [:.anchor {:text-decoration "none"
-                 :color "#252519"}]
-      [:.anchor:hover {:color "#5050A6"}]
-      [:.toc :h1 {:font-size "34px"
-                  :margin 0}]
-      [:h1 {:font-size "20px"
-            :margin-top 0}]
-      [:h1.project-name {:font-size "34px"
-                         :display "inline"}]
-      [:h2.project-version {:font-size "18px"
-                            :margin-top 0
-                            :display "inline"
-                            :margin-left "10px"}]
-      [:table {:border-spacing 0
-               :border-bottom "solid #ddd 1px;"
-               :margin-bottom "10px"}]
-      [:code {:display "inline"}]
-      [:p {:margin-top "8px"}]
-      [:tr {:margin "0px"
-            :padding "0px"}]
-      [:td.docs {:width "45%"
-                 :vertical-align "top"
-                 :margin "0px"
-                 :padding-left "55px"
-                 :padding-right "20px"
-                 :border "none"}]
-      [:td.codes {:width "55%"
-                  :background-color "#F5F5FF"
-                  :vertical-align "top"
-                  :margin "0px"
-                  :padding-left "20px"
-                  :border "none"
-                  :overflow "hidden"
-                  :font-size "10pt"
-                  :border-left "solid #ddd 1px"}]
-      [:td.spacer {:padding-bottom "40px"}]
-      [:.toc :h1 {:font-size "24px"}]
-      [:.toc {:border-bottom "solid #bbb 1px"
-              :margin-bottom "40px"}]
-      [:.toc :ul {:margin-left "20px"
-                  :padding-left "0px"
-                  :padding-top 0
-                  :margin-top 0}]
-      [:.toc :li {:list-style-type "none"
-                  :padding-left 0}]
-      [:.footer {:text-align "center"}]
-      [:#floating-toc {:position "fixed"
-                       :top "10px"
-                       :right "20px"
-                       :height "20px"
-                       :overflow "hidden"}]
-      [:#floating-toc :li {:list-style-type "none"
-                           :margin 0
-                           :padding 0}]
-      [:.dependencies {}]
-      [:.dependencies :table {:font-size "16px"
-                              :width "99.99%"
-                              :border "none"
-                              :margin-left "20px"}]
-      [:.dependencies :td {:padding-right "20px;"
-                           :white-space "nowrap"}]
-      [:.dependencies :.dotted {:width "99%"}]
-      [:.dependencies :.dotted :hr {:height 0
-                                    :noshade "noshade"
-                                    :color "transparent"
-                                    :background-color "transparent"
-                                    :border-bottom "dotted #bbb 1px"
-                                    :border-top "none"
-                                    :border-left "none"
-                                    :border-right "none"
-                                    :margin-bottom "-6px"}]
-      [:.dependencies :.dep-version {:text-align "right"}]
-      [:.header :p {:margin-left "20px"}])
+     reset-css
+     header-css
+     floating-toc-css
+     general-css
      [:title "Marginalia Output"]]
     [:body
      [:table
@@ -305,9 +317,6 @@
      [:script {:type "text/javascript"}
       "SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()"]]]))
-
-
-
 
 
 ;; Syntax highlighting is done a bit differently than docco.  Instead of embedding

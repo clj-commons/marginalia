@@ -6,6 +6,7 @@
   (:use [marginalia.html :only (uberdoc-html)]
         [clojure.contrib.find-namespaces :only (read-file-ns-decl)]))
 
+
 (def *test* "./src/cljojo/core.clj")
 (def *docs* "docs")
 (def *comment* #"^\s*;;\s?")
@@ -141,7 +142,7 @@
         (recur more
                cnum
                (inc dnum)
-               (conj sections {:docs-text (str (str/replace line *comment* "")) :line (+ cnum (dec dnum))}))
+               (conj sections {:docs-text (str (str/replace line *comment* "")) :line (+ cnum dnum)}))
         (recur more
                (inc cnum)
                0
@@ -207,7 +208,7 @@
       (println "Done generating your docs, please see ./docs/marg.html")
       (println))))
 
-(-main (find-clojure-file-paths "./src"))
+#_(-main (find-clojure-file-paths "./src"))
 
 
 ;; # Example Usage
