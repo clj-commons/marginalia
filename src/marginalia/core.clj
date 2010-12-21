@@ -1,17 +1,10 @@
 (ns marginalia.core
-<<<<<<< HEAD
-  (:require [clojure.java.io :as io]
-            [clojure.string  :as str])
-  (:use [marginalia.aux :only [*css* *html*]]))
-=======
   "**Core** provides all of the functionality around parsing clojure source files
    into an easily consumable format."
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
   (:use [marginalia.html :only (uberdoc-html)]
         [clojure.contrib.find-namespaces :only (read-file-ns-decl)]))
->>>>>>> 98b945524be561829eee56c4eeaa3ee6a072f6f9
-
 
 (def *test* "./src/cljojo/core.clj")
 (def *docs* "docs")
@@ -150,17 +143,11 @@
                (inc dnum)
                (conj sections {:docs-text (str (str/replace line *comment* "")) :line (+ cnum (dec dnum))}))
         (recur more
-<<<<<<< HEAD
-               (+ dnum cnum)
-               1
-               (conj sections {:code-text (str line) :line cnum})))
-=======
                (inc cnum)
                0
                (if (docstring-line? (str line) sections)
                  (conj sections {:docstring-text (str line) :line cnum})
                  (conj sections {:code-text (str line) :line cnum}))))
->>>>>>> 98b945524be561829eee56c4eeaa3ee6a072f6f9
       sections)))
 
 
