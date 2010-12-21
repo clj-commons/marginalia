@@ -6,7 +6,7 @@ Marginalia
 To get a quick look at what marginalia output looks like:
 
 1. `git clone https://github.com/fogus/marginalia.git`
-2. `open ./marginalia/example-output/uberdoc.html`
+2. `open ./marginalia/example-output/uberdoc.html` (or [look here](http://fogus.me/fun/marginalia/))
 
 
 TODO
