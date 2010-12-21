@@ -2077,7 +2077,101 @@ SyntaxHighlighter.brushes.Clojure.prototype = new SyntaxHighlighter.Highlighter(
 SyntaxHighlighter.brushes.Clojure.aliases   = ['clojure', 'Clojure', 'clj'];
 
 // vim: ts=2 sw=2 noet
-</script><script src="./../resources/app.js" type="text/javascript"></script><style type="text/css">/**
+</script><script type="text/javascript">
+// hackity-hack
+
+$(document).ready(function() {
+    var ft = $("#floating-toc")
+    var ul = ft.find('ul')
+    var lis = ft.find('li')
+
+    ul.css('maring', '0px')
+
+    var liHeight = $(lis.get(0)).height()
+
+    ft.css('height', (liHeight) + 'px')
+
+
+    showNs = function(ns) {
+        //this is killing performance, lookup table.
+        //var el = $("[id='floating-toc_" + ns + "']")
+        //var index = lis.index(el)
+
+        var index = 0
+
+        for(i in nsPositions.nss) {
+            if(ns == nsPositions.nss[i]) index = i
+        }
+
+        console.log(index)
+
+        if(index == lastNsIndex) return;
+
+        lastNsIndex = index
+
+
+        ul.animate({marginTop: (-1 * liHeight * index) + 'px'},
+               300)
+        //        ul.css('margin-top', (-1 * liHeight * index) + 'px')
+
+    }
+
+    var calcNsPositions = function() {
+        var nss = []
+        var anchors = []
+        var positions = []
+        $.each(lis, function(i, el) {
+            var ns = $(el).attr('id').split('_')[1]
+            nss.push(ns)
+            var a = $("a[name='"+ns+"']")
+            anchors.push(a)
+            positions.push(a.offset().top)
+            console.log(a.offset().top)
+        });
+
+        return {nss: nss, positions: positions}
+    }
+
+    var nsPositions = calcNsPositions()
+
+    console.log(nsPositions)
+
+    var lastNsIndex = -1
+
+    var $window = $(window)
+
+    var currentSection = function(nsp) {
+
+        var ps = nsp.positions
+        var nss = nsp.nss
+        var scroll = $window.scrollTop() + 300
+        var nsIndex = -1
+        for(var i in ps) {
+            var p = ps[i]
+            if(p >= scroll) {
+                nsIndex = i-1
+                break;
+            }
+                
+        }
+
+        if(nsIndex == -1 && scroll >= ps[0]) {
+            nsIndex = ps.length-1
+        }
+
+        if(nsIndex == -1) nsIndex = 0
+
+        return nss[nsIndex]
+    }
+
+    $(window).scroll(function(e) {
+        showNs(currentSection(nsPositions))
+    })
+
+    ul.css('margin-top', '0px')
+
+})
+</script><style type="text/css">/**
  * SyntaxHighlighter
  * http://alexgorbatchev.com/SyntaxHighlighter
  *
@@ -2431,7 +2525,7 @@ SyntaxHighlighter.brushes.Clojure.aliases   = ['clojure', 'Clojure', 'clj'];
   font-style: italic !important;
   color: #2a00ff !important;
 }
-</style><style type="text/css">html{margin:0;padding:0;}h1{margin:0;padding:0;}h2{margin:0;padding:0;}h3{margin:0;padding:0;}h4{margin:0;padding:0;}body{margin:0;padding:0;font-family:'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;;font-size:16px;color:#252519;}.toc-link{font-size:12px;margin-left:10px;color:#252519;text-decoration:none;}.toc-link:hover{color:#5050A6;}.docs-header{border-bottom:dotted #aaa 1px;padding-bottom:10px;margin-bottom:25px;}.anchor{text-decoration:none;color:#252519;}.anchor:hover{color:#5050A6;}.toc h1{font-size:34px;margin:0;}h1{font-size:20px;margin-top:0;}h1.project-name{font-size:34px;display:inline;}h2.project-version{font-size:18px;margin-top:0;display:inline;margin-left:10px;}table{border-spacing:0;border-bottom:solid #ddd 1px;;margin-bottom:10px;}code{display:inline;}p{margin-top:8px;}tr{margin:0px;padding:0px;}td.docs{width:45%;vertical-align:top;margin:0px;padding-left:55px;padding-right:20px;border:none;}td.codes{border:none;margin:0px;padding-left:20px;width:55%;border-left:solid #ddd 1px;font-size:10pt;vertical-align:top;overflow:hidden;background-color:#F5F5FF;}td.spacer{padding-bottom:40px;}.toc h1{font-size:24px;}.toc{border-bottom:solid #bbb 1px;margin-bottom:40px;}.toc ul{margin-left:20px;padding-left:0px;padding-top:0;margin-top:0;}.toc li{list-style-type:none;padding-left:0;}.footer{text-align:center;}#floating-toc{position:fixed;top:10px;right:20px;height:20px;overflow:hidden;}#floating-toc li{list-style-type:none;margin:0;padding:0;}.dependencies{}.dependencies table{font-size:16px;width:99.99%;border:none;margin-left:20px;}.dependencies td{padding-right:20px;;white-space:nowrap;}.dependencies .dotted{width:99%;}.dependencies .dotted hr{margin-bottom:-6px;noshade:noshade;border-top:none;color:transparent;border-left:none;border-bottom:dotted #bbb 1px;border-right:none;background-color:transparent;height:0;}.dependencies .dep-version{text-align:right;}.header p{margin-left:20px;}</style><title>Marginalia Output</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">marginalia</h1><h2 class="project-version">0.0.1</h2><br /><p>A port of <a href="http://jashkenas.github.com/docco/">Docco</a> to Clojure.</p>
+</style><style type="text/css">html{margin:0;padding:0;}h1{margin:0;padding:0;}h2{margin:0;padding:0;}h3{margin:0;padding:0;}h4{margin:0;padding:0;}</style><style type="text/css">h1.project-name{font-size:34px;display:inline;}h2.project-version{font-size:18px;margin-top:0;display:inline;margin-left:10px;}.toc-link{font-size:12px;margin-left:10px;color:#252519;text-decoration:none;}.toc-link:hover{color:#5050A6;}.toc h1{font-size:34px;margin:0;}.docs-header{border-bottom:dotted #aaa 1px;padding-bottom:10px;margin-bottom:25px;}.toc h1{font-size:24px;}.toc{border-bottom:solid #bbb 1px;margin-bottom:40px;}.toc ul{margin-left:20px;padding-left:0px;padding-top:0;margin-top:0;}.toc li{list-style-type:none;padding-left:0;}.dependencies{}.dependencies table{font-size:16px;width:99.99%;border:none;margin-left:20px;}.dependencies td{padding-right:20px;;white-space:nowrap;}.dependencies .dotted{width:99%;}.dependencies .dotted hr{margin-bottom:-6px;noshade:noshade;border-top:none;color:transparent;border-left:none;border-bottom:dotted #bbb 1px;border-right:none;background-color:transparent;height:0;}.dependencies .dep-version{text-align:right;}.header p{margin-left:20px;}</style><style type="text/css">#floating-toc{position:fixed;top:10px;right:20px;height:20px;overflow:hidden;text-align:right;}#floating-toc li{list-style-type:none;margin:0;padding:0;}</style><style type="text/css">body{margin:0;padding:0;font-family:'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;;font-size:16px;color:#252519;}h1{font-size:20px;margin-top:0;}.anchor{text-decoration:none;color:#252519;}.anchor:hover{color:#5050A6;}table{border-spacing:0;border-bottom:solid #ddd 1px;;margin-bottom:10px;}code{display:inline;}p{margin-top:8px;}tr{margin:0px;padding:0px;}td.docs{width:45%;vertical-align:top;margin:0px;padding-left:55px;padding-right:20px;border:none;}td.codes{border:none;margin:0px;padding-left:20px;width:55%;border-left:solid #ddd 1px;font-size:10pt;vertical-align:top;overflow:hidden;background-color:#F5F5FF;}td.spacer{padding-bottom:40px;}.footer{text-align:center;}</style><title>Marginalia Output</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">marginalia</h1><h2 class="project-version">0.1.0</h2><br /><p>lightweight literate programming for clojure -- inspired by <a href="http://jashkenas.github.com/docco/">docco</a></p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr><tr><td class="dep-name">org.clojars.nakkaya/markdownj</td><td class="dotted"><hr /></td><td class="dep-version">1.0.2b4</td></tr><tr><td class="dep-name">hiccup</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-clojars</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0-SNAPSHOT</td></tr><tr><td class="dep-name">jline</td><td class="dotted"><hr /></td><td class="dep-version">0.9.94</td></tr><tr><td class="dep-name">swank-clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666"><br /><br /><br />(this space intentionally left blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#marginalia.core">marginalia.core</a></li><li><a href="#marginalia.dev-helper">marginalia.dev-helper</a></li><li><a href="#marginalia.html">marginalia.html</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#marginalia.core" name="marginalia.core"><h1 class="project-name">marginalia.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p><strong>Core</strong> provides all of the functionality around parsing clojure source files
 into an easily consumable format.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns marginalia.core
@@ -2819,7 +2913,108 @@ outlined above.</p>
    (map group-to-html (:groups doc))
    [:tr
     [:td {:class &quot;spacer docs&quot;} &quot;&amp;nbsp;&quot;]
-    [:td {:class &quot;codes&quot;}]]))</pre></td></tr><tr><td class="docs"><p>Notice that we're inlining the css &amp; javascript for <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a> (<code>inline-js</code>
+    [:td {:class &quot;codes&quot;}]]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(def reset-css
+  (css [:html {:margin 0 :padding 0}]
+       [:h1 {:margin 0 :padding 0}]
+       [:h2 {:margin 0 :padding 0}]
+       [:h3 {:margin 0 :padding 0}]
+       [:h4 {:margin 0 :padding 0}]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(def header-css
+  (css [:h1.project-name {:font-size &quot;34px&quot;
+                          :display &quot;inline&quot;}]
+       [:h2.project-version {:font-size &quot;18px&quot;
+                             :margin-top 0
+                             :display &quot;inline&quot;
+                             :margin-left &quot;10px&quot;}]
+       [:.toc-link {:font-size &quot;12px&quot;
+                    :margin-left &quot;10px&quot;
+                    :color &quot;#252519&quot;
+                    :text-decoration &quot;none&quot;}]
+       [:.toc-link:hover {:color &quot;#5050A6&quot;}]
+       [:.toc :h1 {:font-size &quot;34px&quot;
+                   :margin 0}]
+       [:.docs-header {:border-bottom &quot;dotted #aaa 1px&quot;
+                       :padding-bottom &quot;10px&quot;
+                       :margin-bottom &quot;25px&quot;}]
+       [:.toc :h1 {:font-size &quot;24px&quot;}]
+       [:.toc {:border-bottom &quot;solid #bbb 1px&quot;
+               :margin-bottom &quot;40px&quot;}]
+       [:.toc :ul {:margin-left &quot;20px&quot;
+                   :padding-left &quot;0px&quot;
+                   :padding-top 0
+                   :margin-top 0}]
+       [:.toc :li {:list-style-type &quot;none&quot;
+                   :padding-left 0}]
+       [:.dependencies {}]
+       [:.dependencies :table {:font-size &quot;16px&quot;
+                               :width &quot;99.99%&quot;
+                               :border &quot;none&quot;
+                               :margin-left &quot;20px&quot;}]
+       [:.dependencies :td {:padding-right &quot;20px;&quot;
+                            :white-space &quot;nowrap&quot;}]
+       [:.dependencies :.dotted {:width &quot;99%&quot;}]
+       [:.dependencies :.dotted :hr {:height 0
+                                     :noshade &quot;noshade&quot;
+                                     :color &quot;transparent&quot;
+                                     :background-color &quot;transparent&quot;
+                                     :border-bottom &quot;dotted #bbb 1px&quot;
+                                     :border-top &quot;none&quot;
+                                     :border-left &quot;none&quot;
+                                     :border-right &quot;none&quot;
+                                     :margin-bottom &quot;-6px&quot;}]
+       [:.dependencies :.dep-version {:text-align &quot;right&quot;}]
+       [:.header :p {:margin-left &quot;20px&quot;}]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(def floating-toc-css
+  (css [:#floating-toc {:position &quot;fixed&quot;
+                        :top &quot;10px&quot;
+                        :right &quot;20px&quot;
+                        :height &quot;20px&quot;
+                        :overflow &quot;hidden&quot;
+                        :text-align &quot;right&quot;}]
+       [:#floating-toc :li {:list-style-type &quot;none&quot;
+                            :margin 0
+                            :padding 0}]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(def general-css
+  (css
+   [:body {:margin 0
+           :padding 0
+           :font-family &quot;'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;&quot;
+           :font-size &quot;16px&quot;
+           :color &quot;#252519&quot;}]
+   [:h1 {:font-size &quot;20px&quot;
+         :margin-top 0}]
+   [:.anchor {:text-decoration &quot;none&quot;
+              :color &quot;#252519&quot;}]
+   [:.anchor:hover {:color &quot;#5050A6&quot;}]
+   [:table {:border-spacing 0
+            :border-bottom &quot;solid #ddd 1px;&quot;
+            :margin-bottom &quot;10px&quot;}]
+   [:code {:display &quot;inline&quot;}]
+   [:p {:margin-top &quot;8px&quot;}]
+   [:tr {:margin &quot;0px&quot;
+         :padding &quot;0px&quot;}]
+   [:td.docs {:width &quot;45%&quot;
+              :vertical-align &quot;top&quot;
+              :margin &quot;0px&quot;
+              :padding-left &quot;55px&quot;
+              :padding-right &quot;20px&quot;
+              :border &quot;none&quot;}]
+   [:td.codes {:width &quot;55%&quot;
+               :background-color &quot;#F5F5FF&quot;
+               :vertical-align &quot;top&quot;
+               :margin &quot;0px&quot;
+               :padding-left &quot;20px&quot;
+               :border &quot;none&quot;
+               :overflow &quot;hidden&quot;
+               :font-size &quot;10pt&quot;
+               :border-left &quot;solid #ddd 1px&quot;}]
+   [:td.spacer {:padding-bottom &quot;40px&quot;}]
+   [:.footer {:text-align &quot;center&quot;}]))</pre></td></tr><tr><td class="docs"><p>Notice that we're inlining the css &amp; javascript for <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a> (<code>inline-js</code>
 &amp; <code>inline-css</code>) to be able to package the output as a single file (uberdoc if you will).  It goes without
 saying that all this is WIP and will prabably change in the future.</p>
 </td><td class="codes"><pre class="brush: clojure">
@@ -2832,103 +3027,14 @@ saying that all this is WIP and will prabably change in the future.</p>
      (inline-js &quot;xregexp-min.js&quot;)
      (inline-js &quot;shCore.js&quot;)
      (inline-js &quot;shBrushClojure.js&quot;)
-     #_     (inline-js &quot;app.js&quot;)
-     [:script {:type &quot;text/javascript&quot; :src &quot;./../resources/app.js&quot;}]
+     (inline-js &quot;app.js&quot;)
+     #_[:script {:type &quot;text/javascript&quot; :src &quot;./../resources/app.js&quot;}]
      (inline-css &quot;shCore.css&quot;)
      (inline-css &quot;shThemeEclipse.css&quot;)
-     (css
-      [:html {:margin 0 :padding 0}]
-      [:h1 {:margin 0 :padding 0}]
-      [:h2 {:margin 0 :padding 0}]
-      [:h3 {:margin 0 :padding 0}]
-      [:h4 {:margin 0 :padding 0}]
-            
-      [:body {:margin 0
-              :padding 0
-              :font-family &quot;'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;&quot;
-              :font-size &quot;16px&quot;
-              :color &quot;#252519&quot;}]
-      [:.toc-link {:font-size &quot;12px&quot;
-                   :margin-left &quot;10px&quot;
-                   :color &quot;#252519&quot;
-                   :text-decoration &quot;none&quot;}]
-      [:.toc-link:hover {:color &quot;#5050A6&quot;}]
-      [:.docs-header {:border-bottom &quot;dotted #aaa 1px&quot;
-                      :padding-bottom &quot;10px&quot;
-                      :margin-bottom &quot;25px&quot;}]
-      [:.anchor {:text-decoration &quot;none&quot;
-                 :color &quot;#252519&quot;}]
-      [:.anchor:hover {:color &quot;#5050A6&quot;}]
-      [:.toc :h1 {:font-size &quot;34px&quot;
-                  :margin 0}]
-      [:h1 {:font-size &quot;20px&quot;
-            :margin-top 0}]
-      [:h1.project-name {:font-size &quot;34px&quot;
-                         :display &quot;inline&quot;}]
-      [:h2.project-version {:font-size &quot;18px&quot;
-                            :margin-top 0
-                            :display &quot;inline&quot;
-                            :margin-left &quot;10px&quot;}]
-      [:table {:border-spacing 0
-               :border-bottom &quot;solid #ddd 1px;&quot;
-               :margin-bottom &quot;10px&quot;}]
-      [:code {:display &quot;inline&quot;}]
-      [:p {:margin-top &quot;8px&quot;}]
-      [:tr {:margin &quot;0px&quot;
-            :padding &quot;0px&quot;}]
-      [:td.docs {:width &quot;45%&quot;
-                 :vertical-align &quot;top&quot;
-                 :margin &quot;0px&quot;
-                 :padding-left &quot;55px&quot;
-                 :padding-right &quot;20px&quot;
-                 :border &quot;none&quot;}]
-      [:td.codes {:width &quot;55%&quot;
-                  :background-color &quot;#F5F5FF&quot;
-                  :vertical-align &quot;top&quot;
-                  :margin &quot;0px&quot;
-                  :padding-left &quot;20px&quot;
-                  :border &quot;none&quot;
-                  :overflow &quot;hidden&quot;
-                  :font-size &quot;10pt&quot;
-                  :border-left &quot;solid #ddd 1px&quot;}]
-      [:td.spacer {:padding-bottom &quot;40px&quot;}]
-      [:.toc :h1 {:font-size &quot;24px&quot;}]
-      [:.toc {:border-bottom &quot;solid #bbb 1px&quot;
-              :margin-bottom &quot;40px&quot;}]
-      [:.toc :ul {:margin-left &quot;20px&quot;
-                  :padding-left &quot;0px&quot;
-                  :padding-top 0
-                  :margin-top 0}]
-      [:.toc :li {:list-style-type &quot;none&quot;
-                  :padding-left 0}]
-      [:.footer {:text-align &quot;center&quot;}]
-      [:#floating-toc {:position &quot;fixed&quot;
-                       :top &quot;10px&quot;
-                       :right &quot;20px&quot;
-                       :height &quot;20px&quot;
-                       :overflow &quot;hidden&quot;}]
-      [:#floating-toc :li {:list-style-type &quot;none&quot;
-                           :margin 0
-                           :padding 0}]
-      [:.dependencies {}]
-      [:.dependencies :table {:font-size &quot;16px&quot;
-                              :width &quot;99.99%&quot;
-                              :border &quot;none&quot;
-                              :margin-left &quot;20px&quot;}]
-      [:.dependencies :td {:padding-right &quot;20px;&quot;
-                           :white-space &quot;nowrap&quot;}]
-      [:.dependencies :.dotted {:width &quot;99%&quot;}]
-      [:.dependencies :.dotted :hr {:height 0
-                                    :noshade &quot;noshade&quot;
-                                    :color &quot;transparent&quot;
-                                    :background-color &quot;transparent&quot;
-                                    :border-bottom &quot;dotted #bbb 1px&quot;
-                                    :border-top &quot;none&quot;
-                                    :border-left &quot;none&quot;
-                                    :border-right &quot;none&quot;
-                                    :margin-bottom &quot;-6px&quot;}]
-      [:.dependencies :.dep-version {:text-align &quot;right&quot;}]
-      [:.header :p {:margin-left &quot;20px&quot;}])
+     reset-css
+     header-css
+     floating-toc-css
+     general-css
      [:title &quot;Marginalia Output&quot;]]
     [:body
      [:table
@@ -2946,9 +3052,6 @@ saying that all this is WIP and will prabably change in the future.</p>
      [:script {:type &quot;text/javascript&quot;}
       &quot;SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()&quot;]]]))
-
-
-
 </pre></td></tr><tr><td class="docs"><p>Syntax highlighting is done a bit differently than docco.  Instead of embedding
 the higlighting metadata on the parse / html gen phase, we use <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
 to do it in javascript.</p>
