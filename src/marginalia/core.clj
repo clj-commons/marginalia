@@ -51,7 +51,7 @@
 ;; Marginalia will parse info out of your project.clj to display in
 ;; the generated html file's header.
 ;;
-;; TODO: add pom.xml support.
+;; ![TODO](http://images.fogus.me/badges/todo.png "POM") add pom.xml support.
 
 
 
