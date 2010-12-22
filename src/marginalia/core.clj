@@ -146,7 +146,7 @@
 
 (defn parse [src]
   (loop [[line & more] (line-seq src) cnum 1 dnum 0 sections []]
-    (if more
+    (if line
       (if (re-find *comment* line)
         (recur more
                cnum
