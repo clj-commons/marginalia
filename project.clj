@@ -11,4 +11,6 @@
      ;;Needed for testing lein plugin
      [hiccup "0.3.0"]
      [org.clojars.nakkaya/markdownj "1.0.2b4"]
-     [marginalia "0.1.1"]])
+     [marginalia "0.1.1"]]
+  ;;Needed for testing cake plugin
+  :tasks [marginalia.tasks])

@@ -1,5 +1,6 @@
 docs
 .DS_Store
+.cake
 pom.xml
 *jar
 lib
