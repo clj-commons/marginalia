@@ -43,13 +43,17 @@
 ;;
 ;; TODO: add pom.xml support.
 
+
+
+
 (defn parse-project-file
   "Parses a project.clj file and returns a map in the following form:
-   ex. {:name 
-        :version
-        :dependencies
-        :dev-dependencies
-        etc...}
+
+       ex. {:name 
+            :version
+            :dependencies
+            :dev-dependencies
+            etc...}
 
    Basically, it reads a `defproject` to obtain name and version, then
    merges the rest of the defproject forms (a key value list)."
@@ -64,9 +68,10 @@
                   :version (nth project-form 2)}
                  (apply hash-map (drop 3 project-form))))
         (catch Exception e
-          (throw (Exception. (str "There was a problem reading the project definition from " path)))))))
-
-#_(println (read-project-file "./project.clj"))
+          (throw (Exception.
+                  (str
+                   "There was a problem reading the project definition from "
+                   path)))))))
 
 (defn usage []
   (println "marginalia <src1> ... <src-n>"))
@@ -107,7 +112,7 @@
 
      :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))
 
-;; hacktastic, these ad-hoc checks should be replaced with something
+;; Hacktastic, these ad-hoc checks should be replaced with something
 ;; more robust.
 (defn docstring-line? [line sections]
   (let [l (last sections)
@@ -124,7 +129,7 @@
             (re-find #"^\"" (str/trim (str line))))
        ;; Is the prev line a docstring line, the current line _not_
        ;; start with a ( or [, and the current line not an empty string?
-       (and (:docstring-text l)
+       (and (:docstring-text wl)
             (not (re-find #"^\(" (str/trim (str line))))
             (not (re-find #"^\[" (str/trim (str line))))
             (not= "" (str/trim (str line))))
@@ -186,8 +191,14 @@
    2. Project metadata obtained from `parse-project-file`.
    3. The path to spit the result (`output-file-name`)"
   (let [docs (map path-to-doc files-to-analyze)
-        source (uberdoc-html output-file-name (parse-project-file) (map path-to-doc files-to-analyze))]
+        source (uberdoc-html
+                output-file-name
+                (parse-project-file)
+                (map path-to-doc files-to-analyze))]
     (spit output-file-name source)))
+
+(use 'clojure.pprint)
+(pprint (path-to-doc "./src/marginalia/core.clj"))
 
 
 (defn -main [sources]
@@ -205,11 +216,8 @@
       (println)
       (ensure-directory! "./docs")
       (uberdoc! "./docs/uberdoc.html" sources)
-      (println "Done generating your docs, please see ./docs/marg.html")
+      (println "Done generating your docs, please see ./docs/uberdoc.html")
       (println))))
-
-#_(-main (find-clojure-file-paths "./src"))
-
 
 ;; # Example Usage
 (comment

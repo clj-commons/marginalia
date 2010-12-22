@@ -2,10 +2,14 @@
   "# Utilities for converting parse results into html.
    ## Plus a few other goodies.
 
+       Here's a random code block (println \"hi!\")
+
    Like I said:
 
    * utils for docs -> html
-   * other goodies"
+   * other goodies
+
+   hello world"
   (:use [hiccup.core :only (html escape-html)]
         [hiccup.page-helpers :only (doctype)])
   (:require [clojure.string :as str])
@@ -21,8 +25,8 @@
 (defn css [& rules]
   "Quick and dirty dsl for inline css rules, similar to hiccup.
 
-   ex. (css [:h1 {:color \"blue\"}] [:div.content p {:text-indent \"1em\"}])
-   -> h1 {color: blue;} div.content p {text-indent: 1em;}"
+   ex. `(css [:h1 {:color \"blue\"}] [:div.content p {:text-indent \"1em\"}])`
+   -> `h1 {color: blue;} div.content p {text-indent: 1em;}`"
   (html [:style {:type "text/css"}
          (apply str (map css-rule rules))]))
 
@@ -65,14 +69,6 @@
    -> \"<h1>header!</h1>"
   (.markdown mdp s))
 
-(defn remove-leading-trailing-quote
-  "Used in docstring pre-processing to remove the leading and trailing `\"` characters."
-  [s]
-  (-> s
-      (str/trim)
-      (str/replace #"\"$" "")
-      (str/replace #"^\"" "")))
-
 (defn replace-special-chars
   "Inserts those fancy ->'s into doc sections."
   [s]
@@ -81,10 +77,24 @@
 ;; As a result of docifying then grouping, you'll end up with a seq like this one:
 ;;
 ;;     [{:docs [{:docs-text "Some doc text"}]
-;;      :codes [{code-text "(def something \"hi\")"}]}]
+;;       :codes [{:code-text "(def something \"hi\")"}]}]
 ;;
 ;; `docs-to-html` and `codes-to-html` convert their respective entries into html,
 ;; and `group-to-html` calls them on each seq item to do so.
+
+(defn prep-docs-text [s] s)
+
+(defn prep-docstring-text [s]
+  (-> s
+      (str/replace #"\\\"" "\"")
+      (str/replace #"^\s\s\"" "")
+      (str/replace #"^\s\s\s" "")
+      (str/replace #"\"$" "")
+      ;; Don't escape code blocks
+      ((fn [t]
+         (if (re-find #"^\s\s\s\s" t)
+           t
+           (escape-html t))))))
 
 
 (defn docs-to-html
@@ -96,17 +106,22 @@
    "
   [docs]
   (->> docs
-       (map #(or (:docs-text %)
-                 (str/replace (:docstring-text %) #"\\\"" "\"")))
-       (map remove-leading-trailing-quote)
-       (map escape-html)
+       (map #(if (:docs-text %)
+               (prep-docs-text (:docs-text %))
+               (prep-docstring-text (:docstring-text %))))
        (map replace-special-chars)
        (interpose "\n")
        (apply str)
        (md)))
 
+
 (defn codes-to-html [codes]
-  (html [:pre {:class "brush: clojure"} (apply str (interpose "\n" (map escape-html (map :code-text codes))))]))
+  (html [:pre {:class "brush: clojure"}
+         (->> codes
+              (map :code-text)
+              (map escape-html)
+              (interpose "\n")
+              (apply str))]))
 
 (defn group-to-html [group]
   (html
@@ -159,7 +174,10 @@
 (defn floating-toc-html [docs]
   [:div {:id "floating-toc"}
    [:ul
-    (map #(vector :li {:class "floating-toc-li" :id (str "floating-toc_" (:ns %))} (:ns %)) docs)]])
+    (map #(vector :li {:class "floating-toc-li"
+                       :id (str "floating-toc_" (:ns %))}
+                  (:ns %))
+         docs)]])
 
 (defn groups-html [doc]
   (html 
@@ -263,12 +281,15 @@
    [:p {:margin-top "8px"}]
    [:tr {:margin "0px"
          :padding "0px"}]
-   [:td.docs {:width "45%"
+   [:td.docs {:width "410px"
+              :max-width "410px"
               :vertical-align "top"
               :margin "0px"
               :padding-left "55px"
               :padding-right "20px"
               :border "none"}]
+   [:td.docs :pre {:font-size "12px"
+                   :overflow "hidden"}]
    [:td.codes {:width "55%"
                :background-color "#F5F5FF"
                :vertical-align "top"
@@ -279,6 +300,14 @@
                :font-size "10pt"
                :border-left "solid #E5E5EE 1px"}]
    [:td.spacer {:padding-bottom "40px"}]
+   [:pre :code {:display "block"
+                :padding "4px"}]
+   [:code {:background-color "ghostWhite"
+           :border "solid #DEDEDE 1px"
+           :padding-left "3px"
+           :padding-right "3px"
+           :font-size "14px"}]
+   [:.syntaxhighlighter :code {:font-size "13px"}]
    [:.footer {:text-align "center"}]))
 
 (defn page-template [header toc floating-toc content]
