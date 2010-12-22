@@ -16,6 +16,9 @@
 ;; ## File System Utilities
 
 (defn ls
+  "Performs roughly the same task as the UNIX `ls`.  That is, returns a seq of the filenames
+   at a given directory.  If a path to a file is supplied, then the seq contains only the
+   original path given."
   [path]
   (let [file (java.io.File. path)]
     (if (.isDirectory file)
@@ -26,7 +29,10 @@
 (defn mkdir [path]
   (.mkdirs (io/file path)))
 
-(defn ensure-directory! [path]
+(defn ensure-directory!
+  "Ensure that the directory specified by `path` exists.  If not then make it so.
+   Here is a snowman ☃"
+  [path]
   (when-not (ls path)
     (mkdir path)))
 
