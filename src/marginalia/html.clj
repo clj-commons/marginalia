@@ -135,6 +135,13 @@
                          [:td {:class "dep-version"} (second %)]])
                  deps)]])))
 
+(defn cake-plugins-html [tasks]
+  (when tasks
+    (html [:div {:class "plugins"}
+           [:h3 "cake plugin namespaces"]
+           [:ul
+            (map #(vector :li %) tasks)]])))
+
 ;; Is <h1/> overloaded?  Maybe we should consider redistributing
 ;; header numbers instead of adding classes to all the h1 tags.
 (defn header-html [project-info]
@@ -147,7 +154,8 @@
       [:br]
       (md (:description project-info))]
      (dependencies-html (:dependencies project-info))
-     (dependencies-html (:dev-dependencies project-info) "dev dependencies")]
+     (dependencies-html (:dev-dependencies project-info) "dev dependencies")
+     (cake-plugins-html (:tasks project-info))]
     [:td {:class "codes"
           :style "text-align: center; vertical-align: middle;color: #666;padding-right:20px"}
      [:br]
@@ -244,6 +252,12 @@
                                      :border-right "none"
                                      :margin-bottom "-6px"}]
        [:.dependencies :.dep-version {:text-align "right"}]
+       [:.plugins :ul {:margin-left "20px"
+                       :padding-left "0px"
+                       :padding-top 0
+                       :margin-top 0}]
+       [:.plugins :li {:list-style-type "none"
+                       :padding-left 0}]
        [:.header :p {:margin-left "20px"}]))
 
 (def floating-toc-css

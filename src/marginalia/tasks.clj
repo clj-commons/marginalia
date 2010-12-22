@@ -10,6 +10,6 @@
 
 (deftask marg
   "Run marginalia against your project code."
-  "Optionally, you can pass a file or directories to control what documentation is generated and in what order."
+  "Optionally, you can pass files or directories to control what documentation is generated and in what order."
   {files :marg}
   (run-marginalia files))
