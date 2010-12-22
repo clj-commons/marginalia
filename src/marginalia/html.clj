@@ -142,6 +142,32 @@
            [:ul
             (map #(vector :li %) tasks)]])))
 
+;; # Load Optional Resources
+;; Use external Javascript and CSS in your documentation. For example:
+;; To format Latex math equations, download the
+;; [MathJax](http://www.mathjax.org/) Javascript library to the docs
+;; directory and then add
+;;
+;;     :marginalia {:javascript ["mathjax/MathJax.js"]}
+;;
+;; to project.clj. Below is a simple example of both inline and block
+;; formatted equations.
+;;
+;; When \\(a \ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
+;; $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+
+(defn opt-resources-html
+  "Generate script and link tags for optional external javascript and css."
+  [project-info]
+  (let [options (:marginalia project-info) 
+        javascript (:javascript options)
+        css (:css options)]
+    (html (concat
+           (when javascript
+             (map #(vector :script {:type "text/javascript" :src %}) javascript))
+           (when css
+             (map #(vector :link {:tyle "text/css" :rel "stylesheet" :href %}) css))))))
+
 ;; Is <h1/> overloaded?  Maybe we should consider redistributing
 ;; header numbers instead of adding classes to all the h1 tags.
 (defn header-html [project-info]
@@ -319,7 +345,7 @@
    [:.syntaxhighlighter :code {:font-size "13px"}]
    [:.footer {:text-align "center"}]))
 
-(defn page-template [header toc floating-toc content]
+(defn page-template [opt-resources header toc floating-toc content]
   "Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
    & `inline-css`) to be able to package the output as a single file (uberdoc if you will).  It goes without
    saying that all this is WIP and will prabably change in the future."
@@ -341,6 +367,7 @@
      header-css
      floating-toc-css
      general-css
+     opt-resources
      [:title "Marginalia Output"]]
     [:body
      [:table
@@ -369,6 +396,7 @@
    It's probably the only var consumers will use."
   [output-file-name project-metadata docs]
   (page-template
+   (opt-resources-html project-metadata)
    (header-html project-metadata)
    (toc-html docs)
    (floating-toc-html docs)
