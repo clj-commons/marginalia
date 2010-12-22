@@ -127,15 +127,20 @@
        ;; current line start with a quote?
        (and (re-find #"\(defn" last-code-text)
             (re-find #"^\"" (str/trim (str line))))
+       ;; Is the last line's code-text a deftask, and does the
+       ;; current line start with a quote?
+       (and (re-find #"\(deftask" last-code-text)
+            (re-find #"^\"" (str/trim (str line))))
        ;; Is the last line's code-text the start of a ns
        ;; decl, and does the current line start with a quote?
        (and (re-find #"\(ns" last-code-text)
             (re-find #"^\"" (str/trim (str line))))
        ;; Is the prev line a docstring line, the current line _not_
-       ;; start with a ( or [, and the current line not an empty string?
+       ;; start with a ( or [ or {, and the current line not an empty string?
        (and (:docstring-text l)
             (not (re-find #"^\(" (str/trim (str line))))
             (not (re-find #"^\[" (str/trim (str line))))
+            (not (re-find #"^\{" (str/trim (str line))))
             (not= "" (str/trim (str line))))
        ;; Is the prev line a docstring, the prev line not end with a quote,
        ;; and the current line not an empty string?
