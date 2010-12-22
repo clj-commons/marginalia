@@ -13,6 +13,8 @@
 (def *divider-text* "\n;;DIVIDER\n")
 (def *divider-html* #"\n*<span class=\"c[1]?\">;;DIVIDER</span>\n*")
 
+;; ## File System Utilities
+
 (defn ls
   [path]
   (let [file (java.io.File. path)]
@@ -22,7 +24,6 @@
         [path]))))
 
 (defn mkdir [path]
-  "Creates a directory identified by `path`."
   (.mkdirs (io/file path)))
 
 (defn ensure-directory! [path]
@@ -40,7 +41,7 @@
        (map #(.getAbsolutePath %))))
 
 
-;; # Project Info Parsing
+;; ## Project Info Parsing
 ;; Marginalia will parse info out of your project.clj to display in
 ;; the generated html file's header.
 ;;
@@ -76,8 +77,8 @@
                    "There was a problem reading the project definition from "
                    path)))))))
 
-(defn usage []
-  (println "marginalia <src1> ... <src-n>"))
+
+;; ## Source File Analysis
 
 ;; This line should be replaced
 ;; and this one too!
@@ -187,6 +188,9 @@
     {:ns ns
      :groups groups}))
 
+
+;; ## Ouput Generation
+
 (defn uberdoc! [output-file-name files-to-analyze]
   "Generates an uberdoc html file from 3 pieces of information:
 
@@ -199,6 +203,8 @@
                 (parse-project-file)
                 (map path-to-doc files-to-analyze))]
     (spit output-file-name source)))
+
+;; ## External Interface (command-line, lein, cake, etc)
 
 (defn format-sources [sources]
   (if (nil? sources)
@@ -235,7 +241,7 @@
 ;; # Example Usage
 (comment
 
-  ;; What would happen if you ran <insert command line example here>
+  ;; Command line example
   (-main ["./src/marginalia/core.clj" "./src/marginalia/html.clj"])
   
   ;; This will find all marginalia source files, and then generate an uberdoc.
