@@ -3,7 +3,7 @@
 
    ## Usage
 
-   1. Add `[marginalia “0.1.1”]` to your project.clj's `:dev-dependencies` section.
+   1. Add `[marginalia \"0.2.0\"]` to your project.clj's `:dev-dependencies` section.
    2. run `lein marg` from your project's root directory. "
   (:use [marginalia.core]))
 

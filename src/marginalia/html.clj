@@ -63,9 +63,11 @@
   (.markdown mdp s))
 
 (defn replace-special-chars
-  "Inserts those fancy ->'s into doc sections."
+  "Inserts super-fancy characters into the doc section."
   [s]
-  (str/replace s #"-&gt;" "&rarr;"))
+  (-> s
+      (str/replace #"-&gt;"  "&rarr;")
+      (str/replace #"&quot;" "\"")))
 
 ;; As a result of docifying then grouping, you'll end up with a seq like this one:
 ;;
