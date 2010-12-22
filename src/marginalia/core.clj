@@ -29,9 +29,12 @@
   (when-not (ls path)
     (mkdir path)))
 
+(defn dir? [path]
+  (.isDirectory (java.io.File. path)))
+
 (defn find-clojure-file-paths [dir]
   "Returns a seq of clojure file paths (strings) in alphabetical depth-first order (I think?)."
-  (->> (java.io.File. "./src")
+  (->> (java.io.File. dir)
        (file-seq)
        (filter #(re-find #"\.clj$" (.getAbsolutePath %)))
        (map #(.getAbsolutePath %))))
@@ -129,7 +132,7 @@
             (re-find #"^\"" (str/trim (str line))))
        ;; Is the prev line a docstring line, the current line _not_
        ;; start with a ( or [, and the current line not an empty string?
-       (and (:docstring-text wl)
+       (and (:docstring-text l)
             (not (re-find #"^\(" (str/trim (str line))))
             (not (re-find #"^\[" (str/trim (str line))))
             (not= "" (str/trim (str line))))
@@ -197,27 +200,37 @@
                 (map path-to-doc files-to-analyze))]
     (spit output-file-name source)))
 
-(use 'clojure.pprint)
-(pprint (path-to-doc "./src/marginalia/core.clj"))
+(defn format-sources [sources]
+  (if (nil? sources)
+    (find-clojure-file-paths "./src")
+    (->> sources
+         (map #(if (dir? %)
+                 (find-clojure-file-paths %)
+                 [%]))
+         (flatten))))
 
+(defn run-marginalia [sources]
+  (let [sources (format-sources sources)]
+    (if-not sources
+      (do
+        (println "Wrong number of arguments passed to marginalia.")
+        (println "Please present paths to source files as follows:")
+        (usage))
+      (do
+        (println "Generating uberdoc for the following source files:")
+        (doseq [s sources]
+          (println "  " s))
+        (println)
+        (ensure-directory! "./docs")
+        (uberdoc! "./docs/uberdoc.html" sources)
+        (println "Done generating your docs, please see ./docs/uberdoc.html")
+        (println)))))
 
-(defn -main [sources]
+(defn -main
   "main docstring
    Multi line"
-  (if-not sources
-    (do
-      (println "Wrong number of arguments passed to marginalia.")
-      (println "Please present paths to source files as follows:")
-      (usage))
-    (do
-      (println "Generating uberdoc for the following source files:")
-      (doseq [s sources]
-        (println "  " s))
-      (println)
-      (ensure-directory! "./docs")
-      (uberdoc! "./docs/uberdoc.html" sources)
-      (println "Done generating your docs, please see ./docs/uberdoc.html")
-      (println))))
+  [sources]
+  (run-marginalia sources))
 
 ;; # Example Usage
 (comment

@@ -2397,7 +2397,7 @@ $(document).ready(function() {
 .syntaxhighlighter.printing .break, .syntaxhighlighter.printing .break a {
   color: black !important;
 }
-</style><style type="text/css">/**
+</style><style type="text/css">.syntaxhighlighter{overflow:hidden !important;}</style><style type="text/css">/**
  * SyntaxHighlighter
  * http://alexgorbatchev.com/SyntaxHighlighter
  *
@@ -2525,8 +2525,8 @@ $(document).ready(function() {
   font-style: italic !important;
   color: #2a00ff !important;
 }
-</style><style type="text/css">html{margin:0;padding:0;}h1{margin:0;padding:0;}h2{margin:0;padding:0;}h3{margin:0;padding:0;}h4{margin:0;padding:0;}a{color:#261A3B;}a:visited{color:#261A3B;}</style><style type="text/css">.header{margin-top:30px;}h1.project-name{font-size:34px;display:inline;}h2.project-version{font-size:18px;margin-top:0;display:inline;margin-left:10px;}.toc-link{font-size:12px;margin-left:10px;color:#252519;text-decoration:none;}.toc-link:hover{color:#5050A6;}.toc h1{font-size:34px;margin:0;}.docs-header{border-bottom:dotted #aaa 1px;padding-bottom:10px;margin-bottom:25px;}.toc h1{font-size:24px;}.toc{border-bottom:solid #bbb 1px;margin-bottom:40px;}.toc ul{margin-left:20px;padding-left:0px;padding-top:0;margin-top:0;}.toc li{list-style-type:none;padding-left:0;}.dependencies{}.dependencies table{font-size:16px;width:99.99%;border:none;margin-left:20px;}.dependencies td{padding-right:20px;;white-space:nowrap;}.dependencies .dotted{width:99%;}.dependencies .dotted hr{margin-bottom:-6px;noshade:noshade;border-top:none;color:transparent;border-left:none;border-bottom:dotted #bbb 1px;border-right:none;background-color:transparent;height:0;}.dependencies .dep-version{text-align:right;}.header p{margin-left:20px;}</style><style type="text/css">#floating-toc{position:fixed;top:10px;right:20px;height:20px;overflow:hidden;text-align:right;}#floating-toc li{list-style-type:none;margin:0;padding:0;}</style><style type="text/css">body{margin:0;padding:0;font-family:'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;;font-size:16px;color:#252519;}h1{font-size:20px;margin-top:0;}a.anchor{text-decoration:none;color:#252519;}a.anchor:hover{color:#5050A6;}table{border-spacing:0;border-bottom:solid #ddd 1px;;margin-bottom:10px;}code{display:inline;}p{margin-top:8px;}tr{margin:0px;padding:0px;}td.docs{width:45%;vertical-align:top;margin:0px;padding-left:55px;padding-right:20px;border:none;}td.codes{border:none;margin:0px;padding-left:20px;width:55%;border-left:solid #E5E5EE 1px;font-size:10pt;vertical-align:top;overflow:hidden;background-color:#F5F5FF;}td.spacer{padding-bottom:40px;}.footer{text-align:center;}</style><title>Marginalia Output</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">marginalia</h1><h2 class="project-version">0.1.0</h2><br /><p>lightweight literate programming for clojure -- inspired by <a href="http://jashkenas.github.com/docco/">docco</a></p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr><tr><td class="dep-name">org.clojars.nakkaya/markdownj</td><td class="dotted"><hr /></td><td class="dep-version">1.0.2b4</td></tr><tr><td class="dep-name">hiccup</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-clojars</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0-SNAPSHOT</td></tr><tr><td class="dep-name">jline</td><td class="dotted"><hr /></td><td class="dep-version">0.9.94</td></tr><tr><td class="dep-name">swank-clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#marginalia.core">marginalia.core</a></li><li><a href="#marginalia.dev-helper">marginalia.dev-helper</a></li><li><a href="#marginalia.html">marginalia.html</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#marginalia.core" name="marginalia.core"><h1 class="project-name">marginalia.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p><strong>Core</strong> provides all of the functionality around parsing clojure source files
+</style><style type="text/css">html{margin:0;padding:0;}h1{margin:0;padding:0;}h2{margin:0;padding:0;}h3{margin:0;padding:0;}h4{margin:0;padding:0;}a{color:#261A3B;}a:visited{color:#261A3B;}</style><style type="text/css">.header{margin-top:30px;}h1.project-name{font-size:34px;display:inline;}h2.project-version{font-size:18px;margin-top:0;display:inline;margin-left:10px;}.toc-link{font-size:12px;margin-left:10px;color:#252519;text-decoration:none;}.toc-link:hover{color:#5050A6;}.toc h1{font-size:34px;margin:0;}.docs-header{border-bottom:dotted #aaa 1px;padding-bottom:10px;margin-bottom:25px;}.toc h1{font-size:24px;}.toc{border-bottom:solid #bbb 1px;margin-bottom:40px;}.toc ul{margin-left:20px;padding-left:0px;padding-top:0;margin-top:0;}.toc li{list-style-type:none;padding-left:0;}.dependencies{}.dependencies table{font-size:16px;width:99.99%;border:none;margin-left:20px;}.dependencies td{padding-right:20px;;white-space:nowrap;}.dependencies .dotted{width:99%;}.dependencies .dotted hr{margin-bottom:-6px;noshade:noshade;border-top:none;color:transparent;border-left:none;border-bottom:dotted #bbb 1px;border-right:none;background-color:transparent;height:0;}.dependencies .dep-version{text-align:right;}.header p{margin-left:20px;}</style><style type="text/css">#floating-toc{position:fixed;top:10px;right:20px;height:20px;overflow:hidden;text-align:right;}#floating-toc li{list-style-type:none;margin:0;padding:0;}</style><style type="text/css">body{margin:0;padding:0;font-family:'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;;font-size:16px;color:#252519;}h1{font-size:20px;margin-top:0;}a.anchor{text-decoration:none;color:#252519;}a.anchor:hover{color:#5050A6;}table{border-spacing:0;border-bottom:solid #ddd 1px;;margin-bottom:10px;}code{display:inline;}p{margin-top:8px;}tr{margin:0px;padding:0px;}td.docs{width:410px;max-width:410px;vertical-align:top;margin:0px;padding-left:55px;padding-right:20px;border:none;}td.docs pre{font-size:12px;overflow:hidden;}td.codes{border:none;margin:0px;padding-left:20px;width:55%;border-left:solid #E5E5EE 1px;font-size:10pt;vertical-align:top;overflow:hidden;background-color:#F5F5FF;}td.spacer{padding-bottom:40px;}pre code{display:block;padding:4px;}code{background-color:ghostWhite;border:solid #DEDEDE 1px;padding-left:3px;padding-right:3px;font-size:14px;}.syntaxhighlighter code{font-size:13px;}.footer{text-align:center;}</style><title>Marginalia Output</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">marginalia</h1><h2 class="project-version">0.1.0</h2><br /><p>lightweight literate programming for clojure -- inspired by <a href="http://jashkenas.github.com/docco/">docco</a></p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr><tr><td class="dep-name">org.clojars.nakkaya/markdownj</td><td class="dotted"><hr /></td><td class="dep-version">1.0.2b4</td></tr><tr><td class="dep-name">hiccup</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-clojars</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0-SNAPSHOT</td></tr><tr><td class="dep-name">jline</td><td class="dotted"><hr /></td><td class="dep-version">0.9.94</td></tr><tr><td class="dep-name">swank-clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.1</td></tr><tr><td class="dep-name">hiccup</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0</td></tr><tr><td class="dep-name">org.clojars.nakkaya/markdownj</td><td class="dotted"><hr /></td><td class="dep-version">1.0.2b4</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.1.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#marginalia.core">marginalia.core</a></li><li><a href="#marginalia.dev-helper">marginalia.dev-helper</a></li><li><a href="#marginalia.html">marginalia.html</a></li><li><a href="#leiningen.marg">leiningen.marg</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#marginalia.core" name="marginalia.core"><h1 class="project-name">marginalia.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p><strong>Core</strong> provides all of the functionality around parsing clojure source files
 into an easily consumable format.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns marginalia.core
   (:require [clojure.java.io :as io]
@@ -2554,10 +2554,13 @@ into an easily consumable format.</p>
 </td><td class="codes"><pre class="brush: clojure">
 (defn ensure-directory! [path]
   (when-not (ls path)
-    (mkdir path)))</pre></td></tr><tr><td class="docs"><p>Returns a seq of clojure file paths (strings) in alphabetical depth-first order (I think?).</p>
+    (mkdir path)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn dir? [path]
+  (.isDirectory (java.io.File. path)))</pre></td></tr><tr><td class="docs"><p>Returns a seq of clojure file paths (strings) in alphabetical depth-first order (I think?).</p>
 </td><td class="codes"><pre class="brush: clojure">
 (defn find-clojure-file-paths [dir]
-  (-&gt;&gt; (java.io.File. &quot;./src&quot;)
+  (-&gt;&gt; (java.io.File. dir)
        (file-seq)
        (filter #(re-find #&quot;\.clj$&quot; (.getAbsolutePath %)))
        (map #(.getAbsolutePath %))))
@@ -2567,12 +2570,17 @@ into an easily consumable format.</p>
 the generated html file's header.</p>
 
 <p>TODO: add pom.xml support.</p>
-</td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs"><p>Parses a project.clj file and returns a map in the following form:
-ex. {:name
-:version
-:dependencies
-:dev-dependencies
-etc...}</p>
+</td><td class="codes"><pre class="brush: clojure">
+
+
+</pre></td></tr><tr><td class="docs"><p>Parses a project.clj file and returns a map in the following form:</p>
+
+<pre><code>ex. {:name 
+     :version
+     :dependencies
+     :dev-dependencies
+     etc...}
+</code></pre>
 
 <p>Basically, it reads a <code>defproject</code> to obtain name and version, then
 merges the rest of the defproject forms (a key value list).</p>
@@ -2589,9 +2597,10 @@ merges the rest of the defproject forms (a key value list).</p>
                   :version (nth project-form 2)}
                  (apply hash-map (drop 3 project-form))))
         (catch Exception e
-          (throw (Exception. (str &quot;There was a problem reading the project definition from &quot; path)))))))
-
-#_(println (read-project-file &quot;./project.clj&quot;))</pre></td></tr><tr><td class="docs">
+          (throw (Exception.
+                  (str
+                   &quot;There was a problem reading the project definition from &quot;
+                   path)))))))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">
 (defn usage []
   (println &quot;marginalia &lt;src1&gt; ... &lt;src-n&gt;&quot;))</pre></td></tr><tr><td class="docs"><p>This line should be replaced</p>
@@ -2628,7 +2637,7 @@ merges the rest of the defproject forms (a key value list).</p>
      (end-of-block? cur-group groups lines)
      (recur (merge-line (first lines) {}) (conj groups cur-group) (rest lines))
 
-     :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))</pre></td></tr><tr><td class="docs"><p>hacktastic, these ad-hoc checks should be replaced with something</p>
+     :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))</pre></td></tr><tr><td class="docs"><p>Hacktastic, these ad-hoc checks should be replaced with something</p>
 </td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs"><p>more robust.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn docstring-line? [line sections]
   (let [l (last sections)
@@ -2701,31 +2710,44 @@ I wonder?</p>
 </td><td class="codes"><pre class="brush: clojure">
 (defn uberdoc! [output-file-name files-to-analyze]
   (let [docs (map path-to-doc files-to-analyze)
-        source (uberdoc-html output-file-name (parse-project-file) (map path-to-doc files-to-analyze))]
-    (spit output-file-name source)))
-</pre></td></tr><tr><td class="docs"><p>main docstring
+        source (uberdoc-html
+                output-file-name
+                (parse-project-file)
+                (map path-to-doc files-to-analyze))]
+    (spit output-file-name source)))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn format-sources [sources]
+  (if (nil? sources)
+    (find-clojure-file-paths &quot;./src&quot;)
+    (-&gt;&gt; sources
+         (map #(if (dir? %)
+                 (find-clojure-file-paths %)
+                 [%]))
+         (flatten))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn run-marginalia [sources]
+  (let [sources (format-sources sources)]
+    (if-not sources
+      (do
+        (println &quot;Wrong number of arguments passed to marginalia.&quot;)
+        (println &quot;Please present paths to source files as follows:&quot;)
+        (usage))
+      (do
+        (println &quot;Generating uberdoc for the following source files:&quot;)
+        (doseq [s sources]
+          (println &quot;  &quot; s))
+        (println)
+        (ensure-directory! &quot;./docs&quot;)
+        (uberdoc! &quot;./docs/uberdoc.html&quot; sources)
+        (println &quot;Done generating your docs, please see ./docs/uberdoc.html&quot;)
+        (println)))))</pre></td></tr><tr><td class="docs"><p>main docstring
 Multi line</p>
 </td><td class="codes"><pre class="brush: clojure">
-(defn -main [sources]
-  (if-not sources
-    (do
-      (println &quot;Wrong number of arguments passed to marginalia.&quot;)
-      (println &quot;Please present paths to source files as follows:&quot;)
-      (usage))
-    (do
-      (println &quot;Generating uberdoc for the following source files:&quot;)
-      (doseq [s sources]
-        (println &quot;  &quot; s))
-      (println)
-      (ensure-directory! &quot;./docs&quot;)
-      (uberdoc! &quot;./docs/uberdoc.html&quot; sources)
-      (println &quot;Done generating your docs, please see ./docs/marg.html&quot;)
-      (println))))
-
-#_(-main (find-clojure-file-paths &quot;./src&quot;))
-</pre></td></tr><tr><td class="docs"><h1>Example Usage</h1>
+(defn -main
+  [sources]
+  (run-marginalia sources))</pre></td></tr><tr><td class="docs"><h1>Example Usage</h1>
 </td><td class="codes"><pre class="brush: clojure">
-(comment</pre></td></tr><tr><td class="docs"><p>What would happen if you ran &lt;insert command line example here&gt;</p>
+(comment</pre></td></tr><tr><td class="docs"><p>What would happen if you ran <insert command line example here></p>
 </td><td class="codes"><pre class="brush: clojure">
   (-main [&quot;./src/marginalia/core.clj&quot; &quot;./src/marginalia/html.clj&quot;])</pre></td></tr><tr><td class="docs"><p>This will find all marginalia source files, and then generate an uberdoc.</p>
 </td><td class="codes"><pre class="brush: clojure">  
@@ -2749,12 +2771,17 @@ ex. (browse-output (output-html (group-lines (gen-doc! &quot;./src/marginalia/co
 
 <h2>Plus a few other goodies.</h2>
 
+<pre><code>Here's a random code block (println "hi!")
+</code></pre>
+
 <p>Like I said:</p>
 
 <ul>
 <li>utils for docs &rarr; html</li>
 <li>other goodies</li>
 </ul>
+
+<p>hello world</p>
 </td><td class="codes"><pre class="brush: clojure">(ns marginalia.html
   (:use [hiccup.core :only (html escape-html)]
         [hiccup.page-helpers :only (doctype)])
@@ -2768,26 +2795,19 @@ ex. (browse-output (output-html (group-lines (gen-doc! &quot;./src/marginalia/co
     (str (apply str (interpose &quot; &quot; (map name sels)))
          &quot;{&quot; (apply str (map #(str (name (key %)) &quot;:&quot; (val %) &quot;;&quot;) props)) &quot;}&quot;)))</pre></td></tr><tr><td class="docs"><p>Quick and dirty dsl for inline css rules, similar to hiccup.</p>
 
-<p>ex. (css [:h1 {:color &quot;blue&quot;}] [:div.content p {:text-indent &quot;1em&quot;}])
-&rarr; h1 {color: blue;} div.content p {text-indent: 1em;}</p>
+<p>ex. <code>(css [:h1 {:color &amp;quot;blue&amp;quot;}] [:div.content p {:text-indent &amp;quot;1em&amp;quot;}])</code>
+&rarr; <code>h1 {color: blue;} div.content p {text-indent: 1em;}</code></p>
 </td><td class="codes"><pre class="brush: clojure">
 (defn css [&amp; rules]
   (html [:style {:type &quot;text/css&quot;}
-         (apply str (map css-rule rules))]))</pre></td></tr><tr><td class="docs"><p>Modified version of clojure.core/<a href="http://clojuredocs.org/clojure_core/clojure.core/slurp">slurp</a>. Reads the resource named by f into a string and returns it.</p>
+         (apply str (map css-rule rules))]))</pre></td></tr><tr><td class="docs"><p>Stolen from leiningen</p>
 </td><td class="codes"><pre class="brush: clojure">
 (defn slurp-resource
-  ([f]
-     (let [sb (StringBuilder.)]
-       (with-open [#^java.io.Reader r (java.io.InputStreamReader.
-                                       (.getResourceAsStream
-                                        (.getClassLoader clojure.main)
-                                        f))]
-         (loop [c (.read r)]
-           (if (neg? c)
-             (str sb)
-             (do
-               (.append sb (char c))
-               (recur (.read r)))))))))</pre></td></tr><tr><td class="docs">
+  [resource-name]
+  (-&gt; (.getContextClassLoader (Thread/currentThread))
+      (.getResourceAsStream resource-name)
+      (java.io.InputStreamReader.)
+      (slurp)))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">
 (defn inline-js [resource]
   (let [src (slurp-resource resource)]
@@ -2808,25 +2828,32 @@ based) for display through html &amp; css.</p>
 &rarr; &quot;&lt;h1&gt;header!&lt;/h1&gt;</p>
 </td><td class="codes"><pre class="brush: clojure">
 (defn md [s]
-  (.markdown mdp s))</pre></td></tr><tr><td class="docs"><p>Used in docstring pre-processing to remove the leading and trailing <code>&amp;quot;</code> characters.</p>
-</td><td class="codes"><pre class="brush: clojure">
-(defn remove-leading-trailing-quote
-  [s]
-  (-&gt; s
-      (str/trim)
-      (str/replace #&quot;\&quot;$&quot; &quot;&quot;)
-      (str/replace #&quot;^\&quot;&quot; &quot;&quot;)))</pre></td></tr><tr><td class="docs"><p>Inserts those fancy &rarr;'s into doc sections.</p>
+  (.markdown mdp s))</pre></td></tr><tr><td class="docs"><p>Inserts those fancy &rarr;'s into doc sections.</p>
 </td><td class="codes"><pre class="brush: clojure">
 (defn replace-special-chars
   [s]
   (str/replace s #&quot;-&amp;gt;&quot; &quot;&amp;rarr;&quot;))</pre></td></tr><tr><td class="docs"><p>As a result of docifying then grouping, you'll end up with a seq like this one:</p>
 
-<p>[{:docs [{:docs-text &quot;Some doc text&quot;}]
-:codes [{code-text &quot;(def something \&quot;hi\&quot;)&quot;}]}]</p>
+<pre><code>[{:docs [{:docs-text "Some doc text"}]
+  :codes [{:code-text "(def something \"hi\")"}]}]
+</code></pre>
 
 <p><code>docs-to-html</code> and <code>codes-to-html</code> convert their respective entries into html,
 and <code>group-to-html</code> calls them on each seq item to do so.</p>
+</td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">
+(defn prep-docs-text [s] s)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn prep-docstring-text [s]
+  (-&gt; s
+      (str/replace #&quot;\\\&quot;&quot; &quot;\&quot;&quot;)
+      (str/replace #&quot;^\s\s\&quot;&quot; &quot;&quot;)
+      (str/replace #&quot;^\s\s\s&quot; &quot;&quot;)</pre></td></tr><tr><td class="docs"><p>Don't escape code blocks</p>
+</td><td class="codes"><pre class="brush: clojure">      (str/replace #&quot;\&quot;$&quot; &quot;&quot;)
+      ((fn [t]
+         (if (re-find #&quot;^\s\s\s\s&quot; t)
+           t
+           (escape-html t))))))
 </pre></td></tr><tr><td class="docs"><p>Converts a docs section to html by threading each doc line through the forms
 outlined above.</p>
 
@@ -2836,17 +2863,22 @@ outlined above.</p>
 (defn docs-to-html
   [docs]
   (-&gt;&gt; docs
-       (map #(or (:docs-text %)
-                 (str/replace (:docstring-text %) #&quot;\\\&quot;&quot; &quot;\&quot;&quot;)))
-       (map remove-leading-trailing-quote)
-       (map escape-html)
+       (map #(if (:docs-text %)
+               (prep-docs-text (:docs-text %))
+               (prep-docstring-text (:docstring-text %))))
        (map replace-special-chars)
        (interpose &quot;\n&quot;)
        (apply str)
-       (md)))</pre></td></tr><tr><td class="docs">
+       (md)))
+</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">
 (defn codes-to-html [codes]
-  (html [:pre {:class &quot;brush: clojure&quot;} (apply str (interpose &quot;\n&quot; (map escape-html (map :code-text codes))))]))</pre></td></tr><tr><td class="docs">
+  (html [:pre {:class &quot;brush: clojure&quot;}
+         (-&gt;&gt; codes
+              (map :code-text)
+              (map escape-html)
+              (interpose &quot;\n&quot;)
+              (apply str))]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">
 (defn group-to-html [group]
   (html
@@ -2863,7 +2895,7 @@ outlined above.</p>
                          [:td {:class &quot;dep-name&quot;} (str (first %))]
                          [:td {:class &quot;dotted&quot;} [:hr]]
                          [:td {:class &quot;dep-version&quot;} (second %)]])
-                 deps)]])))</pre></td></tr><tr><td class="docs"><p>Is &lt;h1/&gt; overloaded?  Maybe we should consider redistributing</p>
+                 deps)]])))</pre></td></tr><tr><td class="docs"><p>Is <h1/> overloaded?  Maybe we should consider redistributing</p>
 </td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs"><p>header numbers instead of adding classes to all the h1 tags.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn header-html [project-info]
   (html
@@ -2897,7 +2929,10 @@ outlined above.</p>
 (defn floating-toc-html [docs]
   [:div {:id &quot;floating-toc&quot;}
    [:ul
-    (map #(vector :li {:class &quot;floating-toc-li&quot; :id (str &quot;floating-toc_&quot; (:ns %))} (:ns %)) docs)]])</pre></td></tr><tr><td class="docs">
+    (map #(vector :li {:class &quot;floating-toc-li&quot;
+                       :id (str &quot;floating-toc_&quot; (:ns %))}
+                  (:ns %))
+         docs)]])</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">
 (defn groups-html [doc]
   (html 
@@ -3001,12 +3036,15 @@ outlined above.</p>
    [:p {:margin-top &quot;8px&quot;}]
    [:tr {:margin &quot;0px&quot;
          :padding &quot;0px&quot;}]
-   [:td.docs {:width &quot;45%&quot;
+   [:td.docs {:width &quot;410px&quot;
+              :max-width &quot;410px&quot;
               :vertical-align &quot;top&quot;
               :margin &quot;0px&quot;
               :padding-left &quot;55px&quot;
               :padding-right &quot;20px&quot;
               :border &quot;none&quot;}]
+   [:td.docs :pre {:font-size &quot;12px&quot;
+                   :overflow &quot;hidden&quot;}]
    [:td.codes {:width &quot;55%&quot;
                :background-color &quot;#F5F5FF&quot;
                :vertical-align &quot;top&quot;
@@ -3017,6 +3055,14 @@ outlined above.</p>
                :font-size &quot;10pt&quot;
                :border-left &quot;solid #E5E5EE 1px&quot;}]
    [:td.spacer {:padding-bottom &quot;40px&quot;}]
+   [:pre :code {:display &quot;block&quot;
+                :padding &quot;4px&quot;}]
+   [:code {:background-color &quot;ghostWhite&quot;
+           :border &quot;solid #DEDEDE 1px&quot;
+           :padding-left &quot;3px&quot;
+           :padding-right &quot;3px&quot;
+           :font-size &quot;14px&quot;}]
+   [:.syntaxhighlighter :code {:font-size &quot;13px&quot;}]
    [:.footer {:text-align &quot;center&quot;}]))</pre></td></tr><tr><td class="docs"><p>Notice that we're inlining the css &amp; javascript for <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a> (<code>inline-js</code>
 &amp; <code>inline-css</code>) to be able to package the output as a single file (uberdoc if you will).  It goes without
 saying that all this is WIP and will prabably change in the future.</p>
@@ -3033,6 +3079,8 @@ saying that all this is WIP and will prabably change in the future.</p>
      (inline-js &quot;app.js&quot;)
      #_[:script {:type &quot;text/javascript&quot; :src &quot;./../resources/app.js&quot;}]
      (inline-css &quot;shCore.css&quot;)
+     (css
+      [:.syntaxhighlighter {:overflow &quot;hidden !important&quot;}])
      (inline-css &quot;shThemeEclipse.css&quot;)
      reset-css
      header-css
@@ -3067,5 +3115,33 @@ It's probably the only var consumers will use.</p>
    (header-html project-metadata)
    (toc-html docs)
    (floating-toc-html docs)
-   (map groups-html docs)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_marginalia.core">marginalia.core</li><li class="floating-toc-li" id="floating-toc_marginalia.dev-helper">marginalia.dev-helper</li><li class="floating-toc-li" id="floating-toc_marginalia.html">marginalia.html</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+   (map groups-html docs)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#leiningen.marg" name="leiningen.marg"><h1 class="project-name">leiningen.marg</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h1>Leiningen plugin for running marginalia against your project.</h1>
+
+<h2>Usage</h2>
+
+<ol>
+<li>Add <code>[marginalia &amp;quot;0.1.0&amp;quot;]</code> to your project.clj's <code>:dev-dependencies</code> section.</li>
+<li>run <code>lein marg</code> from your project's root directory.</li>
+</ol>
+</td><td class="codes"><pre class="brush: clojure">(ns leiningen.marg
+  (:use [marginalia.core]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">
+(defn marg [project &amp; args]
+  (run-marginalia args))</pre></td></tr><tr><td class="docs"><p>You can pass a file, directory, multiple files and/or directories to marginalia like so:</p>
+
+<pre><code>$ lein marg  # runs marginalia on all the cljs found in your ./src dir.
+$ lein marg ./path/to/files  # runs marginalia on all cljs found in ./path/to/files
+$ lein marg ./path/to/file.clj  # runs marginalia on ./path/to/file.clj only.
+$ lein marg ./path/to/one.clj ./path/to/another.clj
+$ lein marg ./path/to/dir ./path/to/some/random.clj
+</code></pre>
+
+<p>This allows you to control the order in which sections appear in the generated
+documentation.  For example, in marginalia's docs, the leiningen.marg namespace
+forced to the bottom of the namespace ordering by using this command:</p>
+
+<pre><code>$ lein marg ./src/marginalia ./src/leiningen
+</code></pre>
+</td><td class="codes"><pre class="brush: clojure">
+</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_marginalia.core">marginalia.core</li><li class="floating-toc-li" id="floating-toc_marginalia.dev-helper">marginalia.dev-helper</li><li class="floating-toc-li" id="floating-toc_marginalia.html">marginalia.html</li><li class="floating-toc-li" id="floating-toc_leiningen.marg">leiningen.marg</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>

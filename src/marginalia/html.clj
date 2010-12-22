@@ -31,19 +31,12 @@
          (apply str (map css-rule rules))]))
 
 (defn slurp-resource
-  "Modified version of clojure.core/[slurp](http://clojuredocs.org/clojure_core/clojure.core/slurp). Reads the resource named by f into a string and returns it."
-  ([f]
-     (let [sb (StringBuilder.)]
-       (with-open [#^java.io.Reader r (java.io.InputStreamReader.
-                                       (.getResourceAsStream
-                                        (.getClassLoader clojure.main)
-                                        f))]
-         (loop [c (.read r)]
-           (if (neg? c)
-             (str sb)
-             (do
-               (.append sb (char c))
-               (recur (.read r)))))))))
+  "Stolen from leiningen"
+  [resource-name]
+  (-> (.getContextClassLoader (Thread/currentThread))
+      (.getResourceAsStream resource-name)
+      (java.io.InputStreamReader.)
+      (slurp)))
 
 (defn inline-js [resource]
   (let [src (slurp-resource resource)]
