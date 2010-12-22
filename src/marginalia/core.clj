@@ -51,7 +51,7 @@
 
 
 (defn parse-project-file
-  "Parses a project.clj file and returns a map in the following form:
+  "Parses a project.clj file and returns a map in the following form
 
        ex. {:name 
             :version
@@ -59,8 +59,8 @@
             :dev-dependencies
             etc...}
 
-   Basically, it reads a `defproject` to obtain name and version, then
-   merges the rest of the defproject forms (a key value list)."
+   by reading the `defproject` form from your project.clj to obtain name and
+   version, then merges in the rest of the defproject forms (`:dependencies`, etc)."
   ([] (parse-project-file "./project.clj"))
   ([path]
       (try
