@@ -215,6 +215,9 @@
                  [%]))
          (flatten))))
 
+(defn usage []
+  (println "marginalia <src1> ... <src-n>"))
+
 (defn run-marginalia [sources]
   (let [sources (format-sources sources)]
     (if-not sources
