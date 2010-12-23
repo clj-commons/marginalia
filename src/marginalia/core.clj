@@ -39,8 +39,9 @@
 (defn dir? [path]
   (.isDirectory (java.io.File. path)))
 
-(defn find-clojure-file-paths [dir]
+(defn find-clojure-file-paths
   "Returns a seq of clojure file paths (strings) in alphabetical depth-first order (I think?)."
+  [dir]
   (->> (java.io.File. dir)
        (file-seq)
        (filter #(re-find #"\.clj$" (.getAbsolutePath %)))
@@ -201,12 +202,13 @@
 
 ;; ## Ouput Generation
 
-(defn uberdoc! [output-file-name files-to-analyze]
+(defn uberdoc!
   "Generates an uberdoc html file from 3 pieces of information:
 
    1. Results from processing source files (`path-to-doc`)
    2. Project metadata obtained from `parse-project-file`.
    3. The path to spit the result (`output-file-name`)"
+  [output-file-name files-to-analyze]
   (let [docs (map path-to-doc files-to-analyze)
         source (uberdoc-html
                 output-file-name

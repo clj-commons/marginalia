@@ -22,11 +22,12 @@
     (str (apply str (interpose " " (map name sels)))
          "{" (apply str (map #(str (name (key %)) ":" (val %) ";") props)) "}")))
 
-(defn css [& rules]
+(defn css
   "Quick and dirty dsl for inline css rules, similar to hiccup.
 
    ex. `(css [:h1 {:color \"blue\"}] [:div.content p {:text-indent \"1em\"}])`
    -> `h1 {color: blue;} div.content p {text-indent: 1em;}`"
+  [& rules]
   (html [:style {:type "text/css"}
          (apply str (map css-rule rules))]))
 
@@ -57,9 +58,10 @@
 ;; Markdown processor.
 (def mdp (com.petebevin.markdown.MarkdownProcessor.))
 
-(defn md [s]
+(defn md 
   "Markdown string to html converter. Translates strings like \"# header!\"
    -> \"<h1>header!</h1>"
+  [s]
   (.markdown mdp s))
 
 (defn replace-special-chars
@@ -345,10 +347,11 @@
    [:.syntaxhighlighter :code {:font-size "13px"}]
    [:.footer {:text-align "center"}]))
 
-(defn page-template [opt-resources header toc floating-toc content]
+(defn page-template
   "Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
    & `inline-css`) to be able to package the output as a single file (uberdoc if you will).  It goes without
    saying that all this is WIP and will prabably change in the future."
+  [opt-resources header toc floating-toc content]
   (html
    (doctype :html5)
    [:html
