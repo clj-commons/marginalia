@@ -3,7 +3,7 @@
 
    ## Usage
 
-   1. In your project.clj, add `[marginalia \"0.2.1\"] to your `:dev-dependencies` and `marginalia.tasks` to `:tasks`
+   1. In your project.clj, add `[marginalia \"0.2.2\"] to your `:dev-dependencies` and `marginalia.tasks` to `:tasks`
    2. Run `cake marg` from within your project directory."
   (:use marginalia.core
         [cake.core :only [deftask]]))
