@@ -58,11 +58,11 @@
 (defn parse-project-file
   "Parses a project.clj file and returns a map in the following form
 
-       ex. {:name 
-            :version
-            :dependencies
-            :dev-dependencies
-            etc...}
+       {:name 
+        :version
+        :dependencies
+        :dev-dependencies
+        etc...}
 
    by reading the `defproject` form from your project.clj to obtain name and
    version, then merges in the rest of the defproject forms (`:dependencies`, etc)."
@@ -128,31 +128,31 @@
         last-code-text (get l :code-text "")]
     (try
       (or
-       ;; Is the last line's code-text a defn, and does the
-       ;; current line start with a quote?
+       ;; Last line contain defn &&
+       ;; last line not contain what looks like a param vector &&
+       ;; current line start with a quote 
        (and (re-find #"\(defn" last-code-text)
+            (not (re-find #"\[.*\]" last-code-text))
             (re-find #"^\"" (str/trim (str line))))
        ;; Is the last line's code-text a deftask, and does the
        ;; current line start with a quote?
-       (and (re-find #"\(deftask" last-code-text)
+       (and (re-find #"^\(deftask" (str/trim last-code-text))
             (re-find #"^\"" (str/trim (str line))))
        ;; Is the last line's code-text the start of a ns
        ;; decl, and does the current line start with a quote?
-       (and (re-find #"\(ns" last-code-text)
+       (and (re-find #"^\(ns" last-code-text)
             (re-find #"^\"" (str/trim (str line))))
-       ;; Is the prev line a docstring line, the current line _not_
-       ;; start with a ( or [ or {, and the current line not an empty string?
+       ;; Is the prev line a docstring, prev line not end with a quote,
+       ;; and the current line empty?
        (and (:docstring-text l)
-            (not (re-find #"^\(" (str/trim (str line))))
-            (not (re-find #"^\[" (str/trim (str line))))
-            (not (re-find #"^\{" (str/trim (str line))))
-            (not= "" (str/trim (str line))))
+            (not (re-find #"\"$" (str/trim (:docstring-text l)))))
        ;; Is the prev line a docstring, the prev line not end with a quote,
        ;; and the current line not an empty string?
        (and (:docstring-text l)
-            (not (re-find #"\"$" (str/trim (:docstring-text l))))
+            (not (re-find #"[^\\]\"$" (str/trim (:docstring-text l))))
             (= "" (str/trim (str line)))))
       (catch Exception e nil))))
+
 
 (defn parse [src]
   (loop [[line & more] (line-seq src) cnum 1 dnum 0 sections []]
@@ -250,6 +250,7 @@
    Multi line"
   [sources]
   (run-marginalia sources))
+
 
 ;; # Example Usage
 (comment
