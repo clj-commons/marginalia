@@ -46,7 +46,6 @@
        (filter #(re-find #"\.clj$" (.getAbsolutePath %)))
        (map #(.getAbsolutePath %))))
 
-
 ;; ## Project Info Parsing
 ;; Marginalia will parse info out of your project.clj to display in
 ;; the generated html file's header.
