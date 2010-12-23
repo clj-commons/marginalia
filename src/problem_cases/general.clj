@@ -32,3 +32,20 @@
        "This is also a docstring via metadata. It should be on the left."}
   c
   "This is just a value.  It should be on the right.")
+
+;; From [fnparse](https://github.com/joshua-choi/fnparse)
+
+; Define single-character indicator rules.
+; I use `clojure.template/do-template` to reduce repetition.
+(do-template [rule-name token]
+  (h/defrule rule-name
+    "Padded on the front with optional whitespace."
+    (h/lit token))
+  <escape-char-start> \\
+  <str-delimiter>   \"
+  <value-separator> \,
+  <name-separator>  \:
+  <array-start>     \[
+  <array-end>       \]
+  <object-start>    \{
+  <object-end>      \})
