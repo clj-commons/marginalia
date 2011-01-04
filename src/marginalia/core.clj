@@ -4,7 +4,8 @@
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
   (:use [marginalia.html :only (uberdoc-html)]
-        [clojure.contrib.find-namespaces :only (read-file-ns-decl)]))
+        [clojure.contrib.find-namespaces :only (read-file-ns-decl)])
+  (:gen-class))
 
 
 (def *test* "./src/cljojo/core.clj")
@@ -250,18 +251,17 @@
 (defn -main
   "main docstring
    Multi line"
-  [sources]
+  [& sources]
   (run-marginalia sources))
 
 
 ;; # Example Usage
 (comment
-
   ;; Command line example
-  (-main ["./src/marginalia/core.clj" "./src/marginalia/html.clj"])
+  (-main "./src/marginalia/core.clj" "./src/marginalia/html.clj")
   
   ;; This will find all marginalia source files, and then generate an uberdoc.
-  (-main (find-clojure-file-paths "./src"))
+  (apply -main (find-clojure-file-paths "./src"))
 
 ;; Move these to tests
   (merge-line {:docstring-text "hello world" :line 3} {:docs ["stuff"]})

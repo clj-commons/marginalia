@@ -1,5 +1,6 @@
 (defproject marginalia "0.2.2"
   :description "lightweight literate programming for clojure -- inspired by [docco](http://jashkenas.github.com/docco/)"
+  :main marginalia.core
   :dependencies
   [[org.clojure/clojure "1.2.0"]
    [org.clojars.nakkaya/markdownj "1.0.2b4"]
