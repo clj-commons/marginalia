@@ -5,3 +5,5 @@ pom.xml
 *jar
 lib
 classes
+out
+webgen.cache

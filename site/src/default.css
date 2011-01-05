@@ -1,0 +1,16 @@
+html,body{margin:0;padding:0;height:100%;}
+body{background:#F5F5DC;font-family:Georgia, Times, serifs;}
+a:link{color:#B88A00;text-decoration:none;}
+a:visited{color:#6B1B00;font-weight:900;}
+#floater{position:relative;float:left;height:50%;margin-bottom:-300px;width:1px;}
+#centered{position:relative;clear:left;height:600px;width:80%;max-width:800px;min-width:400px;margin:0 auto;}
+#bottom{position:absolute;bottom:0;right:0;}
+#nav{position:absolute;left:0;top:0;bottom:0;right:70%;padding:20px;margin:10px;}
+#content{position:absolute;left:30%;right:0;top:0;bottom:0;overflow:auto;height:340px;padding:20px;margin:10px;}
+.mainbookpage{width:95%;line-height:110%;font-size:11px;color:#333;background:#F5F5DC;}
+p.lawbook{text-indent:25px;text-align:justify;padding-left:10px;padding-right:9px;}
+.showme{border:1px solid #F5F5DC;}
+.leftcol{float:left;width:47%;background:#F5F5DC;padding-top:10px;padding-right:0;padding-bottom:10px;padding-left:10px;}
+.rightcol{float:right;width:47%;background:#F5F5DC;padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:0;}
+.rightmiddle{float:right;width:50%;font-size:12px;text-align:right;padding-top:10px;padding-right:0;padding-bottom:10px;padding-left:5px;}
+.leftmiddle{float:left;width:50%;font-size:12px;text-align:left;padding-top:10px;padding-right:5px;padding-bottom:10px;padding-left:0;}

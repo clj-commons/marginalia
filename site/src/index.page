@@ -1,0 +1,82 @@
+---
+title: Marginalia
+routed_title: The Marginalia Manifesto
+---
+
+[user guide](https://github.com/fogus/marginalia/wiki)
+
+[example output](uberdoc.html)
+
+[source code](https://github.com/fogus/marginalia)
+
+[bug reports](https://github.com/fogus/marginalia/issues)
+
+#### Features
+
+* HTML generation from Clojure source
+* Markdown support within comments and docstrings
+* Latex formatting support (via [MathJax](http://www.mathjax.org/))
+* Leiningen and Cake support
+
+--- name:center_right
+
+**the one true way**
+
+1. Start by running Marginalia against your code
+2. Cringe at the sad state of your code commentary
+3. Add docstrings and code comments as appropriate
+4. Generate the documentation again
+5. Read the resulting documentation
+6. Make changes to code and documentation so that the "dialog" flows sensibly
+7. Repeat from step #4 until complete
+
+
+--- name:top_right
+
+<br/>
+<br/>
+<br/>
+
+### A new way to think about programs
+
+What if your code and its documentation were one and the same?
+
+Much of the philosophy guiding literate programming is the realization of the answer to this question.  However, if literate programming stands as a comprehensive programming methodology at one of end of the spectrum and no documentation stands as its antithesis, then Marginalia falls somewhere between.  That is, you should always aim for comprehensive documentation, but the shortest path to a useful subset is the commented source code itself.
+
+--- name:bottom_right
+
+### The art of Marginalia
+
+If you're fervently writing code that is heavily documented, then using Marginalia for your Clojure projects is as simple as running it on your codebase.  However, if you're unaccustomed to documenting your source, then the guidelines herein will help you make the most out of Marginalia for true-power documentation.
+
+Following the guidelines will work to make your code not only easier to follow -- it will make it better.  The very process of using Marginalia will help to crystalize your understanding of problem and its solution(s).  
+
+The quality of the prose in your documentation will often reflect the quality of the code itself thus highlighting problem areas.  The elimination of problem areas will solidify your code and its accompanying prose.  Marginalia provides a virtuous circle spiraling inward toward maximal code quality.
+
+--- name:top_left
+
+# Marginalia
+
+([example output](uberdoc.html))
+
+In late 2010 I was motivated by posts by [Tom Preston-Werner][rdd], [Reginald Braithwaite][reg], and [Luigi Montanez][ddd] to create a Clojure clone of the excellent [Docco](http://jashkenas.github.com/docco/) documentation generator written in [CoffeeScript](http://jashkenas.github.com/coffee-script/).  The byproduct of this motivation was [Marginalia](https://github.com/fogus/marginalia).  The goal of Marginalia was to create a full-blown [literate programming][literate] system with Docco-esque functionality as a way-station along the way.
+
+[reg]: https://github.com/raganwald/homoiconic/blob/master/2010/11/docco.md
+
+[literate]: http://www.literateprogramming.com/
+
+I have a very strong opinion regarding the importance of clear and complete documentation.  My reaction to poorly documented code, products, and services is visceral to the point that I often refuse to release even the most humble library without code comments, examples, tests, invariant definitions, a logo, and an "official website".  
+
+[ddd]: http://luigimontanez.com/2010/reading-code-is-good-writing-documentation-is-better/
+
+[rdd]: http://tom.preston-werner.com/2010/08/23/readme-driven-development.html
+
+--- name:bottom_left
+
+However, time is not always on my side for personal projects, so I am constantly looking for ways to minimize the amount of work required to generate well-documented software without sacrificing quality.  Marginalia is a step in that direction.  However, I piddled around with a comment parser and created the code that builds a tree of code-lines associated with comment lines.  Having scratched that particular itch I then took a detour into researching literate programming proper, leaving behind a half-baked mess.
+
+### Enter Zachary Kim
+
+You may already know [Zachary Kim](http://zacharykim.com/) as the creator of the excellent [ClojureDocs](http://clojuredocs.org/) website; an invaluable resource for finding Clojure API examples.  Zachary resurrected my original source for Marginalia and single-handedly molded it into a tool worth using.  Marginalia would be nothing without his vision and hard-work.  I would also like to thank [Justin Balthrop](http://ninjudd.com/) and [Brenton Ashworth](http://formpluslogic.blogspot.com/) for their support and code contributions.
+
+*If you find Marginalia useful (or even just cool), then please do visit [ClojureDocs](http://clojuredocs.org/) and donate some of your time to enhancing its existing examples and/or fill in the holes as you find them.*
