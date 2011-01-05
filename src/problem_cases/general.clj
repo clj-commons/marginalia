@@ -21,6 +21,13 @@
   "Here is just a string.  It should be to the right."
   (* x x))
 
+(defprotocol CacheProtocol
+  "This is a protocol docstring.  It should be on the left."
+  (lookup  [cache e])
+  (has?    [cache e] )
+  (hit     [cache e])
+  (miss    [cache e ret]))
+
 (def ^{:doc "This is also a docstring via metadata. It should be on the left."}
   a 42)
 
