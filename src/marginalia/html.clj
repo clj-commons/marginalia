@@ -356,6 +356,7 @@
    (doctype :html5)
    [:html
     [:head
+     [:meta {:http-equiv "Content-Type" :content "text/html" :charset "utf-8"}]
      (inline-js "jquery-1.4.4.min.js")
      (inline-js "xregexp-min.js")
      (inline-js "shCore.js")

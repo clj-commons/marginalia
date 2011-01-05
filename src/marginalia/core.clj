@@ -253,8 +253,7 @@
         (println)))))
 
 (defn -main
-  "main docstring
-   Multi line"
+  "The main entry point into Marginalia."
   [& sources]
   (run-marginalia sources))
 
@@ -270,5 +269,5 @@
 ;; Move these to tests
   (merge-line {:docstring-text "hello world" :line 3} {:docs ["stuff"]})
   (merge-line {:code-text "(defn asdf" :line 4} {:docs ["stuff"]})
-  (merge-line {:docs-text "There's only one method in this module", :line 4} {}))
-
+  (merge-line {:docs-text "There's only one method in this module", :line 4} {})
+)
