@@ -21,7 +21,22 @@
   "Here is just a string.  It should be to the right."
   (* x x))
 
-(defprotocol CacheProtocol
+(defmacro foobar
+  "This is a macro docstring.  It should be on the left."
+  [& body]
+  `~body)
+
+(defmulti bazfoo
+  "This is a defmulti docstring, it should also be on the left"
+  class)
+
+(defmethod bazfoo String [s]
+  "This is a defmethod docstring.  It should be on the left."
+  (vec (seq s)))
+
+(bazfoo "abc")
+
+(defprotocol Foo
   "This is a protocol docstring.  It should be on the left."
   (lookup  [cache e])
   (has?    [cache e] )
