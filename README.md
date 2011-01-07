@@ -16,15 +16,15 @@ Currently Marginalia can be used in a number of ways as described below.
 
 ### Command Line
 
-You can download the [Marginalia 0.3.0 jar including packaged dependencies from Github](https://github.com/downloads/fogus/marginalia/marginalia-0.3.0-standalone.jar).
+You can download the [Marginalia 0.3.2 jar including packaged dependencies from Github](https://github.com/downloads/fogus/marginalia/marginalia-0.3.2-standalone.jar).
 
 Running Marginalia given the jar file linked above is as easy as:
 
-    java -jar marginalia-0.3.0-standalone.jar
+    java -jar marginalia-0.3.2-standalone.jar
 
 This will search the `PWD` for a `src` directory which it will then traverse looking for Clojure source files to parse and generate documentation for.  Marginalia also takes specific locations and files to generate docs for:
 
-    java -jar marginalia-0.3.0-standalone.jar <file1> <file2> ... <filen>
+    java -jar marginalia-0.3.2-standalone.jar <file1> <file2> ... <filen>
 
 Arguments can be specific files or directories.
 
@@ -32,7 +32,7 @@ Arguments can be specific files or directories.
 
 To use Marginalia in your own projects simply add the following to your `project.clj` file in the `:dev-dependencies` section:
 
-    [marginalia "0.3.0"]
+    [marginalia "0.3.2"]
 
 After executing `lein deps` you can generate your complete source documentation with the following command:
 
