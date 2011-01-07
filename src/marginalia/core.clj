@@ -223,13 +223,16 @@
   "Generates an uberdoc html file from 3 pieces of information:
 
    1. Results from processing source files (`path-to-doc`)
-   2. Project metadata obtained from `parse-project-file`.
-   3. The path to spit the result (`output-file-name`)"
-  [output-file-name files-to-analyze]
+   2. The path to spit the result (`output-file-name`)
+   3. Project metadata as a map, containing at a minimum the following:
+     - :name
+     - :version
+  "
+  [output-file-name files-to-analyze props]
   (let [docs (map path-to-doc files-to-analyze)
         source (uberdoc-html
                 output-file-name
-                (parse-project-file)
+                props
                 (map path-to-doc files-to-analyze))]
     (spit output-file-name source)))
 
@@ -260,7 +263,7 @@
           (println "  " s))
         (println)
         (ensure-directory! "./docs")
-        (uberdoc! "./docs/uberdoc.html" sources)
+        (uberdoc! "./docs/uberdoc.html" sources (parse-project-file))
         (println "Done generating your docs, please see ./docs/uberdoc.html")
         (println)))))
 
