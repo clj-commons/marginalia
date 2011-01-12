@@ -37,11 +37,13 @@
   (when-not (ls path)
     (mkdir path)))
 
-(defn dir? [path]
+(defn dir?
+  "Many Marginalia fns use dir? to recursively search a filepath."
+  [path]
   (.isDirectory (java.io.File. path)))
 
 (defn find-clojure-file-paths
-  "Returns a seq of clojure file paths (strings) in alphabetical depth-first order (I think?)."
+  "Returns a seq of clojure file paths (strings) in alphabetical depth-first order."
   [dir]
   (->> (java.io.File. dir)
        (file-seq)
@@ -55,30 +57,32 @@
 ;; ![TODO](http://images.fogus.me/badges/todo.png "POM") add pom.xml support.
 
 
-
-
-(defn parse-project-file
-  "Parses a project.clj file and returns a map in the following form
-
+(defn parse-project-form
+  "Pulls apart the seq of project information and assembles it into a map of
+   the following form
        {:name 
         :version
         :dependencies
         :dev-dependencies
         etc...}
+  by merging into the name and version information the rest of the defproject
+  forms (`:dependencies`, etc)"
+  [[_ project-name version-number & attributes]]
+  (merge {:name (str project-name)
+	  :version version-number}
+	 (apply hash-map attributes)))
 
-   by reading the `defproject` form from your project.clj to obtain name and
-   version, then merges in the rest of the defproject forms (`:dependencies`, etc)."
+(defn parse-project-file
+  "Parses a project file -- './project.clj' by default -- and returns a map
+   assembled according to the logic in parse-project-form."
   ([] (parse-project-file "./project.clj"))
   ([path]
       (try
         (let [rdr (clojure.lang.LineNumberingPushbackReader.
                    (java.io.FileReader.
-                    (java.io.File. path)))
-              project-form (read rdr)]
-          (merge {:name (str (second project-form))
-                  :version (nth project-form 2)}
-                 (apply hash-map (drop 3 project-form))))
-        (catch Exception e
+                    (java.io.File. path)))]
+          (parse-project-form (read rdr)))
+	(catch Exception e
           (throw (Exception.
                   (str
                    "There was a problem reading the project definition from "
@@ -87,8 +91,8 @@
 
 ;; ## Source File Analysis
 
-;; This line should be replaced
-;; and this one too!
+;; Marginalia will parse your code to extract doc strings for display in the
+;; generated html file.
 (defn parse [src]
   (for [line (line-seq src)]
     (if (re-find *comment* line)
@@ -222,23 +226,29 @@
 (defn uberdoc!
   "Generates an uberdoc html file from 3 pieces of information:
 
-   1. Results from processing source files (`path-to-doc`)
    2. The path to spit the result (`output-file-name`)
+   1. Results from processing source files (`path-to-doc`)
    3. Project metadata as a map, containing at a minimum the following:
      - :name
      - :version
   "
   [output-file-name files-to-analyze props]
-  (let [docs (map path-to-doc files-to-analyze)
-        source (uberdoc-html
+    (spit output-file-name
+	  (uberdoc-html
                 output-file-name
-                props
-                (map path-to-doc files-to-analyze))]
-    (spit output-file-name source)))
+                (map path-to-doc files-to-analyze)
+                props)))
 
 ;; ## External Interface (command-line, lein, cake, etc)
 
-(defn format-sources [sources]
+;; These functions support Marginalia's use by client software or command-line
+;; users.
+
+(defn format-sources
+  "Given a collection of filepaths, returns a lazy sequence of filepaths to
+   all .clj files on those paths: directory paths will be searched recursively
+   for .clj files."
+  [sources]
   (if (nil? sources)
     (find-clojure-file-paths "./src")
     (->> sources
@@ -250,7 +260,17 @@
 (defn usage []
   (println "marginalia <src1> ... <src-n>"))
 
-(defn run-marginalia [sources]
+(defn run-marginalia
+  "Default generation: given a collection of filepaths in a project, find the .clj
+   files at these paths and, if Clojure source files are found:
+
+   1. Print out a message to std out letting a user know which files are to be processed;
+   1. Create the docs directory inside the project folder if it doesn't already exist;
+   1. Call the uberdoc! function to generate the output file at its default location,
+     using the found source files and a project file expected to be in its default location.
+
+   If no source files are found, complain with a usage message."
+  [sources]
   (let [sources (format-sources sources)]
     (if-not sources
       (do
