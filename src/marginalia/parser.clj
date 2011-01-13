@@ -1,3 +1,6 @@
+;; This file contains the complete Marginalia parser.
+;; It leverages the Clojure reader instead of implementing a complete
+;; Clojure parsing solution.
 (ns marginalia.parser
   "Provides the parsing facilities for Marginalia."
   (:require [clojure.java.io :as io]
@@ -29,15 +32,14 @@
           (aset (get-field clojure.lang.LispReader :macros nil) (int \;) old-cmt-rdr)
           result)))))
 
+(defn parse-file
+  [filepath]
+  (let [parser (make-parse-fn (slurp filepath))]
+    (loop [lines []]
+      (if-let [result (try (parser) (catch Exception _ nil))]
+        (recur (conj lines result))
+        lines))))
+
 (comment
-  (def R (make-parse-fn ";; Some Comment
-        ;; with two lines
-        ;  maybe 3?
-        ;
-
-        (defn hello-world
-          \"This is a docstring\"
-          [name]
-          (pritnln \"hello\" name \"!\"))"))
-
-  (R))
+  (parse-file "/tmp/parser.clj")
+)
