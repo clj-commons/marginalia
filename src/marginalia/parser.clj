@@ -41,5 +41,5 @@
         lines))))
 
 (comment
-  (parse-file "/tmp/parser.clj")
+  (parse-file "../marginalia/src/marginalia/parser.clj")
 )
