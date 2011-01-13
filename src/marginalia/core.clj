@@ -160,6 +160,9 @@
        ;; and does the current line start with a quote?
        (and (re-find #"^\(defmacro" last-code-text)
             (re-find #"^\"" (str/trim (str line))))
+       ;; 
+       (and (re-find #".*\[this" last-code-text)
+            (re-find #"^\"" (str/trim (str line))))
        ;; Is the prev line a docstring, prev line not end with a quote,
        ;; and the current line empty?
        (and (:docstring-text l)

@@ -21,10 +21,17 @@
   "Here is just a string.  It should be to the right."
   (* x x))
 
-(defmacro foobar
-  "This is a macro docstring.  It should be on the left."
-  [& body]
-  `~body)
+(defprotocol Relation
+  (select     [this predicate]
+    "Confines the query to rows for which the predicate is true
+
+     Ex. (select (table :users) (where (= :id 5)))")
+  (join       [this table2 join_on]
+    "Joins two tables on join_on
+
+     Ex. (join (table :one) (table :two) :id)
+         (join (table :one) (table :two)
+               (where (= :one.col :two.col)))"))
 
 (defmulti bazfoo
   "This is a defmulti docstring, it should also be on the left"
