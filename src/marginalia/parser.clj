@@ -34,12 +34,22 @@
 
 (defn parse-file
   [filepath]
-  (let [parser (make-parse-fn (slurp filepath))]
+  (let [parser! (make-parse-fn (slurp filepath))]
     (loop [lines []]
-      (if-let [result (try (parser) (catch Exception _ nil))]
+      (if-let [result (try (parser!) (catch Exception _ nil))]
         (recur (conj lines result))
         lines))))
 
 (comment
   (parse-file "../marginalia/src/marginalia/parser.clj")
+
+  (aget (get-field clojure.lang.LispReader :macros nil) (int (first "^")))
+
+  (def R (make-parse-fn "(def ^{:doc \"this is doc\" :author \"fogus\"}
+                              foo
+                              ^{:gah :goo}
+                              [1 2 3])"))
+  
+  (def e (R))
+  (map meta e)
 )
