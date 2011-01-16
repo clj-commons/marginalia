@@ -259,7 +259,7 @@
     [[dir d "Directory into which the documentation will be written" "./docs"]
      [file f "File into which the documentation will be written" "uberdoc.html"]
      sources]
-    (let [sources (format-sources sources)]
+    (let [sources (format-sources (seq sources))]
       (if-not sources
         (do
           (println "Wrong number of arguments passed to marginalia.")
