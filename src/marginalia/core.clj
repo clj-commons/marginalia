@@ -256,7 +256,8 @@
   (with-command-line args
     (str "Leiningen plugin for running marginalia against your project.\n\n"
          "Usage: marginalia <options?> <src1> ... <src-n>\n")
-    [[dir d "Directory into which uberdoc.html will be written" "./docs"]
+    [[dir d "Directory into which the documentation will be written" "./docs"]
+     [file f "File into which the documentation will be written" "uberdoc.html"]
      sources]
     (let [sources (format-sources sources)]
       (if-not sources
@@ -269,9 +270,9 @@
             (println "  " s))
           (println)
           (ensure-directory! *docs*)
-          (uberdoc! (str *docs* "/uberdoc.html") sources (parse-project-file))
+          (uberdoc! (str *docs* "/" file) sources (parse-project-file))
           (println "Done generating your documentation, please see"
-                   (str *docs* "/uberdoc.html"))
+                   (str *docs* "/" file))
           (println))))))
 
 (defn -main
