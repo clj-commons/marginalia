@@ -4,12 +4,14 @@
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
   (:use [marginalia.html :only (uberdoc-html)]
-        [clojure.contrib.find-namespaces :only (read-file-ns-decl)])
+        [clojure.contrib
+         [find-namespaces :only (read-file-ns-decl)]
+         [command-line :only (print-help with-command-line)]])
   (:gen-class))
 
 
 (def *test* "./src/cljojo/core.clj")
-(def *docs* "docs")
+(def *docs* "./docs")
 (def *comment* #"^\s*;;\s?")
 (def *divider-text* "\n;;DIVIDER\n")
 (def *divider-html* #"\n*<span class=\"c[1]?\">;;DIVIDER</span>\n*")
@@ -250,25 +252,27 @@
                  [%]))
          (flatten))))
 
-(defn usage []
-  (println "marginalia <src1> ... <src-n>"))
-
-(defn run-marginalia [sources]
-  (let [sources (format-sources sources)]
-    (if-not sources
-      (do
-        (println "Wrong number of arguments passed to marginalia.")
-        (println "Please present paths to source files as follows:")
-        (usage))
-      (do
-        (println "Generating uberdoc for the following source files:")
-        (doseq [s sources]
-          (println "  " s))
-        (println)
-        (ensure-directory! "./docs")
-        (uberdoc! "./docs/uberdoc.html" sources (parse-project-file))
-        (println "Done generating your docs, please see ./docs/uberdoc.html")
-        (println)))))
+(defn run-marginalia [args]
+  (with-command-line args
+    (str "Leiningen plugin for running marginalia against your project.\n\n"
+         "Usage: marginalia <options?> <src1> ... <src-n>\n")
+    [[dir d "Directory into which uberdoc.html will be written" "./docs"]
+     sources]
+    (let [sources (format-sources sources)]
+      (if-not sources
+        (do
+          (println "Wrong number of arguments passed to marginalia.")
+          (print-help))
+        (binding [*docs* dir]
+          (println "Generating uberdoc for the following source files:")
+          (doseq [s sources]
+            (println "  " s))
+          (println)
+          (ensure-directory! *docs*)
+          (uberdoc! (str *docs* "/uberdoc.html") sources (parse-project-file))
+          (println "Done generating your documentation, please see"
+                   (str *docs* "/uberdoc.html"))
+          (println))))))
 
 (defn -main
   "The main entry point into Marginalia."
