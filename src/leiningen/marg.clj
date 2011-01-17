@@ -5,10 +5,14 @@
 
    1. Add `[marginalia \"<current version number>\"]` to your project.clj's `:dev-dependencies` section.
    2. run `lein marg` from your project's root directory. "
-  (:use [marginalia.core]))
+  (:use [leiningen.compile :only [eval-in-project]]
+        marginalia.core))
 
 (defn marg [project & args]
-  (run-marginalia args))
+  (eval-in-project project
+    `(do
+       (require 'marginalia.core)
+       (marginalia.core/run-marginalia (list ~@args)))))
 
 ;; You can pass a file, directory, multiple files and/or directories to marginalia like so:
 ;;
