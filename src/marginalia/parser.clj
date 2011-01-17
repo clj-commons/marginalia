@@ -64,18 +64,20 @@
     ;; HACK: to handle types
     (catch Exception _)))
 
-(defn extract-docstring [form raw nspace-sym]
-  (if (re-find #"^(def|ns)" (-> form first name))
-    (let [sym (-> form second)
-          _ (when-not nspace-sym (require sym))
-          nspace (find-ns sym)]
-      (let [docstring (if nspace
-                        (-> nspace meta :doc)
-                        (get-var-docstring nspace-sym sym))]
-        [docstring
-         (strip-docstring docstring raw)
-         (if nspace sym nspace-sym)]))
-    [nil raw nspace-sym]))
+(defn extract-docstring [m raw nspace-sym]
+  (let [raw (join "\n" (subvec raw (-> m :start dec) (:end m)))
+        form (:form m)]
+    (if (re-find #"^(def|ns)" (-> form first name))
+      (let [sym (-> form second)
+            _ (when-not nspace-sym (require sym))
+            nspace (find-ns sym)]
+        (let [docstring (if nspace
+                          (-> nspace meta :doc)
+                          (get-var-docstring nspace-sym sym))]
+          [docstring
+           (strip-docstring docstring raw)
+           (if nspace sym nspace-sym)]))
+      [nil raw nspace-sym])))
 
 (defn- ->str [m]
   (replace (-> m :form .content) #"^;+\s*" ""))
@@ -84,6 +86,9 @@
   {:form (Comment. (str (->str f) "\n" (->str s)))
    :start (:start f)
    :end (:end s)})
+
+(defn adjacent? [f s]
+  (= (-> f :end) (-> s :start dec)))
 
 (defn arrange-in-sections [parsed-code raw-code]
   (loop [sections []
@@ -97,11 +102,18 @@
        (and (comment? f) (re-find #"^;\s" (-> f :form .content)))
        (recur sections s (first nn) (next nn) nspace)
        ;; merging comments block
-       (and (comment? f) (comment? s)
-            (= (-> f :end) (-> s :start dec)))
+       (and (comment? f) (comment? s) (adjacent? f s))
        (recur sections (merge-comments f s)
               (first nn) (next nn)
               nspace)
+       ;; adjacent comments are added as extra documentation to code block
+       (and (comment? f) (not (comment? s)) (adjacent? f s))
+       (let [[doc code nspace] (extract-docstring s raw-code nspace)]
+         (recur (conj sections (assoc s
+                                 :type :code
+                                 :raw code
+                                 :docstring (str doc "\n\n" (->str f))))
+                s (first nn) (next nn) nspace))
        ;; adding comment section
        (comment? f)
        (recur (conj sections (assoc f :type :comment :raw (->str f)))
@@ -110,16 +122,12 @@
               nspace)
        ;; adding code section
        :else
-       (let [raw-code (join "\n" (subvec raw-code (-> f :start dec) (:end f)))
-             [docstring raw-code nspace]
-             (extract-docstring (:form f) raw-code nspace)]
+       (let [[doc code nspace] (extract-docstring f raw-code nspace)]
          (recur (conj sections (assoc f
                                  :type :code
-                                 :raw raw-code
-                                 :docstring docstring))
-                s
-                (first nn) (next nn)
-                nspace)))
+                                 :raw code
+                                 :docstring doc))
+                s (first nn) (next nn) nspace)))
       sections)))
 
 (defn parse [source-string]
