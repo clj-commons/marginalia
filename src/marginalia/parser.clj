@@ -65,7 +65,7 @@
     (catch Exception _)))
 
 (defn extract-docstring [form raw nspace-sym]
-  (when (re-find #"^(def|ns)" (-> form first name))
+  (if (re-find #"^(def|ns)" (-> form first name))
     (let [sym (-> form second)
           _ (when-not nspace-sym (require sym))
           nspace (find-ns sym)]
@@ -74,7 +74,8 @@
                         (get-var-docstring nspace-sym sym))]
         [docstring
          (strip-docstring docstring raw)
-         (if nspace sym nspace-sym)]))))
+         (if nspace sym nspace-sym)]))
+    [nil raw nspace-sym]))
 
 (defn- ->str [m]
   (replace (-> m :form .content) #"^;+\s*" ""))
