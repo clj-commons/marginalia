@@ -212,7 +212,7 @@
 (defn run-marginalia [args]
   (with-command-line args
     (str "Leiningen plugin for running marginalia against your project.\n\n"
-         "Usage: marginalia <options?> <src1> ... <src-n>\n")
+         "Usage: lein marg <options?> <src1> ... <src-n>\n")
     [[dir d "Directory into which the documentation will be written" "./docs"]
      [file f "File into which the documentation will be written" "uberdoc.html"]
      sources]
