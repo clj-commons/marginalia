@@ -102,29 +102,24 @@
    -> \"<h1>hello world!</h1><br />\"`
    "
   [docs]
-  (->> docs
-       (map #(if (:docs-text %)
-               (prep-docs-text (:docs-text %))
-               (prep-docstring-text (:docstring-text %))))
-       (map replace-special-chars)
-       (interpose "\n")
-       (apply str)
-       (md)))
+  (-> docs
+      str
+      prep-docs-text
+      replace-special-chars
+      (md)))
 
+(defn codes-to-html [code-block]
+  (html [:pre {:class "brush: clojure"} code-block]))
 
-(defn codes-to-html [codes]
-  (html [:pre {:class "brush: clojure"}
-         (->> codes
-              (map :code-text)
-              (map escape-html)
-              (interpose "\n")
-              (apply str))]))
-
-(defn group-to-html [group]
-  (html
-   [:tr
-    [:td {:class "docs"} (docs-to-html (:docs group))]
-    [:td {:class "codes"} (codes-to-html (:codes group))]]))
+(defn section-to-html [section]
+  (html [:tr
+         [:td {:class "docs"} (docs-to-html
+                               (if (= (:type section) :comment)
+                                 (:raw section)
+                                 (:docstring section)))]
+         [:td {:class "codes"}] (if (= (:type section) :code)
+                                  (codes-to-html (:raw section))
+                                  "")]))
 
 (defn dependencies-html [deps & header-name]
   (let [header-name (or header-name "dependencies")]
@@ -221,7 +216,7 @@
        [:a {:href "#toc" :class "toc-link"}
         "toc"]]]]
     [:td {:class "codes"}]]
-   (map group-to-html (:groups doc))
+   (map section-to-html (:groups doc))
    [:tr
     [:td {:class "spacer docs"} "&nbsp;"]
     [:td {:class "codes"}]]))

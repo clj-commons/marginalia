@@ -3,7 +3,9 @@
    into an easily consumable format."
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
-  (:use [marginalia.html :only (uberdoc-html)]
+  (:use [marginalia
+         [html :only (uberdoc-html)]
+         [parser :only (parse-file)]]
         [clojure.contrib
          [find-namespaces :only (read-file-ns-decl)]
          [command-line :only (print-help with-command-line)]])
@@ -13,8 +15,6 @@
 (def *test* "./src/cljojo/core.clj")
 (def *docs* "./docs")
 (def *comment* #"^\s*;;\s?")
-(def *divider-text* "\n;;DIVIDER\n")
-(def *divider-html* #"\n*<span class=\"c[1]?\">;;DIVIDER</span>\n*")
 
 ;; ## File System Utilities
 
@@ -88,14 +88,6 @@
 
 
 ;; ## Source File Analysis
-
-;; This line should be replaced
-;; and this one too!
-(defn parse [src]
-  (for [line (line-seq src)]
-    (if (re-find *comment* line)
-      {:docs-text (str (str/replace line *comment* ""))}
-      {:code-text (str line)})))
 
 
 (defn end-of-block? [cur-group groups lines]
@@ -176,38 +168,6 @@
             (= "" (str/trim (str line)))))
       (catch Exception e nil))))
 
-
-(defn parse [src]
-  (loop [[line & more] (line-seq src) cnum 1 dnum 0 sections []]
-    (if line
-      (if (re-find *comment* line)
-        (recur more
-               cnum
-               (inc dnum)
-               (conj sections {:docs-text (str (str/replace line *comment* "")) :line (+ cnum dnum)}))
-        (recur more
-               (inc cnum)
-               0
-               (if (docstring-line? (str line) sections)
-                 (conj sections {:docstring-text (str line) :line cnum})
-                 (conj sections {:code-text (str line) :line cnum}))))
-      sections)))
-
-
-;; How is this handled?
-;; I wonder?
-;; No idea ne
-(defn gen-doc! [path]
-  (println "Generating documentation for " path)
-  (with-open [src (io/reader (io/file path))]
-    (doseq [section (parse src)]
-      ;; and this?
-      (println section))))
-
-(defn gen-doc! [path]
-  (with-open [src (io/reader (io/file path))]
-    (parse src)))
-
 (re-find *comment* "  ;; this is a comment")
 
 (defn path-to-doc [fn]
@@ -215,9 +175,7 @@
                (read-file-ns-decl)
                (second)
                (str))
-        groups (->> fn
-                    (gen-doc!)
-                    (group-lines))]
+        groups (parse-file fn)]
     {:ns ns
      :groups groups}))
 
@@ -234,8 +192,7 @@
      - :version
   "
   [output-file-name files-to-analyze props]
-  (let [docs (map path-to-doc files-to-analyze)
-        source (uberdoc-html
+  (let [source (uberdoc-html
                 output-file-name
                 props
                 (map path-to-doc files-to-analyze))]
