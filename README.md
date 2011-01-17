@@ -59,7 +59,6 @@ TODO
 ----
 * paragraph anchors
 * options for non-uber-docs
-* new docstring/comment reader
 * Maven generation support
 * POM parsing
 
