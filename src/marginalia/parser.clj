@@ -49,9 +49,6 @@
                   (.getLineNumber reader))]
         {:form form :start start :end end})))))
 
-(defn comment? [o]
-  (->> o :form (instance? Comment)))
-
 (defn strip-docstring [docstring raw]
   (-> raw
       (replace (str \" docstring \") "")
@@ -87,6 +84,13 @@
    :start (:start f)
    :end (:end s)})
 
+(defn comment? [o]
+  (->> o :form (instance? Comment)))
+
+(defn code? [o]
+  (and (->> o :form (instance? Comment) not)
+       (->> o :form nil? not)))
+
 (defn adjacent? [f s]
   (= (-> f :end) (-> s :start dec)))
 
@@ -106,14 +110,23 @@
        (recur sections (merge-comments f s)
               (first nn) (next nn)
               nspace)
+       ;; merging adjacent code blocks
+       (and (code? f) (code? s) (adjacent? f s))
+       (let [[fdoc fcode nspace] (extract-docstring f raw-code nspace)
+             [sdoc scode _] (extract-docstring s raw-code nspace)]
+         (recur sections (assoc s
+                           :type :code
+                           :raw (str (or (:raw f) fcode) "\n" scode)
+                           :docstring (str (or (:docstring f) fdoc) "\n\n" sdoc))
+                (first nn) (next nn) nspace))
        ;; adjacent comments are added as extra documentation to code block
-       (and (comment? f) (not (comment? s)) (adjacent? f s))
+       (and (comment? f) (code? s) (adjacent? f s))
        (let [[doc code nspace] (extract-docstring s raw-code nspace)]
-         (recur (conj sections (assoc s
-                                 :type :code
-                                 :raw code
-                                 :docstring (str doc "\n\n" (->str f))))
-                s (first nn) (next nn) nspace))
+         (recur sections (assoc s
+                           :type :code
+                           :raw code
+                           :docstring (str doc "\n\n" (->str f)))
+                (first nn) (next nn) nspace))
        ;; adding comment section
        (comment? f)
        (recur (conj sections (assoc f :type :comment :raw (->str f)))
@@ -123,10 +136,11 @@
        ;; adding code section
        :else
        (let [[doc code nspace] (extract-docstring f raw-code nspace)]
-         (recur (conj sections (assoc f
-                                 :type :code
-                                 :raw code
-                                 :docstring doc))
+         (recur (conj sections (if (= (:type f) :code)
+                                 f
+                                 {:type :code
+                                  :raw code
+                                  :docstring doc}))
                 s (first nn) (next nn) nspace)))
       sections)))
 
