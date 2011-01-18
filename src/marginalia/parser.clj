@@ -61,20 +61,56 @@
     ;; HACK: to handle types
     (catch Exception _)))
 
+(defmulti dispatch-form (fn [form _ _] (first form)))
+
+(defn- extract-common-docstring
+  [form raw nspace-sym]
+  (let [sym (-> form second)
+        _ (when-not nspace-sym (require sym))
+        nspace (find-ns sym)]
+    (let [docstring (if nspace
+                      (-> nspace meta :doc)
+                      (get-var-docstring nspace-sym sym))]
+      [docstring
+       (strip-docstring docstring raw)
+       (if nspace sym nspace-sym)])))
+
+(defmethod dispatch-form 'def
+  [form raw nspace-sym]
+  (extract-common-docstring form raw nspace-sym))
+
+(defmethod dispatch-form 'defn
+  [form raw nspace-sym]
+  (extract-common-docstring form raw nspace-sym))
+
+(defmethod dispatch-form 'ns
+  [form raw nspace-sym]
+  (extract-common-docstring form raw nspace-sym))
+
+(defmethod dispatch-form 'defprotocol
+  [form raw nspace-sym]
+  ;; this needs some work to extract embedded docstrings
+  (extract-common-docstring form raw nspace-sym))
+
+(defmethod dispatch-form 'defmulti
+  [form raw nspace-sym]
+  (extract-common-docstring form raw nspace-sym))
+
+(defmethod dispatch-form 'defmethod
+  [form raw nspace-sym]
+  (let [ds        (nth form 4)
+        docstring (when (string? ds) ds)]
+    [docstring
+     (strip-docstring docstring raw)
+     nspace-sym]))
+
+(defmethod dispatch-form :default [_ raw nspace-sym]
+  [nil raw nspace-sym])
+
 (defn extract-docstring [m raw nspace-sym]
   (let [raw (join "\n" (subvec raw (-> m :start dec) (:end m)))
         form (:form m)]
-    (if (re-find #"^(def|ns)" (-> form first name))
-      (let [sym (-> form second)
-            _ (when-not nspace-sym (require sym))
-            nspace (find-ns sym)]
-        (let [docstring (if nspace
-                          (-> nspace meta :doc)
-                          (get-var-docstring nspace-sym sym))]
-          [docstring
-           (strip-docstring docstring raw)
-           (if nspace sym nspace-sym)]))
-      [nil raw nspace-sym])))
+    (dispatch-form form raw nspace-sym)))
 
 (defn- ->str [m]
   (replace (-> m :form .content) #"^;+\s*" ""))

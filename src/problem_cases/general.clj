@@ -6,7 +6,7 @@
 ;; Should have only this comment in the left margin.
 ;; See [https://github.com/fogus/marginalia/issues/#issue/4](https://github.com/fogus/marginalia/issues/#issue/4)
 
-(defn parse-bool [v] (condp = (.trim (text v))
+(defn parse-bool [v] (condp = (.trim (str v))
                          "0" false
                          "1" true
                          "throw exception here"))
@@ -66,15 +66,16 @@
 
 ; Define single-character indicator rules.
 ; I use `clojure.template/do-template` to reduce repetition.
-(do-template [rule-name token]
-  (h/defrule rule-name
-    "Padded on the front with optional whitespace."
-    (h/lit token))
-  <escape-char-start> \\
-  <str-delimiter>   \"
-  <value-separator> \,
-  <name-separator>  \:
-  <array-start>     \[
-  <array-end>       \]
-  <object-start>    \{
-  <object-end>      \})
+(comment
+  (do-template [rule-name token]
+               (h/defrule rule-name
+                 "Padded on the front with optional whitespace."
+                 (h/lit token))
+               <escape-char-start> \\
+               <str-delimiter>   \"
+               <value-separator> \,
+               <name-separator>  \:
+               <array-start>     \[
+               <array-end>       \]
+               <object-start>    \{
+               <object-end>      \}))

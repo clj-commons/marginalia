@@ -1,4 +1,4 @@
-(defproject marginalia "0.3.2"
+(defproject marginalia "0.5.0-alpha"
   :description "lightweight literate programming for clojure -- inspired by [docco](http://jashkenas.github.com/docco/)"
   :main marginalia.core
   :eval-in-leiningen true
@@ -13,7 +13,7 @@
    ;;Needed for testing lein plugin
    [hiccup "0.3.0"]
    [org.markdownj/markdownj "0.3.0-1.0.2b4"]
-   [marginalia "0.3.2"]]
+   [marginalia "0.5.0-alpha"]]
   ;;Needed for testing cake plugin
   :tasks [marginalia.tasks]
   ;;Needed for testing Latex equation formatting. You must download

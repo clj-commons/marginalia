@@ -117,59 +117,6 @@
 
      :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))
 
-;; Hacktastic, these ad-hoc checks should be replaced with something
-;; more robust.
-(defn docstring-line? [line sections]
-  (let [l (last sections)
-        last-code-text (get l :code-text "")]
-    (try
-      (or
-       ;; Last line contain defn &&
-       ;; last line not contain what looks like a param vector &&
-       ;; current line start with a quote 
-       (and (re-find #"\(defn" last-code-text)
-            (not (re-find #"\[.*\]" last-code-text))
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text a deftask, and does the
-       ;; current line start with a quote?
-       (and (re-find #"^\(deftask" (str/trim last-code-text))
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text the start of a ns
-       ;; decl, and does the current line start with a quote?
-       (and (re-find #"^\(ns" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text the start of a defprotocol,
-       ;; and does the current line start with a quote?
-       (and (re-find #"^\(defprotocol" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text the start of a defmulti,
-       ;; and does the current line start with a quote?
-       (and (re-find #"^\(defmulti" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text the start of a defmethod,
-       ;; and does the current line start with a quote?
-       (and (re-find #"^\(defmethod" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))       
-       ;; Is the last line's code-text the start of a defmacro,
-       ;; and does the current line start with a quote?
-       (and (re-find #"^\(defmacro" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))
-       ;; 
-       (and (re-find #".*\[this" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the prev line a docstring, prev line not end with a quote,
-       ;; and the current line empty?
-       (and (:docstring-text l)
-            (not (re-find #"\"$" (str/trim (:docstring-text l)))))
-       ;; Is the prev line a docstring, the prev line not end with a quote,
-       ;; and the current line not an empty string?
-       (and (:docstring-text l)
-            (not (re-find #"[^\\]\"$" (str/trim (:docstring-text l))))
-            (= "" (str/trim (str line)))))
-      (catch Exception e nil))))
-
-(re-find *comment* "  ;; this is a comment")
-
 (defn path-to-doc [fn]
   (let [ns (-> (java.io.File. fn)
                (read-file-ns-decl)
@@ -230,7 +177,7 @@
           (uberdoc! (str *docs* "/" file) sources (parse-project-file))
           (println "Done generating your documentation, please see"
                    (str *docs* "/" file))
-          (println))))))
+          (println ""))))))
 
 (defn -main
   "The main entry point into Marginalia."
