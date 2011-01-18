@@ -1,15 +1,5 @@
 (ns marginalia.html
-  "# Utilities for converting parse results into html.
-   ## Plus a few other goodies.
-
-       Here's a random code block (println \"hi!\")
-
-   Like I said:
-
-   * utils for docs -> html
-   * other goodies
-
-   hello world"
+  "Utilities for converting parse results into html."
   (:use [hiccup.core :only (html escape-html)]
         [hiccup.page-helpers :only (doctype)])
   (:require [clojure.string :as str])
@@ -60,7 +50,7 @@
 
 (defn md 
   "Markdown string to html converter. Translates strings like \"# header!\"
-   -> \"<h1>header!</h1>"
+   -> `\"<h1>header!</h1>\"`"
   [s]
   (.markdown mdp s))
 
@@ -99,7 +89,7 @@
    outlined above.
 
    ex. `(docs-to-html [{:doc-text \"#hello world!\"} {:docstring-text \"I'm a docstring!}])
-   -> \"<h1>hello world!</h1><br />\"`
+   ->  `\"<h1>hello world!</h1><br />\"`
    "
   [docs]
   (-> docs

@@ -75,15 +75,20 @@
        (strip-docstring docstring raw)
        (if nspace sym nspace-sym)])))
 
+(defmethod dispatch-form 'ns
+  [form raw nspace-sym]
+  (let [[ds r s] (extract-common-docstring form raw nspace-sym)]
+    (let [ds (nth form 2)
+          ds (when (string? ds) ds)]
+      [ds
+       (strip-docstring ds r)
+       s])))
+
 (defmethod dispatch-form 'def
   [form raw nspace-sym]
   (extract-common-docstring form raw nspace-sym))
 
 (defmethod dispatch-form 'defn
-  [form raw nspace-sym]
-  (extract-common-docstring form raw nspace-sym))
-
-(defmethod dispatch-form 'ns
   [form raw nspace-sym]
   (extract-common-docstring form raw nspace-sym))
 
