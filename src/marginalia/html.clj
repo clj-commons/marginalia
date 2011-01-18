@@ -155,7 +155,7 @@
            (when css
              (map #(vector :link {:tyle "text/css" :rel "stylesheet" :href %}) css))))))
 
-;; Is <h1/> overloaded?  Maybe we should consider redistributing
+;; Is &lt;h1/&gt; overloaded?  Maybe we should consider redistributing
 ;; header numbers instead of adding classes to all the h1 tags.
 (defn header-html [project-info]
   (html
