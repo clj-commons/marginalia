@@ -7,30 +7,44 @@
   (:use [clojure.contrib [reflect :only (get-field)]]
         [clojure [string :only (join replace)]]))
 
-(deftype Comment [content])
+(defrecord Comment [content])
 
 (defmethod print-method Comment [comment ^String out]
   (.write out (str \" (.content comment) \")))
 
+(def top-level-comments (atom []))
+(def sub-level-comments (atom []))
+
+(def *comments* nil)
+
 (defn read-comment [reader semicolon]
   (let [sb (StringBuilder.)]
     (.append sb semicolon)
-    (loop [ch (char (.read reader))]
-      (if (or (= ch \newline)
-              (= ch \return))
-        (Comment. (.toString sb))
-        (do
-          (.append sb (Character/toString ch))
-          (recur (char (.read reader))))))))
+    (loop [c (.read reader)]
+      (let [ch (char c)]
+        (if (or (= ch \newline)
+                (= ch \return))
+          (let [line (dec (.getLineNumber reader))]
+            (swap! *comments* conj
+                   {:form (Comment. (.toString sb))
+                    :start line
+                    :end line})
+            reader)
+          (do
+            (.append sb (Character/toString ch))
+            (recur (.read reader))))))))
 
 (defn set-comment-reader [reader]
   (aset (get-field clojure.lang.LispReader :macros nil)
         (int \;)
         reader))
 
-(defn skip-spaces [rdr]
+(defn skip-spaces-and-comments [rdr]
   (loop [c (.read rdr)]
     (cond (= c -1) nil
+          (= (char c) \;)
+          (do (read-comment rdr \;)
+              (recur (.read rdr)))
           (#{\space \tab \return \newline \,} (char c))
           (recur (.read rdr))
           :else (.unread rdr c))))
@@ -38,16 +52,22 @@
 (defn parse* [reader]
   (take-while
    :form
-   (repeatedly
-    (fn []
-      (skip-spaces reader)
-      (let [start (.getLineNumber reader)
-            form (. clojure.lang.LispReader
-                    (read reader false nil false))
-            end (if (instance? Comment form)
-                  start
-                  (.getLineNumber reader))]
-        {:form form :start start :end end})))))
+   (flatten
+    (repeatedly
+     (fn []
+       (binding [*comments* top-level-comments]
+         (skip-spaces-and-comments reader))
+       (let [start (.getLineNumber reader)
+             form (binding [*comments* sub-level-comments]
+                    (. clojure.lang.LispReader
+                       (read reader false nil false)))
+             end (.getLineNumber reader)
+             code {:form form :start start :end end}
+             comments @top-level-comments]
+         (swap! top-level-comments (constantly []))
+         (if (empty? comments)
+           [code]
+           (vec (concat comments [code])))))))))
 
 (defn strip-docstring [docstring raw]
   (-> raw
@@ -65,8 +85,8 @@
 
 (defn- extract-common-docstring
   [form raw nspace-sym]
-  (let [sym (-> form second)
-        _ (when-not nspace-sym (require sym))
+  (let [sym (second form)
+        _ (if (= 'ns (first form)) (require sym))
         nspace (find-ns sym)]
     (let [docstring (if nspace
                       (-> nspace meta :doc)
@@ -193,7 +213,7 @@
         old-cmt-rdr (aget (get-field clojure.lang.LispReader :macros nil) (int \;))]
     (try
       (set-comment-reader read-comment)
-      (let [parsed-code (doall (parse* reader))]
+      (let [parsed-code (-> reader parse* doall)]
         (set-comment-reader old-cmt-rdr)
         (arrange-in-sections parsed-code lines))
       (catch Exception e
