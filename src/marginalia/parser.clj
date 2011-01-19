@@ -86,7 +86,9 @@
 (defn- extract-common-docstring
   [form raw nspace-sym]
   (let [sym (second form)
-        _ (if (= 'ns (first form)) (require sym))
+        _ (if (= 'ns (first form))
+            (try (require sym)
+                 (catch Exception _)))
         nspace (find-ns sym)]
     (let [docstring (if nspace
                       (-> nspace meta :doc)
@@ -98,7 +100,7 @@
 (defmethod dispatch-form 'ns
   [form raw nspace-sym]
   (let [[ds r s] (extract-common-docstring form raw nspace-sym)]
-    (let [ds (nth form 2)
+    (let [ds (when (> (count form) 2) (nth form 2))
           ds (when (string? ds) ds)]
       [ds
        (strip-docstring ds r)
