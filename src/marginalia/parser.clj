@@ -131,8 +131,11 @@
      (strip-docstring docstring raw)
      nspace-sym]))
 
-(defmethod dispatch-form :default [_ raw nspace-sym]
-  [nil raw nspace-sym])
+(defmethod dispatch-form :default
+  [form raw nspace-sym]
+  (if (re-find #"^def" (-> form first name))
+    (extract-common-docstring form raw nspace-sym)
+    [nil raw nspace-sym]))
 
 (defn extract-docstring [m raw nspace-sym]
   (let [raw (join "\n" (subvec raw (-> m :start dec) (:end m)))
