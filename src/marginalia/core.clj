@@ -1,6 +1,37 @@
+;; ## A new way to think about programs
+;;
+;; What if your code and its documentation were one and the same?
+;;
+;; Much of the philosophy guiding literate programming is the realization of the answer to this question.
+;; However, if literate programming stands as a comprehensive programming methodology at one of end of the
+;; spectrum and no documentation stands as its antithesis, then Marginalia falls somewhere between. That is,
+;; you should always aim for comprehensive documentation, but the shortest path to a useful subset is the
+;; commented source code itself.
+;;
+;; ## The art of Marginalia
+;;
+;; If you’re fervently writing code that is heavily documented, then using Marginalia for your Clojure projects
+;; is as simple as running it on your codebase. However, if you’re unaccustomed to documenting your source, then
+;; the guidelines herein will help you make the most out of Marginalia for true-power documentation.
+;;
+;; Following the guidelines will work to make your code not only easier to follow – it will make it better.
+;; The very process of using Marginalia will help to crystalize your understanding of problem and its solution(s).
+;;
+;; The quality of the prose in your documentation will often reflect the quality of the code itself thus highlighting
+;; problem areas. The elimination of problem areas will solidify your code and its accompanying prose. Marginalia
+;; provides a virtuous circle spiraling inward toward maximal code quality.
+;;
+;; ## The one true way
+;;
+;; 1. Start by running Marginalia against your code
+;; 2. Cringe at the sad state of your code commentary
+;; 3. Add docstrings and code comments as appropriate
+;; 4. Generate the documentation again
+;; 5. Read the resulting documentation
+;; 6. Make changes to code and documentation so that the “dialog” flows sensibly
+;; 7. Repeat from step #4 until complete
+;;
 (ns marginalia.core
-  "**Core** provides all of the functionality around parsing clojure source files
-   into an easily consumable format."
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
   (:use [marginalia
@@ -12,7 +43,7 @@
   (:gen-class))
 
 
-(def *test* "./src/cljojo/core.clj")
+(def *test* "src/marginalia/core.clj")
 (def *docs* "./docs")
 (def *comment* #"^\s*;;\s?")
 
@@ -101,9 +132,15 @@
 
 (defn merge-line [line m]
   (cond
-   (:docstring-text line) (assoc m :docs (conj (get m :docs []) line))
-   (:code-text line) (assoc m :codes (conj (get m :codes []) line))
-   (:docs-text line) (assoc m :docs (conj (get m :docs []) line))))
+   (:docstring-text line) (assoc m
+                            :docs
+                            (conj (get m :docs []) line))
+   (:code-text line)      (assoc m
+                            :codes
+                            (conj (get m :codes []) line))
+   (:docs-text line)      (assoc m
+                            :docs
+                            (conj (get m :docs []) line))))
 
 (defn group-lines [doc-lines]
   (loop [cur-group {}
@@ -146,7 +183,6 @@
     (spit output-file-name source)))
 
 ;; ## External Interface (command-line, lein, cake, etc)
-
 (defn format-sources [sources]
   (if (nil? sources)
     (find-clojure-file-paths "./src")
@@ -162,8 +198,8 @@
          "Usage: lein marg <options?> <src1> ... <src-n>\n")
     [[dir d "Directory into which the documentation will be written" "./docs"]
      [file f "File into which the documentation will be written" "uberdoc.html"]
-     sources]
-    (let [sources (format-sources (seq sources))]
+     src]
+    (let [sources (format-sources (seq src))]
       (if-not sources
         (do
           (println "Wrong number of arguments passed to marginalia.")

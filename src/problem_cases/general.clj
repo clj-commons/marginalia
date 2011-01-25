@@ -79,3 +79,10 @@
                <array-end>       \]
                <object-start>    \{
                <object-end>      \}))
+
+(defmulti kompile identity)
+
+(defmethod kompile [::standard AutoIncClause]
+  "This is a docstring.  On the left."
+  [_]
+  "GENERATED ALWAYS AS IDENTITY")

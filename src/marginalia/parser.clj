@@ -125,7 +125,7 @@
 
 (defmethod dispatch-form 'defmethod
   [form raw nspace-sym]
-  (let [ds        (nth form 4)
+  (let [ds        (nth form 3)
         docstring (when (string? ds) ds)]
     [docstring
      (strip-docstring docstring raw)

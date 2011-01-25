@@ -12,8 +12,7 @@
    [swank-clojure "1.2.1"]
    ;;Needed for testing lein plugin
    [hiccup "0.3.0"]
-   [org.markdownj/markdownj "0.3.0-1.0.2b4"]
-   [marginalia "0.5.0-alpha"]]
+   [org.markdownj/markdownj "0.3.0-1.0.2b4"]]
   ;;Needed for testing cake plugin
   :tasks [marginalia.tasks]
   ;;Needed for testing Latex equation formatting. You must download
