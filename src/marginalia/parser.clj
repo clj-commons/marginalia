@@ -71,7 +71,13 @@
 
 (defn strip-docstring [docstring raw]
   (-> raw
-      (replace (str \" docstring \") "")
+      (replace (str \" (-> docstring
+                           str
+                           (replace "\"" "\\\"")
+                           ;;                           (replace "\\" "")
+                           )
+                    \")
+               "")
       (replace #"\n\s*\n" "\n")
       (replace #"\n\s*\)" ")")))
 

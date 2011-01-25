@@ -16,6 +16,7 @@
   "Quick and dirty dsl for inline css rules, similar to hiccup.
 
    ex. `(css [:h1 {:color \"blue\"}] [:div.content p {:text-indent \"1em\"}])`
+
    -> `h1 {color: blue;} div.content p {text-indent: 1em;}`"
   [& rules]
   (html [:style {:type "text/css"}
@@ -49,8 +50,13 @@
 (def mdp (com.petebevin.markdown.MarkdownProcessor.))
 
 (defn md 
-  "Markdown string to html converter. Translates strings like \"# header!\"
-   -> `\"<h1>header!</h1>\"`"
+  "Markdown string to html converter. Translates strings like:
+
+   \"# header!\" -> `\"<h1>header!</h1>\"`
+
+   \"## header!\" -> `\"<h2>header!</h2>\"`
+
+   ..."
   [s]
   (.markdown mdp s))
 
@@ -58,13 +64,14 @@
   "Inserts super-fancy characters into the doc section."
   [s]
   (-> s
-      (str/replace #"-&gt;"  "&rarr;")
+      (str/replace #"->"  "&rarr;")
       (str/replace #"&quot;" "\"")))
 
 ;; As a result of docifying then grouping, you'll end up with a seq like this one:
-;;
-;;     [{:docs [{:docs-text "Some doc text"}]
-;;       :codes [{:code-text "(def something \"hi\")"}]}]
+;; <pre><code>[...
+;; {:docs [{:docs-text "Some doc text"}]
+;;  :codes [{:code-text "(def something \"hi\")"}]}
+;; ...]</code></pre>
 ;;
 ;; `docs-to-html` and `codes-to-html` convert their respective entries into html,
 ;; and `group-to-html` calls them on each seq item to do so.
@@ -88,7 +95,8 @@
   "Converts a docs section to html by threading each doc line through the forms
    outlined above.
 
-   ex. `(docs-to-html [{:doc-text \"#hello world!\"} {:docstring-text \"I'm a docstring!}])
+   ex. (docs-to-html [{:doc-text \"# hello world!\"} {:docstring-text \"I'm a docstring!}])
+   
    ->  `\"<h1>hello world!</h1><br />\"`
    "
   [docs]

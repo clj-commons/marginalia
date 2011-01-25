@@ -84,10 +84,6 @@
 ;; ## Project Info Parsing
 ;; Marginalia will parse info out of your project.clj to display in
 ;; the generated html file's header.
-;;
-;; ![TODO](http://images.fogus.me/badges/todo.png "POM") add pom.xml support.
-
-
 
 
 (defn parse-project-file
