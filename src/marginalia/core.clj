@@ -43,9 +43,9 @@
   (:gen-class))
 
 
-(def *test* "src/marginalia/core.clj")
-(def *docs* "./docs")
-(def *comment* #"^\s*;;\s?")
+(def ^{:dynamic true} *test* "src/marginalia/core.clj")
+(def ^{:dynamic true} *docs* "./docs")
+(def ^{:dynamic true} *comment* #"^\s*;;\s?")
 
 ;; ## File System Utilities
 
@@ -214,7 +214,8 @@
 (defn -main
   "The main entry point into Marginalia."
   [& sources]
-  (run-marginalia sources))
+  (binding [marginalia.html/*resources* ""]
+    (run-marginalia sources)))
 
 
 ;; # Example Usage

@@ -5,6 +5,7 @@
   (:require [clojure.string :as str])
   (:import [com.petebevin.markdown MarkdownProcessor]))
 
+(def ^{:dynamic true} *resources* "./resources/")
 
 (defn css-rule [rule]
   (let [sels (reverse (rest (reverse rule)))
@@ -351,16 +352,16 @@
     [:head
      [:meta {:http-equiv "Content-Type" :content "text/html" :charset "utf-8"}]
      [:meta {:name "description" :content (:description project-metadata)}]
-     (inline-js "resources/jquery-1.4.4.min.js")
-     (inline-js "resources/xregexp-min.js")
-     (inline-js "resources/shCore.js")
-     (inline-js "resources/shBrushClojure.js")
-     (inline-js "resources/app.js")
+     (inline-js (str *resources* "jquery-1.4.4.min.js"))
+     (inline-js (str *resources* "xregexp-min.js"))
+     (inline-js (str *resources* "shCore.js"))
+     (inline-js (str *resources* "shBrushClojure.js"))
+     (inline-js (str *resources* "app.js"))
      #_[:script {:type "text/javascript" :src "./../resources/app.js"}]
-     (inline-css "resources/shCore.css")
+     (inline-css (str *resources* "shCore.css"))
      (css
       [:.syntaxhighlighter {:overflow "hidden !important"}])
-     (inline-css "resources/shThemeEclipse.css")
+     (inline-css (str *resources* "shThemeEclipse.css"))
      reset-css
      header-css
      floating-toc-css
