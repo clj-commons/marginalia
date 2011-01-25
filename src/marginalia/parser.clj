@@ -104,7 +104,7 @@
 (defmethod dispatch-form 'ns
   [form raw nspace-sym]
   (let [[ds r s] (extract-common-docstring form raw nspace-sym)]
-    (let [ds (when (> (count form) 2) (nth form 2))
+    (let [[_ _ ds & _] form
           ds (when (string? ds) ds)]
       [ds
        (strip-docstring ds r)
