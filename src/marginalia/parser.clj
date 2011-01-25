@@ -73,9 +73,7 @@
   (-> raw
       (replace (str \" (-> docstring
                            str
-                           (replace "\"" "\\\"")
-                           ;;                           (replace "\\" "")
-                           )
+                           (replace "\"" "\\\""))
                     \")
                "")
       (replace #"\n\s*\n" "\n")
