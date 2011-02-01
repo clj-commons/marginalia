@@ -6,7 +6,7 @@
 ;; Should have only this comment in the left margin.
 ;; See [https://github.com/fogus/marginalia/issues/#issue/4](https://github.com/fogus/marginalia/issues/#issue/4)
 
-(defn parse-bool [v] (condp = (.trim (text v))
+(defn parse-bool [v] (condp = (.trim (str v))
                          "0" false
                          "1" true
                          "throw exception here"))
@@ -21,10 +21,17 @@
   "Here is just a string.  It should be to the right."
   (* x x))
 
-(defmacro foobar
-  "This is a macro docstring.  It should be on the left."
-  [& body]
-  `~body)
+(defprotocol Relation
+  (select     [this predicate]
+    "Confines the query to rows for which the predicate is true
+
+     Ex. (select (table :users) (where (= :id 5)))")
+  (join       [this table2 join_on]
+    "Joins two tables on join_on
+
+     Ex. (join (table :one) (table :two) :id)
+         (join (table :one) (table :two)
+               (where (= :one.col :two.col)))"))
 
 (defmulti bazfoo
   "This is a defmulti docstring, it should also be on the left"
@@ -59,15 +66,23 @@
 
 ; Define single-character indicator rules.
 ; I use `clojure.template/do-template` to reduce repetition.
-(do-template [rule-name token]
-  (h/defrule rule-name
-    "Padded on the front with optional whitespace."
-    (h/lit token))
-  <escape-char-start> \\
-  <str-delimiter>   \"
-  <value-separator> \,
-  <name-separator>  \:
-  <array-start>     \[
-  <array-end>       \]
-  <object-start>    \{
-  <object-end>      \})
+(comment
+  (do-template [rule-name token]
+               (h/defrule rule-name
+                 "Padded on the front with optional whitespace."
+                 (h/lit token))
+               <escape-char-start> \\
+               <str-delimiter>   \"
+               <value-separator> \,
+               <name-separator>  \:
+               <array-start>     \[
+               <array-end>       \]
+               <object-start>    \{
+               <object-end>      \}))
+
+(defmulti kompile identity)
+
+(defmethod kompile [::standard AutoIncClause]
+  "This is a docstring.  On the left."
+  [_]
+  "GENERATED ALWAYS AS IDENTITY")

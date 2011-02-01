@@ -1,18 +1,51 @@
+;; ## A new way to think about programs
+;;
+;; What if your code and its documentation were one and the same?
+;;
+;; Much of the philosophy guiding literate programming is the realization of the answer to this question.
+;; However, if literate programming stands as a comprehensive programming methodology at one of end of the
+;; spectrum and no documentation stands as its antithesis, then Marginalia falls somewhere between. That is,
+;; you should always aim for comprehensive documentation, but the shortest path to a useful subset is the
+;; commented source code itself.
+;;
+;; ## The art of Marginalia
+;;
+;; If you’re fervently writing code that is heavily documented, then using Marginalia for your Clojure projects
+;; is as simple as running it on your codebase. However, if you’re unaccustomed to documenting your source, then
+;; the guidelines herein will help you make the most out of Marginalia for true-power documentation.
+;;
+;; Following the guidelines will work to make your code not only easier to follow – it will make it better.
+;; The very process of using Marginalia will help to crystalize your understanding of problem and its solution(s).
+;;
+;; The quality of the prose in your documentation will often reflect the quality of the code itself thus highlighting
+;; problem areas. The elimination of problem areas will solidify your code and its accompanying prose. Marginalia
+;; provides a virtuous circle spiraling inward toward maximal code quality.
+;;
+;; ## The one true way
+;;
+;; 1. Start by running Marginalia against your code
+;; 2. Cringe at the sad state of your code commentary
+;; 3. Add docstrings and code comments as appropriate
+;; 4. Generate the documentation again
+;; 5. Read the resulting documentation
+;; 6. Make changes to code and documentation so that the “dialog” flows sensibly
+;; 7. Repeat from step #4 until complete
+;;
 (ns marginalia.core
-  "**Core** provides all of the functionality around parsing clojure source files
-   into an easily consumable format."
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
-  (:use [marginalia.html :only (uberdoc-html)]
-        [clojure.contrib.find-namespaces :only (read-file-ns-decl)])
+  (:use [marginalia
+         [html :only (uberdoc-html)]
+         [parser :only (parse-file)]]
+        [clojure.contrib
+         [find-namespaces :only (read-file-ns-decl)]
+         [command-line :only (print-help with-command-line)]])
   (:gen-class))
 
 
-(def *test* "./src/cljojo/core.clj")
-(def *docs* "docs")
-(def *comment* #"^\s*;;\s?")
-(def *divider-text* "\n;;DIVIDER\n")
-(def *divider-html* #"\n*<span class=\"c[1]?\">;;DIVIDER</span>\n*")
+(def ^{:dynamic true} *test* "src/marginalia/core.clj")
+(def ^{:dynamic true} *docs* "./docs")
+(def ^{:dynamic true} *comment* #"^\s*;;\s?")
 
 ;; ## File System Utilities
 
@@ -53,13 +86,11 @@
 ;; ## Project Info Parsing
 ;; Marginalia will parse info out of your project.clj to display in
 ;; the generated html file's header.
-;;
-;; ![TODO](http://images.fogus.me/badges/todo.png "POM") add pom.xml support.
 
 
-(defn parse-project-form
-  "Pulls apart the seq of project information and assembles it into a map of
-   the following form
+(defn parse-project-file
+  "Parses a project.clj file and returns a map in the following form
+
        {:name 
         :version
         :dependencies
@@ -91,14 +122,6 @@
 
 ;; ## Source File Analysis
 
-;; Marginalia will parse your code to extract doc strings for display in the
-;; generated html file.
-(defn parse [src]
-  (for [line (line-seq src)]
-    (if (re-find *comment* line)
-      {:docs-text (str (str/replace line *comment* ""))}
-      {:code-text (str line)})))
-
 
 (defn end-of-block? [cur-group groups lines]
   (let [line (first lines)
@@ -111,9 +134,15 @@
 
 (defn merge-line [line m]
   (cond
-   (:docstring-text line) (assoc m :docs (conj (get m :docs []) line))
-   (:code-text line) (assoc m :codes (conj (get m :codes []) line))
-   (:docs-text line) (assoc m :docs (conj (get m :docs []) line))))
+   (:docstring-text line) (assoc m
+                            :docs
+                            (conj (get m :docs []) line))
+   (:code-text line)      (assoc m
+                            :codes
+                            (conj (get m :codes []) line))
+   (:docs-text line)      (assoc m
+                            :docs
+                            (conj (get m :docs []) line))))
 
 (defn group-lines [doc-lines]
   (loop [cur-group {}
@@ -127,96 +156,12 @@
 
      :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))
 
-;; Hacktastic, these ad-hoc checks should be replaced with something
-;; more robust.
-(defn docstring-line? [line sections]
-  (let [l (last sections)
-        last-code-text (get l :code-text "")]
-    (try
-      (or
-       ;; Last line contain defn &&
-       ;; last line not contain what looks like a param vector &&
-       ;; current line start with a quote 
-       (and (re-find #"\(defn" last-code-text)
-            (not (re-find #"\[.*\]" last-code-text))
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text a deftask, and does the
-       ;; current line start with a quote?
-       (and (re-find #"^\(deftask" (str/trim last-code-text))
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text the start of a ns
-       ;; decl, and does the current line start with a quote?
-       (and (re-find #"^\(ns" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text the start of a defprotocol,
-       ;; and does the current line start with a quote?
-       (and (re-find #"^\(defprotocol" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text the start of a defmulti,
-       ;; and does the current line start with a quote?
-       (and (re-find #"^\(defmulti" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the last line's code-text the start of a defmethod,
-       ;; and does the current line start with a quote?
-       (and (re-find #"^\(defmethod" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))       
-       ;; Is the last line's code-text the start of a defmacro,
-       ;; and does the current line start with a quote?
-       (and (re-find #"^\(defmacro" last-code-text)
-            (re-find #"^\"" (str/trim (str line))))
-       ;; Is the prev line a docstring, prev line not end with a quote,
-       ;; and the current line empty?
-       (and (:docstring-text l)
-            (not (re-find #"\"$" (str/trim (:docstring-text l)))))
-       ;; Is the prev line a docstring, the prev line not end with a quote,
-       ;; and the current line not an empty string?
-       (and (:docstring-text l)
-            (not (re-find #"[^\\]\"$" (str/trim (:docstring-text l))))
-            (= "" (str/trim (str line)))))
-      (catch Exception e nil))))
-
-
-(defn parse [src]
-  (loop [[line & more] (line-seq src) cnum 1 dnum 0 sections []]
-    (if line
-      (if (re-find *comment* line)
-        (recur more
-               cnum
-               (inc dnum)
-               (conj sections {:docs-text (str (str/replace line *comment* "")) :line (+ cnum dnum)}))
-        (recur more
-               (inc cnum)
-               0
-               (if (docstring-line? (str line) sections)
-                 (conj sections {:docstring-text (str line) :line cnum})
-                 (conj sections {:code-text (str line) :line cnum}))))
-      sections)))
-
-
-;; How is this handled?
-;; I wonder?
-;; No idea ne
-(defn gen-doc! [path]
-  (println "Generating documentation for " path)
-  (with-open [src (io/reader (io/file path))]
-    (doseq [section (parse src)]
-      ;; and this?
-      (println section))))
-
-(defn gen-doc! [path]
-  (with-open [src (io/reader (io/file path))]
-    (parse src)))
-
-(re-find *comment* "  ;; this is a comment")
-
 (defn path-to-doc [fn]
   (let [ns (-> (java.io.File. fn)
                (read-file-ns-decl)
                (second)
                (str))
-        groups (->> fn
-                    (gen-doc!)
-                    (group-lines))]
+        groups (parse-file fn)]
     {:ns ns
      :groups groups}))
 
@@ -233,8 +178,7 @@
      - :version
   "
   [output-file-name files-to-analyze props]
-    (spit output-file-name
-	  (uberdoc-html
+  (let [source (uberdoc-html
                 output-file-name
                 (map path-to-doc files-to-analyze)
                 props)))
@@ -270,27 +214,34 @@
      using the found source files and a project file expected to be in its default location.
 
    If no source files are found, complain with a usage message."
-  [sources]
-  (let [sources (format-sources sources)]
-    (if-not sources
-      (do
-        (println "Wrong number of arguments passed to marginalia.")
-        (println "Please present paths to source files as follows:")
-        (usage))
-      (do
-        (println "Generating uberdoc for the following source files:")
-        (doseq [s sources]
-          (println "  " s))
-        (println)
-        (ensure-directory! "./docs")
-        (uberdoc! "./docs/uberdoc.html" sources (parse-project-file))
-        (println "Done generating your docs, please see ./docs/uberdoc.html")
-        (println)))))
+  [args]
+  (with-command-line args
+    (str "Leiningen plugin for running marginalia against your project.\n\n"
+         "Usage: lein marg <options?> <src1> ... <src-n>\n")
+    [[dir d "Directory into which the documentation will be written" "./docs"]
+     [file f "File into which the documentation will be written" "uberdoc.html"]
+     src]
+    (let [sources (format-sources (seq src))]
+      (if-not sources
+        (do
+          (println "Wrong number of arguments passed to marginalia.")
+          (print-help))
+        (binding [*docs* dir]
+          (println "Generating uberdoc for the following source files:")
+          (doseq [s sources]
+            (println "  " s))
+          (println)
+          (ensure-directory! *docs*)
+          (uberdoc! (str *docs* "/" file) sources (parse-project-file))
+          (println "Done generating your documentation, please see"
+                   (str *docs* "/" file))
+          (println ""))))))
 
 (defn -main
   "The main entry point into Marginalia."
   [& sources]
-  (run-marginalia sources))
+  (binding [marginalia.html/*resources* ""]
+    (run-marginalia sources)))
 
 
 ;; # Example Usage

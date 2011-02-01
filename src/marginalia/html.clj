@@ -1,20 +1,11 @@
 (ns marginalia.html
-  "# Utilities for converting parse results into html.
-   ## Plus a few other goodies.
-
-       Here's a random code block (println \"hi!\")
-
-   Like I said:
-
-   * utils for docs -> html
-   * other goodies
-
-   hello world"
+  "Utilities for converting parse results into html."
   (:use [hiccup.core :only (html escape-html)]
         [hiccup.page-helpers :only (doctype)])
   (:require [clojure.string :as str])
   (:import [com.petebevin.markdown MarkdownProcessor]))
 
+(def ^{:dynamic true} *resources* "./resources/")
 
 (defn css-rule [rule]
   (let [sels (reverse (rest (reverse rule)))
@@ -26,6 +17,7 @@
   "Quick and dirty dsl for inline css rules, similar to hiccup.
 
    ex. `(css [:h1 {:color \"blue\"}] [:div.content p {:text-indent \"1em\"}])`
+
    -> `h1 {color: blue;} div.content p {text-indent: 1em;}`"
   [& rules]
   (html [:style {:type "text/css"}
@@ -59,8 +51,13 @@
 (def mdp (com.petebevin.markdown.MarkdownProcessor.))
 
 (defn md 
-  "Markdown string to html converter. Translates strings like \"# header!\"
-   -> \"<h1>header!</h1>"
+  "Markdown string to html converter. Translates strings like:
+
+   \"# header!\" -> `\"<h1>header!</h1>\"`
+
+   \"## header!\" -> `\"<h2>header!</h2>\"`
+
+   ..."
   [s]
   (.markdown mdp s))
 
@@ -68,13 +65,14 @@
   "Inserts super-fancy characters into the doc section."
   [s]
   (-> s
-      (str/replace #"-&gt;"  "&rarr;")
+      (str/replace #"->"  "&rarr;")
       (str/replace #"&quot;" "\"")))
 
 ;; As a result of docifying then grouping, you'll end up with a seq like this one:
-;;
-;;     [{:docs [{:docs-text "Some doc text"}]
-;;       :codes [{:code-text "(def something \"hi\")"}]}]
+;; <pre><code>[...
+;; {:docs [{:docs-text "Some doc text"}]
+;;  :codes [{:code-text "(def something \"hi\")"}]}
+;; ...]</code></pre>
 ;;
 ;; `docs-to-html` and `codes-to-html` convert their respective entries into html,
 ;; and `group-to-html` calls them on each seq item to do so.
@@ -98,33 +96,29 @@
   "Converts a docs section to html by threading each doc line through the forms
    outlined above.
 
-   ex. `(docs-to-html [{:doc-text \"#hello world!\"} {:docstring-text \"I'm a docstring!}])
-   -> \"<h1>hello world!</h1><br />\"`
+   ex. (docs-to-html [{:doc-text \"# hello world!\"} {:docstring-text \"I'm a docstring!}])
+   
+   ->  `\"<h1>hello world!</h1><br />\"`
    "
   [docs]
-  (->> docs
-       (map #(if (:docs-text %)
-               (prep-docs-text (:docs-text %))
-               (prep-docstring-text (:docstring-text %))))
-       (map replace-special-chars)
-       (interpose "\n")
-       (apply str)
-       (md)))
+  (-> docs
+      str
+      prep-docs-text
+      replace-special-chars
+      (md)))
 
+(defn codes-to-html [code-block]
+  (html [:pre {:class "brush: clojure"} code-block]))
 
-(defn codes-to-html [codes]
-  (html [:pre {:class "brush: clojure"}
-         (->> codes
-              (map :code-text)
-              (map escape-html)
-              (interpose "\n")
-              (apply str))]))
-
-(defn group-to-html [group]
-  (html
-   [:tr
-    [:td {:class "docs"} (docs-to-html (:docs group))]
-    [:td {:class "codes"} (codes-to-html (:codes group))]]))
+(defn section-to-html [section]
+  (html [:tr
+         [:td {:class "docs"} (docs-to-html
+                               (if (= (:type section) :comment)
+                                 (:raw section)
+                                 (:docstring section)))]
+         [:td {:class "codes"}] (if (= (:type section) :code)
+                                  (codes-to-html (:raw section))
+                                  "")]))
 
 (defn dependencies-html [deps & header-name]
   (let [header-name (or header-name "dependencies")]
@@ -170,7 +164,7 @@
            (when css
              (map #(vector :link {:tyle "text/css" :rel "stylesheet" :href %}) css))))))
 
-;; Is <h1/> overloaded?  Maybe we should consider redistributing
+;; Is &lt;h1/&gt; overloaded?  Maybe we should consider redistributing
 ;; header numbers instead of adding classes to all the h1 tags.
 (defn header-html [project-info]
   (html
@@ -221,7 +215,7 @@
        [:a {:href "#toc" :class "toc-link"}
         "toc"]]]]
     [:td {:class "codes"}]]
-   (map group-to-html (:groups doc))
+   (map section-to-html (:groups doc))
    [:tr
     [:td {:class "spacer docs"} "&nbsp;"]
     [:td {:class "codes"}]]))
@@ -358,16 +352,16 @@
     [:head
      [:meta {:http-equiv "Content-Type" :content "text/html" :charset "utf-8"}]
      [:meta {:name "description" :content (:description project-metadata)}]
-     (inline-js "jquery-1.4.4.min.js")
-     (inline-js "xregexp-min.js")
-     (inline-js "shCore.js")
-     (inline-js "shBrushClojure.js")
-     (inline-js "app.js")
+     (inline-js (str *resources* "jquery-1.4.4.min.js"))
+     (inline-js (str *resources* "xregexp-min.js"))
+     (inline-js (str *resources* "shCore.js"))
+     (inline-js (str *resources* "shBrushClojure.js"))
+     (inline-js (str *resources* "app.js"))
      #_[:script {:type "text/javascript" :src "./../resources/app.js"}]
-     (inline-css "shCore.css")
+     (inline-css (str *resources* "shCore.css"))
      (css
       [:.syntaxhighlighter {:overflow "hidden !important"}])
-     (inline-css "shThemeEclipse.css")
+     (inline-css (str *resources* "shThemeEclipse.css"))
      reset-css
      header-css
      floating-toc-css

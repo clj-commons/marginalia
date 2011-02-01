@@ -4,10 +4,7 @@ Marginalia
 
 Marginalia is a source documentation too that parses Clojure code and outputs an side-by-side source view with appropriate comments and docstrings aligned.  
 
-To get a quick look at what marginalia output looks like:
-
-1. `git clone https://github.com/fogus/marginalia.git`
-2. `open ./marginalia/example-output/uberdoc.html` (or [look here](http://fogus.me/fun/marginalia/))
+To get a quick look at what marginalia output looks like, then [visit the official site](http://fogus.me/fun/marginalia/).
 
 Usage
 -----
@@ -59,7 +56,6 @@ TODO
 ----
 * paragraph anchors
 * options for non-uber-docs
-* new docstring/comment reader
 * Maven generation support
 * POM parsing
 
