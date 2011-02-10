@@ -79,6 +79,19 @@
       (replace #"\n\s*\n" "\n")
       (replace #"\n\s*\)" ")")))
 
+(defn- internal-strip-docstring
+  [R internal-ds]
+  (reduce (fn [raw docstring]
+            (replace
+             raw
+             (str \" (-> docstring
+                         str
+                         (replace "\"" "\\\""))
+                  \")
+             ""))
+          R
+          internal-ds))
+
 (defn get-var-docstring [nspace-sym sym]
   (try
     (-> `(var ~(symbol (str nspace-sym) (str sym))) eval meta :doc)
@@ -101,6 +114,25 @@
        (strip-docstring docstring raw)
        (if nspace sym nspace-sym)])))
 
+(defn- extract-impl-docstring
+  [fn-body]
+  (filter string? (rest fn-body)))
+
+(defn- extract-internal-docstrings 
+  [body]
+  (mapcat #(extract-impl-docstring %)
+          body))
+
+(defmethod dispatch-form 'defprotocol
+  [form raw nspace-sym]
+  (let [[ds r s] (extract-common-docstring form raw nspace-sym)]
+    (let [internal-dses (if ds
+                          (extract-internal-docstrings (nthnext form 3))
+                          (extract-internal-docstrings (nthnext form 2)))]
+      (with-meta
+        [ds r s]
+        {:internal-docstrings internal-dses}))))
+
 (defmethod dispatch-form 'ns
   [form raw nspace-sym]
   (let [[ds r s] (extract-common-docstring form raw nspace-sym)]
@@ -118,9 +150,8 @@
   [form raw nspace-sym]
   (extract-common-docstring form raw nspace-sym))
 
-(defmethod dispatch-form 'defprotocol
+(defmethod dispatch-form 'defn-
   [form raw nspace-sym]
-  ;; this needs some work to extract embedded docstrings
   (extract-common-docstring form raw nspace-sym))
 
 (defmethod dispatch-form 'defmulti

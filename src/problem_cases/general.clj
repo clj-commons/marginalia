@@ -22,6 +22,7 @@
   (* x x))
 
 (defprotocol Relation
+  "Defines a relation... duh!"
   (select     [this predicate]
     "Confines the query to rows for which the predicate is true
 
