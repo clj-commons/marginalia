@@ -393,7 +393,7 @@
 (defn uberdoc-html
   "This generates a stand alone html file (think `lein uberjar`).
    It's probably the only var consumers will use."
-  [output-file-name project-metadata docs]
+  [project-metadata docs]
   (page-template
    project-metadata
    (opt-resources-html project-metadata)
