@@ -26,10 +26,22 @@
 (defn slurp-resource
   "Stolen from leiningen"
   [resource-name]
-  (-> (.getContextClassLoader (Thread/currentThread))
-      (.getResourceAsStream resource-name)
-      (java.io.InputStreamReader.)
-      (slurp)))
+  (try 
+    (-> (.getContextClassLoader (Thread/currentThread))
+        (.getResourceAsStream resource-name)
+        (java.io.InputStreamReader.)
+        (slurp))
+    (catch java.lang.NullPointerException npe
+      (println (str "Could not locate resources at " resource-name))
+      (println "    ... attempting to fix.")
+      (let [resource-name (str "./resources/" resource-name)]
+        (try
+          (-> (.getContextClassLoader (Thread/currentThread))
+              (.getResourceAsStream resource-name)
+              (java.io.InputStreamReader.)
+              (slurp))
+          (catch java.lang.NullPointerException npe
+            (println (str "    STILL could not locate resources at " resource-name ". Giving up!"))))))))
 
 (defn inline-js [resource]
   (let [src (slurp-resource resource)]
