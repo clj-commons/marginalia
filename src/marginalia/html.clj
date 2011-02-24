@@ -183,7 +183,7 @@
      [:br]
      [:br]
      [:br]
-     "(this space intentionally left blank)"]]))
+     "(this space intentionally left almost blank)"]]))
 
 (defn toc-html [docs]
   (html
