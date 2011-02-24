@@ -173,7 +173,6 @@
   "
   [output-file-name files-to-analyze props]
   (let [source (uberdoc-html
-                output-file-name
                 props
                 (map path-to-doc files-to-analyze))]
     (spit output-file-name source)))

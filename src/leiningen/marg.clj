@@ -5,7 +5,8 @@
 
 (defn marg [project & args]
   (eval-in-project project
-    `(marginalia.core/run-marginalia (list ~@args))
+    `(binding [marginalia.html/*resources* ""]
+       (marginalia.core/run-marginalia (list ~@args)))
     nil
     nil
     '(require 'marginalia.core)))
