@@ -1,4 +1,4 @@
-(defproject marginalia "0.5.0-alpha"
+(defproject marginalia "0.5.0"
   :description "lightweight literate programming for clojure -- inspired by [docco](http://jashkenas.github.com/docco/)"
   :main marginalia.core
   :eval-in-leiningen true

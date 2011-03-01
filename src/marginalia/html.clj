@@ -26,10 +26,22 @@
 (defn slurp-resource
   "Stolen from leiningen"
   [resource-name]
-  (-> (.getContextClassLoader (Thread/currentThread))
-      (.getResourceAsStream resource-name)
-      (java.io.InputStreamReader.)
-      (slurp)))
+  (try 
+    (-> (.getContextClassLoader (Thread/currentThread))
+        (.getResourceAsStream resource-name)
+        (java.io.InputStreamReader.)
+        (slurp))
+    (catch java.lang.NullPointerException npe
+      (println (str "Could not locate resources at " resource-name))
+      (println "    ... attempting to fix.")
+      (let [resource-name (str "./resources/" resource-name)]
+        (try
+          (-> (.getContextClassLoader (Thread/currentThread))
+              (.getResourceAsStream resource-name)
+              (java.io.InputStreamReader.)
+              (slurp))
+          (catch java.lang.NullPointerException npe
+            (println (str "    STILL could not locate resources at " resource-name ". Giving up!"))))))))
 
 (defn inline-js [resource]
   (let [src (slurp-resource resource)]
@@ -183,7 +195,7 @@
      [:br]
      [:br]
      [:br]
-     "(this space intentionally left blank)"]]))
+     "(this space intentionally left almost blank)"]]))
 
 (defn toc-html [docs]
   (html
@@ -352,11 +364,6 @@
     [:head
      [:meta {:http-equiv "Content-Type" :content "text/html" :charset "utf-8"}]
      [:meta {:name "description" :content (:description project-metadata)}]
-     (inline-js (str *resources* "jquery-1.4.4.min.js"))
-     (inline-js (str *resources* "xregexp-min.js"))
-     (inline-js (str *resources* "shCore.js"))
-     (inline-js (str *resources* "shBrushClojure.js"))
-     (inline-js (str *resources* "app.js"))
      #_[:script {:type "text/javascript" :src "./../resources/app.js"}]
      (inline-css (str *resources* "shCore.css"))
      (css
@@ -366,6 +373,11 @@
      header-css
      floating-toc-css
      general-css
+     (inline-js (str *resources* "jquery-1.4.4.min.js"))
+     (inline-js (str *resources* "xregexp-min.js"))
+     (inline-js (str *resources* "shCore.js"))
+     (inline-js (str *resources* "shBrushClojure.js"))
+     (inline-js (str *resources* "app.js"))
      opt-resources
      [:title (:name project-metadata) " -- Marginalia"]]
     [:body
@@ -393,7 +405,7 @@
 (defn uberdoc-html
   "This generates a stand alone html file (think `lein uberjar`).
    It's probably the only var consumers will use."
-  [output-file-name docs project-metadata ]
+  [project-metadata docs]
   (page-template
    project-metadata
    (opt-resources-html project-metadata)

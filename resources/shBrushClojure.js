@@ -164,7 +164,7 @@ SyntaxHighlighter.brushes.Clojure = function () {
 		{ regex: /\b(true|false|nil)\b/g,
 			css: 'value' },
 		// (un)quoted symbols
-		{ regex: /(`|#?'|~@?)[\w-.\/]+/g,
+		{ regex: /(`|#?'|~@?)[\w-.A-Za-z0-9_&lt;&gt;\-]+/g,
 			css: 'color1' },
 		// keywords
 		{ regex: /:[A-Za-z0-9_\-]+/g,
@@ -177,7 +177,8 @@ SyntaxHighlighter.brushes.Clojure = function () {
 			css: 'preprocessor' },
 		// clojure.core
 		{ regex: new ClojureRegExp(this.getKeywords(clojure_core)),
-			css: 'functions' }
+			css: 'functions' },
+                { regex: /[A-Za-z0-9_&lt;&gt;\-]+/g,  css: 'plain'}
 	];
 
 	this.forHtmlScript(SyntaxHighlighter.regexLib.scriptScriptTags);
