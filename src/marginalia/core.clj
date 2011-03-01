@@ -88,7 +88,7 @@
 ;; the generated html file's header.
 
 
-(defn parse-project-file
+(defn parse-project-form
   "Parses a project.clj file and returns a map in the following form
 
        {:name 
