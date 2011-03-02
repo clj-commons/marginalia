@@ -70,3 +70,15 @@ Notes
 -----
 
 [1] While the phrase *ultra-lightweight literate programming* is used to describe Marginalia, it is in no way a tool for classical literate programming.  That is, Marginalia is a linear documentation generator allowing no out-of-order reassembly of source.
+
+Marginalia is... 
+----------------
+
+*sorted by first commit*
+
+- [Fogus](http://fogus.me/fun/)
+- [Zachary Kim](https://github.com/zkim)
+- [Justin Balthrop](https://github.com/ninjudd)
+- [Brenton Ashworth](https://github.com/brentonashworth)
+- [Nicolas Buduroi](https://github.com/budu)
+- [Michael Harrison](https://github.com/goodmike)
