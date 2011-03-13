@@ -80,6 +80,12 @@
       (str/replace #"->"  "&rarr;")
       (str/replace #"&quot;" "\"")))
 
+(defn replace-html-entities
+  [s]
+  (-> s
+      (str/replace "<" "&lt;")
+      (str/replace ">" "&gt;")))
+
 ;; As a result of docifying then grouping, you'll end up with a seq like this one:
 ;; <pre><code>[...
 ;; {:docs [{:docs-text "Some doc text"}]
@@ -117,10 +123,12 @@
       str
       prep-docs-text
       replace-special-chars
+      replace-html-entities
       (md)))
 
 (defn codes-to-html [code-block]
-  (html [:pre {:class "brush: clojure"} code-block]))
+  (html [:pre {:class "brush: clojure"}
+         (replace-html-entities code-block)]))
 
 (defn section-to-html [section]
   (html [:tr

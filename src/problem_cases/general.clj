@@ -81,6 +81,14 @@
                <object-start>    \{
                <object-end>      \}))
 
+;; Issue #26: Angle-bracket in Function Name Breaks Layout
+(defn <test [] nil)
+
+(defn test-html-entities-in-doc
+  "<is this working?"
+  []
+  nil)
+
 (defmulti kompile identity)
 
 (defmethod kompile [::standard AutoIncClause]
@@ -107,7 +115,6 @@
     "return _out;")
    nl
    "})"))
-
 
 '(defn special-forms []
   {'def     handle-def
@@ -146,4 +153,3 @@
   (greater 2 1) => truthy)
 
 '(file->tickets commits)
-
