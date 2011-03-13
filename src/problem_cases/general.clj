@@ -91,8 +91,7 @@
 
 (defmulti kompile identity)
 
-(defmethod kompile [::standard AutoIncClause]
-  "This is a docstring.  On the left."
+(defmethod kompile [:standard]
   [_]
   "GENERATED ALWAYS AS IDENTITY")
 

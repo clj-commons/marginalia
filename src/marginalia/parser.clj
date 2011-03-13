@@ -160,11 +160,7 @@
 
 (defmethod dispatch-form 'defmethod
   [form raw nspace-sym]
-  (let [ds        (nth form 3)
-        docstring (when (string? ds) ds)]
-    [docstring
-     (strip-docstring docstring raw)
-     nspace-sym]))
+  [nil raw nspace-sym])
 
 (defmethod dispatch-form :default
   [form raw nspace-sym]
