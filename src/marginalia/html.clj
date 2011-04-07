@@ -73,19 +73,6 @@
   [s]
   (.markdown mdp s))
 
-(defn replace-special-chars
-  "Inserts super-fancy characters into the doc section."
-  [s]
-  (-> s
-      (str/replace #"->"  "&rarr;")
-      (str/replace #"&quot;" "\"")))
-
-(defn replace-html-entities
-  [s]
-  (-> s
-      (str/replace "<" "&lt;")
-      (str/replace ">" "&gt;")))
-
 ;; As a result of docifying then grouping, you'll end up with a seq like this one:
 ;; <pre><code>[...
 ;; {:docs [{:docs-text "Some doc text"}]
@@ -94,21 +81,6 @@
 ;;
 ;; `docs-to-html` and `codes-to-html` convert their respective entries into html,
 ;; and `group-to-html` calls them on each seq item to do so.
-
-(defn prep-docs-text [s] s)
-
-(defn prep-docstring-text [s]
-  (-> s
-      (str/replace #"\\\"" "\"")
-      (str/replace #"^\s\s\"" "")
-      (str/replace #"^\s\s\s" "")
-      (str/replace #"\"$" "")
-      ;; Don't escape code blocks
-      ((fn [t]
-         (if (re-find #"^\s\s\s\s" t)
-           t
-           (escape-html t))))))
-
 
 (defn docs-to-html
   "Converts a docs section to html by threading each doc line through the forms
@@ -121,14 +93,11 @@
   [docs]
   (-> docs
       str
-      prep-docs-text
-      replace-special-chars
-      replace-html-entities
       (md)))
 
 (defn codes-to-html [code-block]
   (html [:pre {:class "brush: clojure"}
-         (replace-html-entities code-block)]))
+         (escape-html code-block)]))
 
 (defn section-to-html [section]
   (html [:tr
