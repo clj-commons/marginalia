@@ -102,17 +102,20 @@
 
 (defn- extract-common-docstring
   [form raw nspace-sym]
-  (let [sym (second form)
-        _ (if (= 'ns (first form))
-            (try (require sym)
-                 (catch Exception _)))
-        nspace (find-ns sym)]
-    (let [docstring (if nspace
-                      (-> nspace meta :doc)
-                      (get-var-docstring nspace-sym sym))]
-      [docstring
-       (strip-docstring docstring raw)
-       (if nspace sym nspace-sym)])))
+  (let [sym (second form)]
+    (if (symbol? sym)
+      (do
+        (when (= 'ns (first form))
+          (try (require sym)
+               (catch Exception _)))
+        (let [nspace (find-ns sym)
+              docstring (if nspace
+                          (-> nspace meta :doc)
+                          (get-var-docstring nspace-sym sym))]
+          [docstring
+           (strip-docstring docstring raw)
+           (if nspace sym nspace-sym)]))
+      [nil raw nspace-sym])))
 
 (defn- extract-impl-docstring
   [fn-body]
