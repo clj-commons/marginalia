@@ -76,21 +76,9 @@
                            (replace "\"" "\\\""))
                     \")
                "")
+      (replace #"#?\^\{\s*:doc\s*\}" "")
       (replace #"\n\s*\n" "\n")
       (replace #"\n\s*\)" ")")))
-
-(defn- internal-strip-docstring
-  [R internal-ds]
-  (reduce (fn [raw docstring]
-            (replace
-             raw
-             (str \" (-> docstring
-                         str
-                         (replace "\"" "\\\""))
-                  \")
-             ""))
-          R
-          internal-ds))
 
 (defn get-var-docstring [nspace-sym sym]
   (try
