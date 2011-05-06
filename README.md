@@ -39,7 +39,19 @@ Marginalia accepts other options as outlined in the *Command Line* section above
 
 ### Cake
 
-TBD
+Add marginalia to your project's `:dev-dependencies`:
+
+    [marginalia "0.5.1"]
+
+Also, you need to add it to your task list:
+
+     :tasks [marginalia.tasks]
+
+After that, you should be able to use it like any other cake task:
+
+    cake marg
+
+NOTE: If your project doesn't already depend on clojure-contrib, you'll have to make it explicitly depend on it for the cake plugin to work properly.
 
 ### Maven
 
