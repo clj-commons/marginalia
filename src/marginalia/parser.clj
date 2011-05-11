@@ -76,21 +76,9 @@
                            (replace "\"" "\\\""))
                     \")
                "")
+      (replace #"#?\^\{\s*:doc\s*\}" "")
       (replace #"\n\s*\n" "\n")
       (replace #"\n\s*\)" ")")))
-
-(defn- internal-strip-docstring
-  [R internal-ds]
-  (reduce (fn [raw docstring]
-            (replace
-             raw
-             (str \" (-> docstring
-                         str
-                         (replace "\"" "\\\""))
-                  \")
-             ""))
-          R
-          internal-ds))
 
 (defn get-var-docstring [nspace-sym sym]
   (try
@@ -102,17 +90,20 @@
 
 (defn- extract-common-docstring
   [form raw nspace-sym]
-  (let [sym (second form)
-        _ (if (= 'ns (first form))
-            (try (require sym)
-                 (catch Exception _)))
-        nspace (find-ns sym)]
-    (let [docstring (if nspace
-                      (-> nspace meta :doc)
-                      (get-var-docstring nspace-sym sym))]
-      [docstring
-       (strip-docstring docstring raw)
-       (if nspace sym nspace-sym)])))
+  (let [sym (second form)]
+    (if (symbol? sym)
+      (do
+        (when (= 'ns (first form))
+          (try (require sym)
+               (catch Exception _)))
+        (let [nspace (find-ns sym)
+              docstring (if nspace
+                          (-> nspace meta :doc)
+                          (get-var-docstring nspace-sym sym))]
+          [docstring
+           (strip-docstring docstring raw)
+           (if nspace sym nspace-sym)]))
+      [nil raw nspace-sym])))
 
 (defn- extract-impl-docstring
   [fn-body]
@@ -162,11 +153,25 @@
   [form raw nspace-sym]
   [nil raw nspace-sym])
 
+(defn dispatch-inner-form
+  [form raw nspace-sym]
+  (conj
+   (reduce (fn [[adoc araw] inner-form]
+             (if (seq? inner-form)
+               (let [[d r] (dispatch-form inner-form
+                                          araw
+                                          nspace-sym)]
+                 [(str adoc d) r])
+               [adoc araw]))
+           [nil raw]
+           form)
+   nspace-sym))
+
 (defmethod dispatch-form :default
   [form raw nspace-sym]
   (if (re-find #"^def" (-> form first name))
     (extract-common-docstring form raw nspace-sym)
-    [nil raw nspace-sym]))
+    (dispatch-inner-form form raw nspace-sym)))
 
 (defn extract-docstring [m raw nspace-sym]
   (let [raw (join "\n" (subvec raw (-> m :start dec) (:end m)))
