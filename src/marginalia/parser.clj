@@ -86,11 +86,17 @@
     ;; HACK: to handle types
     (catch Exception _)))
 
-(defmulti dispatch-form (fn [form _ _] (first form)))
+(defn unsymbol [sym]
+  (seq (.split (str sym) "/")))
+
+(defmulti dispatch-form
+  (fn [form _ _]
+    (let [[s1 s2] (-> form first unsymbol)]
+      (symbol (or s2 s1)))))
 
 (defn- extract-common-docstring
-  [form raw nspace-sym]
-  (let [sym (second form)]
+  [form raw nspace-sym & [extractor]]
+  (let [sym ((or extractor second) form)]
     (if (symbol? sym)
       (do
         (when (= 'ns (first form))
@@ -152,6 +158,14 @@
 (defmethod dispatch-form 'defmethod
   [form raw nspace-sym]
   [nil raw nspace-sym])
+
+(defmethod dispatch-form 'deftype
+  [form raw nspace-sym]
+  (let [v (->> form first (ns-resolve nspace-sym))]
+    (if (and (= (str (.ns v)) "clojure.contrib.types")
+             (= (str (.sym v)) "deftype"))
+      (extract-common-docstring form raw nspace-sym #(nth % 2))
+      [nil raw nspace-sym])))
 
 (defn dispatch-inner-form
   [form raw nspace-sym]

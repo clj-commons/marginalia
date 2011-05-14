@@ -1,6 +1,6 @@
 (ns problem-cases.general
   "A place to examine poor parser behavior.  These should go in tests when they get written."
-  )
+  (:require [clojure.contrib.types :as t]))
 
 
 ;; Should have only this comment in the left margin.
@@ -152,3 +152,17 @@
   (greater 2 1) => truthy)
 
 '(file->tickets commits)
+
+(t/deftype ::foo foo-t)
+
+(t/deftype ::foo2 foo2-t identity)
+
+(t/deftype ::bar bar-t "normal docstring")
+
+(t/deftype ::bar2 bar2-t "normal docstring" identity)
+
+;; this shouldn't happen in practice!
+
+(t/deftype ::baz baz-t {:doc "docs in attr-map"})
+
+(t/deftype ::baz2 baz2-t {:doc "docs in attr-map"} identity)
