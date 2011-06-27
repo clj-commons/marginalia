@@ -1,4 +1,4 @@
-Marginalia
+Marginalia 0.6.0
 ==========
 *ultra-lightweight literate programming[1] for clojure inspired by [docco](http://jashkenas.github.com/docco/)*
 
@@ -27,6 +27,8 @@ Arguments can be specific files or directories.
 
 ### Leiningen
 
+[http://github.com/fogus/lein-marginalia](http://github.com/fogus/lein-marginalia)
+
 To use Marginalia in your own projects simply add the following to your `project.clj` file in the `:dev-dependencies` section:
 
     [marginalia "0.5.1"]
@@ -35,9 +37,12 @@ After executing `lein deps` you can generate your complete source documentation 
 
     lein marg
 
-Marginalia accepts other options as outlined in the *Command Line* section above.
+Marginalia accepts other options as outlined in the *Command Line*
+section above.
 
 ### Cake
+
+[http://github.com/fogus/cake-marginalia](http://github.com/fogus/cake-marginalia)
 
 Add marginalia to your project's `:dev-dependencies`:
 
