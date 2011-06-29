@@ -44,7 +44,7 @@ section above.
 
 [http://github.com/fogus/cake-marginalia](http://github.com/fogus/cake-marginalia)
 
-Add marginalia and its cake plugin to your project's `:dev-dependencies`:
+Add the following to your project's `:dev-dependencies`:
 
     [cake-marginalia "0.6.0"]
 
@@ -65,8 +65,6 @@ Here's a sample `project.clj`:
 After that, you should be able to use it like any other cake task:
 
     cake marg
-
-NOTE: If your project doesn't already depend on clojure-contrib, you'll have to make it explicitly depend on it for the cake plugin to work properly.
 
 ### Maven
 
