@@ -32,6 +32,7 @@ Arguments can be specific files or directories.
 To use Marginalia in your own projects simply add the following to your `project.clj` file in the `:dev-dependencies` section:
 
     [marginalia "0.6.0"]
+    [lein-marginalia "0.6.0"]
 
 After executing `lein deps` you can generate your complete source documentation with the following command:
 
@@ -44,13 +45,24 @@ section above.
 
 [http://github.com/fogus/cake-marginalia](http://github.com/fogus/cake-marginalia)
 
-Add marginalia to your project's `:dev-dependencies`:
+Add marginalia and its cake plugin to your project's `:dev-dependencies`:
 
     [marginalia "0.6.0"]
+    [cake-marginalia "0.6.0"]
 
 Also, you need to add it to your task list:
 
-     :tasks [marginalia.tasks]
+     :tasks [cake-marginalia.tasks]
+
+Here's a sample `project.clj`:
+
+    (defproject my-project "0.1.0
+      :description "Cake plugin for Marginalia."
+      :dependencies [[org.clojure/clojure "1.2.1"]
+                     [org.clojure/clojure-contrib "1.2.0"]]
+      :dev-dependencies [[marginalia "0.6.0"]
+                         [cake-marginalia "0.6.0"]]
+      :tasks [cake-marginalia.tasks])
 
 After that, you should be able to use it like any other cake task:
 
