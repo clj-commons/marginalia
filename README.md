@@ -31,7 +31,6 @@ Arguments can be specific files or directories.
 
 To use Marginalia in your own projects simply add the following to your `project.clj` file in the `:dev-dependencies` section:
 
-    [marginalia "0.6.0"]
     [lein-marginalia "0.6.0"]
 
 After executing `lein deps` you can generate your complete source documentation with the following command:
