@@ -46,7 +46,6 @@ section above.
 
 Add marginalia and its cake plugin to your project's `:dev-dependencies`:
 
-    [marginalia "0.6.0"]
     [cake-marginalia "0.6.0"]
 
 Also, you need to add it to your task list:
