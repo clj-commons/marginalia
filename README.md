@@ -76,7 +76,7 @@ Add the folowing to your `pom.xml`, and run `mvn zi:marginalia`.
     <plugin>
       <groupId>org.cloudhoist.plugin</groupId>
       <artifactId>zi</artifactId>
-      <version>0.3.0</version>
+      <version>0.3.1</version>
       <configuration>
         <marginaliaTargetDirectory>autodoc/marginalia</marginaliaTargetDirectory>
       </configuration>
