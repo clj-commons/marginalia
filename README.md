@@ -68,7 +68,44 @@ After that, you should be able to use it like any other cake task:
 
 ### Maven
 
-Not yet supported.
+The [zi plugin](https://github.com/pallet/zi) supports marginalia.
+
+Add the folowing to your `pom.xml`, and run `mvn zi:marginalia`.
+
+```xml
+    <plugin>
+      <groupId>org.cloudhoist.plugin</groupId>
+      <artifactId>zi</artifactId>
+      <version>0.3.1</version>
+      <configuration>
+        <marginaliaTargetDirectory>autodoc/marginalia</marginaliaTargetDirectory>
+      </configuration>
+    </plugin>
+```
+
+And the following to your `settings.xml`.
+
+```xml
+    <pluginGroups>
+      <pluginGroup>org.cloudhoist.plugin</pluginGroup>
+    </pluginGroups>
+
+    <profiles>
+      <profile>
+        <id>clojure-dev</id>
+        <pluginRepositories>
+          <pluginRepository>
+            <id>sonatype-snapshots</id>
+            <url>http://oss.sonatype.org/content/repositories/releases</url>
+          </pluginRepository>
+        </pluginRepositories>
+      </profile>
+    </profiles>
+
+    <activeProfiles>
+      <activeProfile>clojure-dev</activeProfile>
+    </activeProfiles>
+```
 
 Contributors and thanks
 -----------------------
