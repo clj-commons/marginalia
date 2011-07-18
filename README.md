@@ -144,7 +144,7 @@ Marginalia is...
 - [Brenton Ashworth](https://github.com/brentonashworth)
 - [Nicolas Buduroi](https://github.com/budu)
 - [Michael Harrison](https://github.com/goodmike)
-- [Anthony Simpson](https://github.com/Raynes)
+- [Anthony Grimes](https://github.com/Raynes)
 - [Hugo Duncan](https://github.com/hugoduncan)
 
 If I've missed your name then please ping me.
