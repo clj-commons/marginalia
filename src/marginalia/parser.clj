@@ -4,8 +4,15 @@
 (ns marginalia.parser
   "Provides the parsing facilities for Marginalia."
   (:refer-clojure :exclude [replace])
-  (:use [clojure.contrib [reflect :only (get-field)]]
-        [clojure [string :only (join replace)]]))
+  (:use [clojure [string :only (join replace)]]))
+
+(defn get-field
+  "Access to private or protected field.  field-name is a symbol or
+  keyword."
+  [klass field-name obj]
+  (-> klass (.getDeclaredField (name field-name))
+      (doto (.setAccessible true))
+      (.get obj)))
 
 (defrecord Comment [content])
 

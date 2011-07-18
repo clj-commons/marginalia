@@ -3,7 +3,8 @@
   :main marginalia.core
   :dependencies
   [[org.clojure/clojure "1.2.0"]
-   [org.clojure/clojure-contrib "1.2.0"]
+   [org.clojure/tools.cli "0.1.0"]
+   [org.clojure/tools.namespace "0.1.0"]
    [hiccup "0.3.0"]
    [org.markdownj/markdownj "0.3.0-1.0.2b4"]]
   :dev-dependencies
