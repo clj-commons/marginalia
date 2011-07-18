@@ -218,7 +218,8 @@
   (let [opts (cli args
                   (optional ["-d" "--dir" "Directory where documentation will be written" :default "./docs"])
                   (optional ["-f" "--file" "Name of the documentation file" :default "uberdoc.html"])
-                  (optional ["-s" "--sources" "Sources to generate documentation for"] #(vec (.split % ","))))
+                  (optional ["-s" "--sources" "Sources to generate documentation for, separated by commas"]
+                            #(vec (.split % ","))))
         sources (format-sources (seq (:sources opts)))]
     (if-not sources
       (do
