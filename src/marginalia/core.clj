@@ -219,8 +219,9 @@
                   (optional ["-d" "--dir" "Directory where documentation will be written" :default "./docs"])
                   (optional ["-f" "--file" "Name of the documentation file" :default "uberdoc.html"])
                   (optional ["-s" "--sources" "Sources to generate documentation for, separated by commas"]
-                            #(vec (.split % ","))))
+                            #(if % (vec (.split % ",")))))
         sources (format-sources (seq (:sources opts)))]
+    (prn sources)
     (if-not sources
       (do
         (println "Wrong number of arguments passed to marginalia.")
