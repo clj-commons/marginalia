@@ -86,7 +86,8 @@
     ;; HACK: to handle types
     (catch Exception _)))
 
-(defmulti dispatch-form (fn [form _ _] (first form)))
+(defmulti dispatch-form (fn [form _ _]
+                          (if (seq? form) (first form) form)))
 
 (defn- extract-common-docstring
   [form raw nspace-sym]
@@ -109,7 +110,7 @@
   [fn-body]
   (filter string? (rest fn-body)))
 
-(defn- extract-internal-docstrings 
+(defn- extract-internal-docstrings
   [body]
   (mapcat #(extract-impl-docstring %)
           body))
@@ -167,11 +168,19 @@
            form)
    nspace-sym))
 
+(defn- dispatch-literal
+  [form raw nspace-sym]
+  [nil raw])
+
 (defmethod dispatch-form :default
   [form raw nspace-sym]
-  (if (re-find #"^def" (-> form first name))
-    (extract-common-docstring form raw nspace-sym)
-    (dispatch-inner-form form raw nspace-sym)))
+  ;; Strings which are inlined into clojure files outside of forms are parsed
+  ;; as `String` instances, while numbers - as `Number` subclasses.
+  (cond (or (string? form) (number? form))
+        (dispatch-literal form raw nspace-sym)
+        (re-find #"^def" (-> form first name))
+        (extract-common-docstring form raw nspace-sym)
+        :else (dispatch-inner-form form raw nspace-sym)))
 
 (defn extract-docstring [m raw nspace-sym]
   (let [raw (join "\n" (subvec raw (-> m :start dec) (:end m)))

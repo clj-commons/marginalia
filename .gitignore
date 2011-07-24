@@ -7,3 +7,4 @@ lib
 classes
 out
 webgen.cache
+.lein-failures
