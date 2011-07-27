@@ -78,7 +78,7 @@
 (defn find-clojure-file-paths
   "Returns a seq of clojure file paths (strings) in alphabetical depth-first order."
   [dir]
-  (->> (java.io.File. dir)
+  (->> (io/file dir)
        (file-seq)
        (filter #(re-find #"\.clj$" (.getAbsolutePath %)))
        (map #(.getAbsolutePath %))))
@@ -91,7 +91,7 @@
 (defn parse-project-form
   "Parses a project.clj file and returns a map in the following form
 
-       {:name 
+       {:name
         :version
         :dependencies
         :dev-dependencies
@@ -167,6 +167,28 @@
 
 
 ;; ## Ouput Generation
+
+(defn index-html
+  [props files]
+  "<html></html>")
+
+(defn single-page-html
+  [file]
+  (str "<html><body>" file "</body></html>"))
+
+(defn filename-contents
+  [output-dir parsed-file]
+  {:name (io/file output-dir (str (:ns parsed-file) ".html"))
+   :contents (single-page-html parsed-file)})
+
+(defn multidoc!
+  [output-dir files-to-analyze props]
+  (let [parsed-files (map path-to-doc files-to-analyze)
+        index (index-html props parsed-files)
+        pages (map #(filename-contents output-dir %) parsed-files)]
+    (doseq [f (conj pages {:name (io/file output-dir "index.html")
+                           :contents index})]
+           (spit (:name f) (:contents f)))))
 
 (defn uberdoc!
   "Generates an uberdoc html file from 3 pieces of information:
@@ -277,7 +299,7 @@
 (comment
   ;; Command line example
   (-main "./src/marginalia/core.clj" "./src/marginalia/html.clj")
-  
+
   ;; This will find all marginalia source files, and then generate an uberdoc.
   (apply -main (find-clojure-file-paths "./src"))
 
