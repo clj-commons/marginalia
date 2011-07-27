@@ -8,6 +8,7 @@
    [org.markdownj/markdownj "0.3.0-1.0.2b4"]]
   :dev-dependencies
   [[lein-clojars "0.6.0"]
+   [lein-marginalia "0.6.0"]
    [jline "0.9.94"]
    ;; lein vimclojure& #starts the nailgun server
    [org.clojars.autre/lein-vimclojure "1.0.0"]
