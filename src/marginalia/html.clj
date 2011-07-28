@@ -26,7 +26,7 @@
 (defn slurp-resource
   "Stolen from leiningen"
   [resource-name]
-  (try 
+  (try
     (-> (.getContextClassLoader (Thread/currentThread))
         (.getResourceAsStream resource-name)
         (java.io.InputStreamReader.)
@@ -62,7 +62,7 @@
 ;; Markdown processor.
 (def mdp (com.petebevin.markdown.MarkdownProcessor.))
 
-(defn md 
+(defn md
   "Markdown string to html converter. Translates strings like:
 
    \"# header!\" -> `\"<h1>header!</h1>\"`
@@ -87,7 +87,7 @@
    outlined above.
 
    ex. (docs-to-html [{:doc-text \"# hello world!\"} {:docstring-text \"I'm a docstring!}])
-   
+
    ->  `\"<h1>hello world!</h1><br />\"`
    "
   [docs]
@@ -144,7 +144,7 @@
 (defn opt-resources-html
   "Generate script and link tags for optional external javascript and css."
   [project-info]
-  (let [options (:marginalia project-info) 
+  (let [options (:marginalia project-info)
         javascript (:javascript options)
         css (:css options)]
     (html (concat
@@ -174,14 +174,31 @@
      [:br]
      "(this space intentionally left almost blank)"]]))
 
-(defn toc-html [docs]
+(defn link-to-namespace
+  "Creates an 'a' tag pointing to the `namespace-name`, either as an anchor (if
+  `anchor?` is true) or as a link to a separate `$namespace-name.html` file.
+  If `attrs` aren't empty, they are added to the resulting tag."
+  [namespace-name anchor? & attrs]
+  [:a (into {:href (if anchor?
+                   (str "#" namespace-name)
+                   (str namespace-name ".html"))}
+            attrs)
+   namespace-name])
+
+(defn link-to-toc
+  "This is a hack, as in the case when `anchor?` is false, the link will contain
+  a reference to `toc.html` which might not even exist."
+  [anchor?]
+  (link-to-namespace "toc" anchor? {:class "toc-link"}))
+
+(defn toc-html [props docs]
   (html
    [:tr
     [:td {:class "docs"}
      [:div {:class "toc"}
       [:a {:name "toc"} [:h3 "namespaces"]]
       [:ul
-       (map #(vector :li [:a {:href (str "#" (:ns %))} (:ns %)])
+       (map #(vector :li (link-to-namespace (:ns %) (:uberdoc? props)))
             docs)]]]
     [:td {:class "codes"} "&nbsp;"]]))
 
@@ -193,16 +210,15 @@
                   (:ns %))
          docs)]])
 
-(defn groups-html [doc]
-  (html 
+(defn groups-html [props doc]
+  (html
    [:tr
     [:td {:class "docs"}
      [:div {:class "docs-header"}
       [:a {:class "anchor" :name (:ns doc) :href (str "#" (:ns doc))}
        [:h1 {:class "project-name"}
         (:ns doc)]
-       [:a {:href "#toc" :class "toc-link"}
-        "toc"]]]]
+       (link-to-toc (:uberdoc? props))]]]
     [:td {:class "codes"}]]
    (map section-to-html (:groups doc))
    [:tr
@@ -387,7 +403,26 @@
    project-metadata
    (opt-resources-html project-metadata)
    (header-html project-metadata)
-   (toc-html docs)
+   (toc-html {:uberdoc? true} docs)
    (floating-toc-html docs)
-   (map groups-html docs)))
+   (map #(groups-html (:uberdoc? true) %) docs)))
 
+(defn index-html
+  [project-metadata docs]
+  (page-template
+   project-metadata
+   (opt-resources-html project-metadata)
+   (header-html project-metadata)
+   (toc-html {:uberdoc? false} docs)
+   "" ;; no floating toc
+   "")) ;; no contents
+
+(defn single-page-html
+  [project-metadata doc all-docs]
+  (page-template
+   project-metadata
+   (opt-resources-html project-metadata)
+   "" ;; no header
+   "" ;; no toc
+   (floating-toc-html all-docs)
+   (groups-html (:uberdoc? false) doc)))

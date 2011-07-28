@@ -1,17 +1,18 @@
 (ns marginalia.test.multidoc
   (:require marginalia.core)
   (:use clojure.test)
-  (:use [clojure.java.io :only (file delete-file)]))
+  (:use [clojure.java.io :only (file)])
+  (:use [clojure.contrib.java-utils :only (delete-file-recursively)]))
 
 (def multi-page-project (file "test_projects" "multi_page"))
 (def test-project-src (file multi-page-project "src"))
 (def test-project-target (file multi-page-project "docs"))
 
 (use-fixtures :each (fn [f]
-                      (delete-file test-project-target true)
+                      (delete-file-recursively test-project-target true)
                       (.mkdirs test-project-target)
-                      (f)
-                      (delete-file test-project-target true)))
+                      (f)))
+                      ;;(delete-file-recursively test-project-target true)))
 
 (def test-metadata {
   :dependencies [["some/dep" "0.0.1"]]
@@ -22,7 +23,7 @@
 })
 
 (defn run-marginalia [source-dir output-dir]
-  (binding [marginalia.html/*resources* "resources"]
+  (binding [marginalia.html/*resources* ""]
     (marginalia.core/multidoc! output-dir
                                (marginalia.core/find-clojure-file-paths source-dir)
                                test-metadata)))
