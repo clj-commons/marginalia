@@ -35,7 +35,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
   (:use [marginalia
-         [html :only (uberdoc-html)]
+         [html :only (uberdoc-html index-html single-page-html)]
          [parser :only (parse-file)]]
         [clojure.contrib
          [find-namespaces :only (read-file-ns-decl)]
@@ -168,25 +168,17 @@
 
 ;; ## Ouput Generation
 
-(defn index-html
-  [props files]
-  "<html></html>")
-
-(defn single-page-html
-  [file]
-  (str "<html><body>" file "</body></html>"))
-
 (defn filename-contents
-  [output-dir parsed-file]
+  [props output-dir all-files parsed-file]
   {:name (io/file output-dir (str (:ns parsed-file) ".html"))
-   :contents (single-page-html parsed-file)})
+   :contents (single-page-html props parsed-file all-files)})
 
 (defn multidoc!
   [output-dir files-to-analyze props]
   (let [parsed-files (map path-to-doc files-to-analyze)
         index (index-html props parsed-files)
-        pages (map #(filename-contents output-dir %) parsed-files)]
-    (doseq [f (conj pages {:name (io/file output-dir "index.html")
+        pages (map #(filename-contents props output-dir parsed-files %) parsed-files)]
+    (doseq [f (conj pages {:name (io/file output-dir "toc.html")
                            :contents index})]
            (spit (:name f) (:contents f)))))
 
