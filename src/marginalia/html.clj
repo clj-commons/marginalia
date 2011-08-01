@@ -406,7 +406,7 @@
    (header-html project-metadata)
    (toc-html {:uberdoc? true} docs)
    (floating-toc-html docs)
-   (map #(groups-html (:uberdoc? true) %) docs)))
+   (map #(groups-html {:uberdoc? true} %) docs)))
 
 (defn index-html
   [project-metadata docs]
@@ -426,4 +426,4 @@
    "" ;; no header
    "" ;; no toc
    (floating-toc-html all-docs)
-   (groups-html (:uberdoc? false) doc)))
+   (groups-html {:uberdoc? false} doc)))
