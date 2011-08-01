@@ -81,7 +81,8 @@
   (->> (io/file dir)
        (file-seq)
        (filter #(re-find #"\.clj$" (.getAbsolutePath %)))
-       (map #(.getAbsolutePath %))))
+       (map #(.getAbsolutePath %))
+       (sort)))
 
 ;; ## Project Info Parsing
 ;; Marginalia will parse info out of your project.clj to display in
