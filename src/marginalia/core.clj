@@ -76,7 +76,7 @@
   (.isDirectory (java.io.File. path)))
 
 (defn find-clojure-file-paths
-  "Returns a seq of clojure file paths (strings) in alphabetical depth-first order."
+  "Returns a seq of clojure file paths (strings) in alphabetical order."
   [dir]
   (->> (io/file dir)
        (file-seq)
