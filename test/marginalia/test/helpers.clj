@@ -36,5 +36,7 @@
        (.mkdirs (file ~test-project-target))
        (~doc-generator ~test-project-src ~test-project-target ~test-metadata)
        (let [~'number-of-generated-pages (count (files-in ~test-project-target))]
-         ~@tests)
+         ;; We need to `deftest` in order for test runners (e.g. `lein test`) to pick up failures
+         (deftest ~(gensym (str project-name "-"))
+           ~@tests))
        (delete-file-recursively ~test-project-target true))))
