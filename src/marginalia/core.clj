@@ -35,7 +35,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
   (:use [marginalia
-         [html :only (uberdoc-html)]
+         [html :only (uberdoc-html index-html single-page-html)]
          [parser :only (parse-file)]]
         [clojure.contrib
          [find-namespaces :only (read-file-ns-decl)]
@@ -76,12 +76,13 @@
   (.isDirectory (java.io.File. path)))
 
 (defn find-clojure-file-paths
-  "Returns a seq of clojure file paths (strings) in alphabetical depth-first order."
+  "Returns a seq of clojure file paths (strings) in alphabetical order."
   [dir]
-  (->> (java.io.File. dir)
+  (->> (io/file dir)
        (file-seq)
        (filter #(re-find #"\.clj$" (.getAbsolutePath %)))
-       (map #(.getAbsolutePath %))))
+       (map #(.getAbsolutePath %))
+       (sort)))
 
 ;; ## Project Info Parsing
 ;; Marginalia will parse info out of your project.clj to display in
@@ -91,7 +92,7 @@
 (defn parse-project-form
   "Parses a project.clj file and returns a map in the following form
 
-       {:name 
+       {:name
         :version
         :dependencies
         :dev-dependencies
@@ -167,6 +168,20 @@
 
 
 ;; ## Ouput Generation
+
+(defn filename-contents
+  [props output-dir all-files parsed-file]
+  {:name (io/file output-dir (str (:ns parsed-file) ".html"))
+   :contents (single-page-html props parsed-file all-files)})
+
+(defn multidoc!
+  [output-dir files-to-analyze props]
+  (let [parsed-files (map path-to-doc files-to-analyze)
+        index (index-html props parsed-files)
+        pages (map #(filename-contents props output-dir parsed-files %) parsed-files)]
+    (doseq [f (conj pages {:name (io/file output-dir "toc.html")
+                           :contents index})]
+           (spit (:name f) (:contents f)))))
 
 (defn uberdoc!
   "Generates an uberdoc html file from 3 pieces of information:
@@ -248,7 +263,7 @@
 (comment
   ;; Command line example
   (-main "./src/marginalia/core.clj" "./src/marginalia/html.clj")
-  
+
   ;; This will find all marginalia source files, and then generate an uberdoc.
   (apply -main (find-clojure-file-paths "./src"))
 
