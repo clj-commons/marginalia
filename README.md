@@ -146,5 +146,6 @@ Marginalia is...
 - [Michael Harrison](https://github.com/goodmike)
 - [Anthony Grimes](https://github.com/Raynes)
 - [Hugo Duncan](https://github.com/hugoduncan)
+- [Vadim](https://github.com/dm3)
 
 If I've missed your name then please ping me.
