@@ -1,4 +1,4 @@
-Marginalia 0.6.0
+Marginalia 0.6.1
 ==========
 *ultra-lightweight literate programming[1] for clojure inspired by [docco](http://jashkenas.github.com/docco/)*
 
@@ -13,15 +13,15 @@ Currently Marginalia can be used in a number of ways as described below.
 
 ### Command Line
 
-You can download the [Marginalia 0.6.0 jar including packaged dependencies from Github](https://github.com/downloads/fogus/marginalia/marginalia-0.6.0-standalone.jar).
+You can download the [Marginalia 0.6.1 jar including packaged dependencies from Github](https://github.com/downloads/fogus/marginalia/marginalia-0.6.1-standalone.jar).
 
 Running Marginalia given the jar file linked above is as easy as:
 
-    java -jar marginalia-0.6.0-standalone.jar
+    java -jar marginalia-0.6.1-standalone.jar
 
 This will search the `PWD` for a `src` directory which it will then traverse looking for Clojure source files to parse and generate documentation for.  Marginalia also takes specific locations and files to generate docs for:
 
-    java -jar marginalia-0.6.0-standalone.jar <file1> <file2> ... <filen>
+    java -jar marginalia-0.6.1-standalone.jar <file1> <file2> ... <filen>
 
 Arguments can be specific files or directories.
 
@@ -58,7 +58,7 @@ Here's a sample `project.clj`:
       :description "Cake plugin for Marginalia."
       :dependencies [[org.clojure/clojure "1.2.1"]
                      [org.clojure/clojure-contrib "1.2.0"]]
-      :dev-dependencies [[marginalia "0.6.0"]
+      :dev-dependencies [[marginalia "0.6.1"]
                          [cake-marginalia "0.6.0"]]
       :tasks [cake-marginalia.tasks])
 
