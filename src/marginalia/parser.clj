@@ -176,7 +176,7 @@
   [form raw nspace-sym]
   ;; Strings which are inlined into clojure files outside of forms are parsed
   ;; as `String` instances, while numbers - as `Number` subclasses.
-  (cond (or (string? form) (number? form))
+  (cond (or (string? form) (number? form) (keyword? form))
         (dispatch-literal form raw nspace-sym)
         (re-find #"^def" (-> form first name))
         (extract-common-docstring form raw nspace-sym)
