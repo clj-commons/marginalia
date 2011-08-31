@@ -37,9 +37,9 @@
   (:use [marginalia
          [html :only (uberdoc-html)]
          [parser :only (parse-file)]]
-        [clojure.contrib
-         [find-namespaces :only (read-file-ns-decl)]
-         [command-line :only (print-help with-command-line)]])
+        [clojure.tools
+         [namespace :only (read-file-ns-decl)]
+         [cli :only (show-help cli optional)]])
   (:gen-class))
 
 
@@ -215,27 +215,27 @@
 
    If no source files are found, complain with a usage message."
   [args]
-  (with-command-line args
-    (str "Leiningen plugin for running marginalia against your project.\n\n"
-         "Usage: lein marg <options?> <src1> ... <src-n>\n")
-    [[dir d "Directory into which the documentation will be written" "./docs"]
-     [file f "File into which the documentation will be written" "uberdoc.html"]
-     src]
-    (let [sources (format-sources (seq src))]
-      (if-not sources
-        (do
-          (println "Wrong number of arguments passed to marginalia.")
-          (print-help))
-        (binding [*docs* dir]
-          (println "Generating uberdoc for the following source files:")
-          (doseq [s sources]
-            (println "  " s))
-          (println)
-          (ensure-directory! *docs*)
-          (uberdoc! (str *docs* "/" file) sources (parse-project-file))
-          (println "Done generating your documentation, please see"
-                   (str *docs* "/" file))
-          (println ""))))))
+  (let [opts (cli args
+                  (optional ["-d" "--dir" "Directory where documentation will be written" :default "./docs"])
+                  (optional ["-f" "--file" "Name of the documentation file" :default "uberdoc.html"])
+                  (optional ["-s" "--sources" "Sources to generate documentation for, separated by commas"]
+                            #(if % (vec (.split % ",")))))
+        sources (format-sources (seq (:sources opts)))]
+    (prn sources)
+    (if-not sources
+      (do
+        (println "Wrong number of arguments passed to marginalia.")
+        (show-help opts))
+      (binding [*docs* (:dir opts)]
+        (println "Generating uberdoc for the following source files:")
+        (doseq [s sources]
+          (println "  " s))
+        (println)
+        (ensure-directory! *docs*)
+        (uberdoc! (str *docs* "/" (:file opts)) sources (parse-project-file))
+        (println "Done generating your documentation, please see"
+                 (str *docs* "/" (:file opts)))
+        (println "")))))
 
 (defn -main
   "The main entry point into Marginalia."
