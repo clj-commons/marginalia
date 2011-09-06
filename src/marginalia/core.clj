@@ -226,6 +226,15 @@
          "Usage: lein marg <options?> <src1> ... <src-n>\n")
     [[dir d "Directory into which the documentation will be written" "./docs"]
      [file f "File into which the documentation will be written" "uberdoc.html"]
+     [name n "Project name - if not given will be taken from project.clj"]
+     [version v "Project version - if not given will be taken from project.clj"]
+     [desc D "Project description - if not given will be taken from project.clj"]
+     [deps a "Project dependencies in the form <group1>:<artifact1>:<version1>;<group2>...
+             If not given will be taken from project.clj"]
+     [css c "Additional css resources <resource1>;<resource2>;...
+            If not given will be taken from project.clj."]
+     [js j "Additional javascript resources <resource1>;<resource2>;...
+           If not given will be taken from project.clj"]
      src]
     (let [sources (format-sources (seq src))]
       (if-not sources
@@ -233,15 +242,29 @@
           (println "Wrong number of arguments passed to marginalia.")
           (print-help))
         (binding [*docs* dir]
-          (println "Generating uberdoc for the following source files:")
-          (doseq [s sources]
-            (println "  " s))
-          (println)
-          (ensure-directory! *docs*)
-          (uberdoc! (str *docs* "/" file) sources (parse-project-file))
-          (println "Done generating your documentation, please see"
-                   (str *docs* "/" file))
-          (println ""))))))
+          (let [project-clj (when (.exists (io/file "project.clj"))
+                              (parse-project-file))
+                choose #(or %1 %2)
+                marg-opts (merge-with choose
+                                      {:css (when css (.split css ";"))
+                                       :javascript (when js (.split js ";"))}
+                                      (:marginalia project-clj))
+                opts (merge-with choose
+                                 {:name name
+                                  :version version
+                                  :description desc
+                                  :dependencies (split-deps deps)
+                                  :marginalia marg-opts}
+                                 project-clj)]
+            (println "Generating uberdoc for the following source files:")
+            (doseq [s sources]
+              (println "  " s))
+            (println)
+            (ensure-directory! *docs*)
+            (uberdoc! (str *docs* "/" file) sources opts)
+            (println "Done generating your documentation, please see"
+                     (str *docs* "/" file))
+            (println "")))))))
 
 (defn -main
   "The main entry point into Marginalia."
