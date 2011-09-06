@@ -110,15 +110,16 @@
                                   "")]))
 
 (defn dependencies-html [deps & header-name]
-  (let [header-name (or header-name "dependencies")]
-    (html [:div {:class "dependencies"}
-           [:h3 header-name]
-           [:table
-            (map #(html [:tr
-                         [:td {:class "dep-name"} (str (first %))]
-                         [:td {:class "dotted"} [:hr]]
-                         [:td {:class "dep-version"} (second %)]])
-                 deps)]])))
+  (when-let [deps (seq deps)]
+    (let [header-name (or header-name "dependencies")]
+      (html [:div {:class "dependencies"}
+             [:h3 header-name]
+             [:table
+              (map #(html [:tr
+                           [:td {:class "dep-name"} (str (first %))]
+                           [:td {:class "dotted"} [:hr]]
+                           [:td {:class "dep-version"} (second %)]])
+                   deps)]]))))
 
 (defn cake-plugins-html [tasks]
   (when tasks
