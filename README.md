@@ -145,6 +145,7 @@ Marginalia is...
 - [Nicolas Buduroi](https://github.com/budu)
 - [Michael Harrison](https://github.com/goodmike)
 - [Anthony Grimes](https://github.com/Raynes)
+- [Sam Ritchie](https://github.com/fogus/marginalia/commits/master?author=sritchie)
 - [Hugo Duncan](https://github.com/hugoduncan)
 - [Vadim](https://github.com/dm3)
 - [Meikel Brandmeyer](https://github.com/kotarak)
