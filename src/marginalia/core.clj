@@ -220,10 +220,11 @@
   (println "marginalia <src1> ... <src-n>"))
 
 (defn split-deps [deps]
-  (for [d (.split deps ";")
-        :let [[group artifact version] (.split d ":")]]
-    [(if (= group artifact) artifact (str group "/" artifact))
-     version]))
+  (when deps
+    (for [d (.split deps ";")
+          :let [[group artifact version] (.split d ":")]]
+      [(if (= group artifact) artifact (str group "/" artifact))
+       version])))
 
 (defn run-marginalia
   "Default generation: given a collection of filepaths in a project, find the .clj
