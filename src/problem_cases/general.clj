@@ -153,3 +153,8 @@
   (greater 2 1) => truthy)
 
 '(file->tickets commits)
+
+(defmulti ns-kw-mm identity)
+(defmethod ns-kw-mm ::foo [_] :problem-cases.general/foo)
+(defmethod ns-kw-mm :user/foo [_] :user/foo)
+(defmethod ns-kw-mm :foo [_] :foo)
