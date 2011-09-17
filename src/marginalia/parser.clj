@@ -4,7 +4,7 @@
 (ns marginalia.parser
   "Provides the parsing facilities for Marginalia."
   (:refer-clojure :exclude [replace])
-  (:use [clojure.contrib [reflect :only (get-field)]]
+  (:use [clojure.contrib [reflect :only (get-field call-method)]]
         [clojure [string :only (join replace)]]))
 
 (defrecord Comment [content])
@@ -37,6 +37,34 @@
 (defn set-comment-reader [reader]
   (aset (get-field clojure.lang.LispReader :macros nil)
         (int \;)
+        reader))
+
+(defrecord DoubleColonKeyword [content])
+
+(defmethod print-method DoubleColonKeyword [dck ^java.io.Writer out]
+  (.write out (str \: (.content dck))))
+
+(letfn [(read-token [reader c]
+          (call-method clojure.lang.LispReader :readToken
+                       [java.io.PushbackReader Character/TYPE]
+                       nil reader c))
+        (match-symbol [s]
+          (call-method clojure.lang.LispReader :matchSymbol
+                       [String]
+                       nil s))]
+  (defn read-keyword [reader colon]
+    (let [c (.read reader)]
+      (if (= \: c)
+        (-> (read-token reader c)
+            match-symbol
+            DoubleColonKeyword.)
+        (do (.unread reader c)
+            (-> (read-token reader colon)
+                match-symbol))))))
+
+(defn set-keyword-reader [reader]
+  (aset (get-field clojure.lang.LispReader :macros nil)
+        (int \:)
         reader))
 
 (defn skip-spaces-and-comments [rdr]
@@ -263,11 +291,14 @@
         old-cmt-rdr (aget (get-field clojure.lang.LispReader :macros nil) (int \;))]
     (try
       (set-comment-reader read-comment)
+      (set-keyword-reader read-keyword)
       (let [parsed-code (-> reader parse* doall)]
         (set-comment-reader old-cmt-rdr)
+        (set-keyword-reader nil)
         (arrange-in-sections parsed-code lines))
       (catch Exception e
         (set-comment-reader old-cmt-rdr)
+        (set-keyword-reader nil)
         (throw e)))))
 
 (defn parse-file [file]
