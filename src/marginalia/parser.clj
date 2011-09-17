@@ -15,9 +15,6 @@
 (def top-level-comments (atom []))
 (def sub-level-comments (atom []))
 
-(def user-ns (the-ns 'user))
-(def current-namespace (atom user-ns))
-
 (def *comments* nil)
 
 (defn read-comment [reader semicolon]
@@ -52,14 +49,6 @@
           (recur (.read rdr))
           :else (.unread rdr c))))
 
-(defn maybe-change-namespace [form]
-  (when (and (seq? form)
-             ('#{ns in-ns require use alias} (first form)))
-    (binding [*ns* @current-namespace]
-      (eval form))
-    (when ('#{ns in-ns} (first form))
-      (reset! current-namespace (the-ns (second form))))))
-
 (defn parse* [reader]
   (take-while
    :form
@@ -69,14 +58,12 @@
        (binding [*comments* top-level-comments]
          (skip-spaces-and-comments reader))
        (let [start (.getLineNumber reader)
-             form (binding [*comments* sub-level-comments
-                            *ns*       @current-namespace]
+             form (binding [*comments* sub-level-comments]
                     (. clojure.lang.LispReader
                        (read reader false nil false)))
              end (.getLineNumber reader)
              code {:form form :start start :end end}
              comments @top-level-comments]
-         (maybe-change-namespace form)
          (swap! top-level-comments (constantly []))
          (if (empty? comments)
            [code]
