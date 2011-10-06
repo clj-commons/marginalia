@@ -1,10 +1,10 @@
 Marginalia 0.6.1
 ==========
-*ultra-lightweight literate programming[1] for clojure inspired by [docco](http://jashkenas.github.com/docco/)*
+*Ultra-lightweight literate programming[1] for Clojure inspired by [docco](http://jashkenas.github.com/docco/)*
 
-Marginalia is a source documentation too that parses Clojure code and outputs an side-by-side source view with appropriate comments and docstrings aligned.  
+Marginalia is a source code documentation tool that parses Clojure code and outputs a side-by-side source view with appropriate comments and docstrings aligned.  
 
-To get a quick look at what marginalia output looks like, then [visit the official site](http://fogus.me/fun/marginalia/).
+To get a quick look at what marginalia output looks like, [visit the official site](http://fogus.me/fun/marginalia/).
 
 Usage
 -----
@@ -19,40 +19,39 @@ Running Marginalia given the jar file linked above is as easy as:
 
     java -jar marginalia-0.6.1-standalone.jar
 
-This will search the `PWD` for a `src` directory which it will then traverse looking for Clojure source files to parse and generate documentation for.  Marginalia also takes specific locations and files to generate docs for:
+This will search the `$PWD` (current working directory) for a `src` directory, which it will then traverse looking for Clojure source files to generate documentation for.  Marginalia can also take specified directories and/or files for which to generate documentation:
 
-    java -jar marginalia-0.6.1-standalone.jar <file1> <file2> ... <filen>
+    java -jar marginalia-0.6.1-standalone.jar <path1> <path2> ... <pathn>
 
-Arguments can be specific files or directories.
+Path arguments may refer to files or directories.
 
 ### Leiningen
 
 [http://github.com/fogus/lein-marginalia](http://github.com/fogus/lein-marginalia)
 
-To use Marginalia in your own projects simply add the following to your `project.clj` file in the `:dev-dependencies` section:
+To use Marginalia with Leiningen add the following code to the project's `project.clj` file, in the `:dev-dependencies` argument of the `defproject` function:
 
-    [lein-marginalia "0.6.0"]
+    :dev-dependencies [lein-marginalia "0.6.0"]
 
-After executing `lein deps` you can generate your complete source documentation with the following command:
+After executing `lein deps` you can generate your complete source documentation with the command:
 
     lein marg
 
-Marginalia accepts other options as outlined in the *Command Line*
-section above.
+Marginalia accepts other options as described in the *Command Line* section above.
 
 ### Cake
 
 [http://github.com/fogus/cake-marginalia](http://github.com/fogus/cake-marginalia)
 
-Add the following to your project's `:dev-dependencies`:
+To use Marginalia with Cake add the following code to the project's `project.clj` file, in the `:dev-dependencies` argument of the `defproject` function:
 
-    [cake-marginalia "0.6.0"]
+    :dev-dependencies [cake-marginalia "0.6.0"]
 
-Also, you need to add it to your task list:
+Also, you need add this code to the `:tasks` argument for the `defproject` function:
 
-     :tasks [cake-marginalia.tasks]
+    :tasks [cake-marginalia.tasks]
 
-Here's a sample `project.clj`:
+Here's an example `project.clj` file:
 
     (defproject my-project "0.1.0
       :description "Cake plugin for Marginalia."
@@ -62,15 +61,15 @@ Here's a sample `project.clj`:
                          [cake-marginalia "0.6.0"]]
       :tasks [cake-marginalia.tasks])
 
-After that, you should be able to use it like any other cake task:
+Marginalia is called like any other Cake task:
 
     cake marg
 
 ### Maven
 
-The [zi plugin](https://github.com/pallet/zi) supports marginalia.
+The [zi plugin](https://github.com/pallet/zi) supports Marginalia.
 
-Add the folowing to your `pom.xml`, and run `mvn zi:marginalia`.
+Add this code to the project's `pom.xml` file, and run the command `mvn zi:marginalia`.
 
 ```xml
     <plugin>
@@ -83,7 +82,7 @@ Add the folowing to your `pom.xml`, and run `mvn zi:marginalia`.
     </plugin>
 ```
 
-And the following to your `settings.xml`.
+And the following to the project's `settings.xml` file.
 
 ```xml
     <pluginGroups>
@@ -110,7 +109,7 @@ And the following to your `settings.xml`.
 Contributors and thanks
 -----------------------
 
-I would like to thank Zachary Kim for taking a pile of incoherant code and making it something worth using.  Marginalia would be nothing without his hard work and vision.
+I would like to thank Zachary Kim for taking a pile of incoherent code and making it something worth using.  Marginalia would be nothing without his hard work and vision.
 
 I would also like to thank Justin Balthrop and Brenton Ashworth for their support and code contributions.
 
@@ -124,7 +123,7 @@ TODO
 License
 -------
 
-Copyright (C) 2010 Fogus
+Copyright (C) 2010, 2011 Fogus
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
