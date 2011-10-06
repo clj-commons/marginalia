@@ -148,5 +148,6 @@ Marginalia is...
 - [Hugo Duncan](https://github.com/hugoduncan)
 - [Vadim](https://github.com/dm3)
 - [Meikel Brandmeyer](https://github.com/kotarak)
+- [Paul Dorman](https://github.com/pauldorman)
 
 If I've missed your name then please ping me.
