@@ -236,7 +236,7 @@
      using the found source files and a project file expected to be in its default location.
 
    If no source files are found, complain with a usage message."
-  [args]
+  [args & [project]]
   (with-command-line args
     (str "Leiningen plugin for running marginalia against your project.\n\n"
          "Usage: lein marg <options?> <src1> ... <src-n>\n")
@@ -258,8 +258,9 @@
           (println "Wrong number of arguments passed to marginalia.")
           (print-help))
         (binding [*docs* dir]
-          (let [project-clj (when (.exists (io/file "project.clj"))
-                              (parse-project-file))
+          (let [project-clj (or project
+                                (when (.exists (io/file "project.clj"))
+                                  (parse-project-file)))
                 choose #(or %1 %2)
                 marg-opts (merge-with choose
                                       {:css (when css (.split css ";"))
