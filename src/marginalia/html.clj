@@ -121,13 +121,6 @@
                            [:td {:class "dep-version"} (second %)]])
                    deps)]]))))
 
-(defn cake-plugins-html [tasks]
-  (when tasks
-    (html [:div {:class "plugins"}
-           [:h3 "cake plugin namespaces"]
-           [:ul
-            (map #(vector :li %) tasks)]])))
-
 ;; # Load Optional Resources
 ;; Use external Javascript and CSS in your documentation. For example:
 ;; To format Latex math equations, download the
@@ -166,8 +159,7 @@
       [:br]
       (md (:description project-info))]
      (dependencies-html (:dependencies project-info))
-     (dependencies-html (:dev-dependencies project-info) "dev dependencies")
-     (cake-plugins-html (:tasks project-info))]
+     (dependencies-html (:dev-dependencies project-info) "dev dependencies")]
     [:td {:class "codes"
           :style "text-align: center; vertical-align: middle;color: #666;padding-right:20px"}
      [:br]
