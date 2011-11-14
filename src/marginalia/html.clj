@@ -105,9 +105,9 @@
                                (if (= (:type section) :comment)
                                  (:raw section)
                                  (:docstring section)))]
-         [:td {:class "codes"}] (if (= (:type section) :code)
+         [:td {:class "codes"} (if (= (:type section) :code)
                                   (codes-to-html (:raw section))
-                                  "")]))
+                                  "")]]))
 
 (defn dependencies-html [deps & header-name]
   (when-let [deps (seq deps)]
