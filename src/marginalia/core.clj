@@ -37,9 +37,9 @@
   (:use [marginalia
          [html :only (uberdoc-html index-html single-page-html)]
          [parser :only (parse-file)]]
-        [clojure.contrib
-         [find-namespaces :only (read-file-ns-decl)]
-         [command-line :only (print-help with-command-line)]])
+        [clojure.tools
+         [namespace :only (read-file-ns-decl)]
+         [cli :only (cli)]])
   (:gen-class))
 
 
@@ -216,9 +216,6 @@
                  [%]))
          (flatten))))
 
-(defn usage []
-  (println "marginalia <src1> ... <src-n>"))
-
 (defn split-deps [deps]
   (when deps
     (for [d (.split deps ";")
@@ -237,51 +234,49 @@
 
    If no source files are found, complain with a usage message."
   [args & [project]]
-  (with-command-line args
-    (str "Leiningen plugin for running marginalia against your project.\n\n"
-         "Usage: lein marg <options?> <src1> ... <src-n>\n")
-    [[dir d "Directory into which the documentation will be written" "./docs"]
-     [file f "File into which the documentation will be written" "uberdoc.html"]
-     [name n "Project name - if not given will be taken from project.clj"]
-     [version v "Project version - if not given will be taken from project.clj"]
-     [desc D "Project description - if not given will be taken from project.clj"]
-     [deps a "Project dependencies in the form <group1>:<artifact1>:<version1>;<group2>...
-             If not given will be taken from project.clj"]
-     [css c "Additional css resources <resource1>;<resource2>;...
-            If not given will be taken from project.clj."]
-     [js j "Additional javascript resources <resource1>;<resource2>;...
-           If not given will be taken from project.clj"]
-     src]
-    (let [sources (format-sources (seq src))]
-      (if-not sources
-        (do
-          (println "Wrong number of arguments passed to marginalia.")
-          (print-help))
-        (binding [*docs* dir]
-          (let [project-clj (or project
-                                (when (.exists (io/file "project.clj"))
-                                  (parse-project-file)))
-                choose #(or %1 %2)
-                marg-opts (merge-with choose
-                                      {:css (when css (.split css ";"))
-                                       :javascript (when js (.split js ";"))}
-                                      (:marginalia project-clj))
-                opts (merge-with choose
-                                 {:name name
-                                  :version version
-                                  :description desc
-                                  :dependencies (split-deps deps)
-                                  :marginalia marg-opts}
-                                 project-clj)]
-            (println "Generating uberdoc for the following source files:")
-            (doseq [s sources]
-              (println "  " s))
-            (println)
-            (ensure-directory! *docs*)
-            (uberdoc! (str *docs* "/" file) sources opts)
-            (println "Done generating your documentation, please see"
-                     (str *docs* "/" file))
-            (println "")))))))
+  (let [[{:keys [dir file name version desc deps css js]} files help]
+        (cli args
+             ["-d" "--dir" "Directory into which the documentation will be written" :default "./docs"]
+             ["-f" "--file" "File into which the documentation will be written" :default "uberdoc.html"]
+             ["-n" "--name" "Project name - if not given will be taken from project.clj"]
+             ["-v" "--version" "Project version - if not given will be taken from project.clj"]
+             ["-D" "--desc" "Project description - if not given will be taken from project.clj"]
+             ["-a" "--deps" "Project dependencies in the form <group1>:<artifact1>:<version1>;<group2>...
+                 If not given will be taken from project.clj"]
+             ["-c" "--css" "Additional css resources <resource1>;<resource2>;...
+                 If not given will be taken from project.clj."]
+             ["-j" "--js" "Additional javascript resources <resource1>;<resource2>;...
+                 If not given will be taken from project.clj"])
+        sources (format-sources (seq files))]
+    (if-not sources
+      (do
+        (println "Wrong number of arguments passed to marginalia.")
+        (println help))
+      (binding [*docs* dir]
+        (let [project-clj (or project
+                              (when (.exists (io/file "project.clj"))
+                                (parse-project-file)))
+              choose #(or %1 %2)
+              marg-opts (merge-with choose
+                                    {:css (when css (.split css ";"))
+                                     :javascript (when js (.split js ";"))}
+                                    (:marginalia project-clj))
+              opts (merge-with choose
+                               {:name name
+                                :version version
+                                :description desc
+                                :dependencies (split-deps deps)
+                                :marginalia marg-opts}
+                               project-clj)]
+          (println "Generating uberdoc for the following source files:")
+          (doseq [s sources]
+            (println "  " s))
+          (println)
+          (ensure-directory! *docs*)
+          (uberdoc! (str *docs* "/" file) sources opts)
+          (println "Done generating your documentation, please see"
+                   (str *docs* "/" file))
+          (println ""))))))
 
 (defn -main
   "The main entry point into Marginalia."

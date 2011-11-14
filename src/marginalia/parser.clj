@@ -4,8 +4,33 @@
 (ns marginalia.parser
   "Provides the parsing facilities for Marginalia."
   (:refer-clojure :exclude [replace])
-  (:use [clojure.contrib [reflect :only (get-field call-method)]]
-        [clojure [string :only (join replace)]]))
+  (:use [clojure [string :only (join replace)]]))
+
+
+;; Extracted from clojure.contrib.reflect
+(defn get-field
+  "Access to private or protected field.  field-name is a symbol or
+  keyword."
+  [klass field-name obj]
+  (-> klass (.getDeclaredField (name field-name))
+      (doto (.setAccessible true))
+      (.get obj)))
+
+;; Extracted from clojure.contrib.reflect
+(defn call-method
+  "Calls a private or protected method.
+ 
+   params is a vector of classes which correspond to the arguments to
+   the method e
+ 
+   obj is nil for static methods, the instance object otherwise.
+ 
+   The method-name is given a symbol or a keyword (something Named)."
+  [klass method-name params obj & args]
+  (-> klass (.getDeclaredMethod (name method-name)
+                                (into-array Class params))
+      (doto (.setAccessible true))
+      (.invoke obj (into-array Object args))))
 
 (defrecord Comment [content])
 
@@ -15,7 +40,7 @@
 (def top-level-comments (atom []))
 (def sub-level-comments (atom []))
 
-(def *comments* nil)
+(def ^{:dynamic true} *comments* nil)
 
 (defn read-comment [reader semicolon]
   (let [sb (StringBuilder.)]
@@ -123,8 +148,7 @@
     (if (symbol? sym)
       (do
         (when (= 'ns (first form))
-          (try (require sym)
-               (catch Exception _)))
+          (require sym))
         (let [nspace (find-ns sym)
               docstring (if nspace
                           (-> nspace meta :doc)
