@@ -1,0 +1,12 @@
+.clojure.syntaxhighlighter .meta {
+    opacity: 0.6 !important;
+}
+
+.clojure.syntaxhighlighter .invalid { 
+   color: yellow !important;
+   background: red !important;
+}
+
+.clojure.syntaxhighlighter .quoted {      
+    font-style: italic !important;
+}
