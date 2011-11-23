@@ -297,7 +297,8 @@
            :padding 0
            :font-family "'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;"
            :font-size "16px"
-           :color "#252519"}]
+           :color "#252519"
+           :background-color "#F5F5FF"}]
    [:h1 {:font-size "20px"
          :margin-top 0}]
    [:a.anchor {:text-decoration "none"
@@ -316,7 +317,8 @@
               :margin "0px"
               :padding-left "55px"
               :padding-right "20px"
-              :border "none"}]
+              :border "none"
+              :background-color "#FFF"}]
    [:td.docs :pre {:font-size "12px"
                    :overflow "hidden"}]
    [:td.codes {:width "55%"
