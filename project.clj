@@ -1,6 +1,6 @@
 (defproject marginalia "0.7.0-SNAPSHOT"
   :description "lightweight literate programming for clojure -- inspired by [docco](http://jashkenas.github.com/docco/)"
-  :main marginalia.core
+  :main marginalia.main
   :dependencies
   [[org.clojure/clojure "1.3.0"]
    [org.clojure/tools.namespace "0.1.1"]
