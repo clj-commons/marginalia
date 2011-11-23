@@ -356,8 +356,7 @@
      (inline-css (str *resources* "shCore.css"))
      (css
       [:.syntaxhighlighter {:overflow "hidden !important"}])
-     (inline-css (str *resources* "shThemeEclipse.css"))
-     (inline-css (str *resources* "shClojureExtra.css"))
+     (inline-css (str *resources* "shThemeMarginalia.css"))
      reset-css
      header-css
      floating-toc-css
