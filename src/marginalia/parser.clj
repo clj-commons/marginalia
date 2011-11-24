@@ -148,7 +148,8 @@
     (if (symbol? sym)
       (do
         (when (= 'ns (first form))
-          (require sym))
+          (try (require sym)
+               (catch Exception _)))
         (let [nspace (find-ns sym)
               docstring (if nspace
                           (-> nspace meta :doc)
