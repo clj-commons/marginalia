@@ -108,9 +108,6 @@
   color: red !important;
 }
 
-.syntaxhighlighter .keyword {
-  font-weight: bold !important;
-}
 .syntaxhighlighter .xml .keyword {
   color: #3f7f7f !important;
   font-weight: normal !important;
@@ -130,3 +127,31 @@
 .clojure.syntaxhighlighter .quoted {      
     font-style: italic !important;
 }
+
+.syntaxhighlighter .clojure.variable,
+.syntaxhighlighter .clojure.symbol,
+.syntaxhighlighter .clojure.value
+{
+    color: #006060 !important;
+}
+
+.syntaxhighlighter .clojure.string {
+    color: #55B !important;
+}
+
+.syntaxhighlighter .clojure.functions {
+    color: black !important;
+}
+
+.syntaxhighlighter .clojure.color1 {
+    color: #666 !important;
+}
+
+.syntaxhighlighter .clojure.color3 {
+    color: #900 !important;
+}
+
+.syntaxhighlighter .clojure.constants {
+    color: #219161 !important;
+}
+
