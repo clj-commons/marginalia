@@ -74,12 +74,12 @@
   [path]
   (.isDirectory (java.io.File. path)))
 
-(defn find-clojure-file-paths
+(defn find-processable-file-paths
   "Returns a seq of clojure file paths (strings) in alphabetical order."
-  [dir]
+  [dir matching-re]
   (->> (io/file dir)
        (file-seq)
-       (filter #(re-find #"\.clj$" (.getCanonicalPath %)))
+       (filter #(re-find matching-re (.getCanonicalPath %)))
        (map #(.getCanonicalPath %))
        (sort)))
 
@@ -208,10 +208,14 @@
    for .clj files."
   [sources]
   (if (nil? sources)
-    (find-clojure-file-paths "./src")
+    (concat
+     (find-processable-file-paths "./src" #"\.clj$")
+     (find-processable-file-paths "./src" #"\.cljs$"))
     (->> sources
          (mapcat #(if (dir? %)
-                    (find-clojure-file-paths %)
+                    (concat
+                     (find-processable-file-paths % #"\.clj$")
+                     (find-processable-file-paths % #"\.cljs$"))
                     [(.getCanonicalPath (io/file %))])))))
 
 (defn split-deps [deps]

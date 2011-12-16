@@ -134,10 +134,13 @@
       (replace #"\n\s*\)" ")")))
 
 (defn get-var-docstring [nspace-sym sym]
-  (try
-    (-> `(var ~(symbol (str nspace-sym) (str sym))) eval meta :doc)
-    ;; HACK: to handle types
-    (catch Exception _)))
+  (let [s (if nspace-sym
+            (symbol (str nspace-sym) (str sym))
+            (symbol (str sym)))]
+    (try
+      (-> `(var ~s) eval meta :doc)
+      ;; HACK: to handle types
+      (catch Exception _))))
 
 (defmulti dispatch-form (fn [form _ _]
                           (if (seq? form) (first form) form)))
@@ -151,12 +154,17 @@
           (try (require sym)
                (catch Exception _)))
         (let [nspace (find-ns sym)
-              docstring (if nspace
-                          (-> nspace meta :doc)
-                          (get-var-docstring nspace-sym sym))]
+              maybe-ds (let [[_ _ ? & _] form] ?)
+              docstring (if (string? maybe-ds)
+                          maybe-ds
+                          (if-let [ds (:doc (meta (second form)))]
+                            ds
+                            (when nspace
+                              (-> nspace meta :doc)
+                              (get-var-docstring nspace-sym sym))))]
           [docstring
            (strip-docstring docstring raw)
-           (if nspace sym nspace-sym)]))
+           (if (or (= 'ns (first form)) nspace) sym nspace-sym)]))
       [nil raw nspace-sym])))
 
 (defn- extract-impl-docstring
@@ -180,12 +188,7 @@
 
 (defmethod dispatch-form 'ns
   [form raw nspace-sym]
-  (let [[ds r s] (extract-common-docstring form raw nspace-sym)]
-    (let [[_ _ ds & _] form
-          ds (when (string? ds) ds)]
-      [ds
-       (strip-docstring ds r)
-       s])))
+  (extract-common-docstring form raw nspace-sym))
 
 (defmethod dispatch-form 'def
   [form raw nspace-sym]
