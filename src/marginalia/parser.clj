@@ -154,8 +154,8 @@
           (try (require sym)
                (catch Exception _)))
         (let [nspace (find-ns sym)
-              maybe-ds (let [[_ _ ? & _] form] ?)
-              docstring (if (string? maybe-ds)
+              [maybe-ds remainder] (let [[_ _ ? & more?] form] [? more?])
+              docstring (if (and (string? maybe-ds) remainder)
                           maybe-ds
                           (if-let [ds (:doc (meta (second form)))]
                             ds
