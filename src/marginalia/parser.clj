@@ -233,10 +233,13 @@
   ;; Strings which are inlined into clojure files outside of forms are parsed
   ;; as `String` instances, while numbers - as `Number` subclasses.
   (cond (or (string? form) (number? form) (keyword? form))
-        (dispatch-literal form raw nspace-sym)
-        (re-find #"^def" (-> form first name))
-        (extract-common-docstring form raw nspace-sym)
-        :else (dispatch-inner-form form raw nspace-sym)))
+          (dispatch-literal form raw nspace-sym)
+        (and (first form)
+             (.isInstance clojure.lang.Named (first form))
+             (re-find #"^def" (-> form first name)))
+          (extract-common-docstring form raw nspace-sym)
+        :else
+          (dispatch-inner-form form raw nspace-sym)))
 
 (defn extract-docstring [m raw nspace-sym]
   (let [raw (join "\n" (subvec raw (-> m :start dec) (:end m)))
