@@ -23,6 +23,7 @@ $(document).ready(function() {
     }
 
     var calcNsPositions = function() {
+        var hheight = $('.docs-header').first().height();
         var nss = []
         var anchors = []
         var positions = []
@@ -31,7 +32,7 @@ $(document).ready(function() {
             nss.push(ns)
             var a = $("a[name='"+ns+"']")
             anchors.push(a)
-            positions.push(a.offset().top - 50)
+            positions.push(a.offset().top - hheight)
             // console.log(a.offset().top)
         });
 
