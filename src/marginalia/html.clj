@@ -361,7 +361,7 @@
      header-css
      floating-toc-css
      general-css
-     (inline-js (str *resources* "jquery-1.4.4.min.js"))
+     (inline-js (str *resources* "jquery-1.7.1.min.js"))
      (inline-js (str *resources* "xregexp-min.js"))
      (inline-js (str *resources* "shCore.js"))
      (inline-js (str *resources* "shBrushClojure.js"))
