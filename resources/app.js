@@ -1,23 +1,26 @@
-$(document).ready(function() {
-    var ft = $("#floating-toc")
-    var ul = ft.find('ul')
-    var lis = ft.find('li')
-    var liHeight = $(lis.first()).height()
+SyntaxHighlighter.defaults['gutter'] = false
+SyntaxHighlighter.all()
 
-    ul.css('margin', '0px')
-    ft.css('height', liHeight + 'px')
+$(window).load(function() {
+    var ft = $("#floating-toc");
+    var ul = ft.find('ul');
+    var lis = ft.find('li');
+    var liHeight = $(lis.first()).height();
+
+    ul.css('margin', '0px');
+    ft.css('height', liHeight + 'px');
 
     showNs = function(ns) {
-        var index = 0
+        var index = 0;
 
         for(i in nsPositions.nss) {
-            if(ns == nsPositions.nss[i]) index = i
+            if(ns == nsPositions.nss[i]) index = i;
         }
 
         if(index != lastNsIndex) {
             lastNsIndex = index;
             ul.animate({marginTop: (-1 * liHeight * index) + 'px'},
-               300)
+               300);
         }
 
     }

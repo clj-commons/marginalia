@@ -352,7 +352,6 @@
     [:head
      [:meta {:http-equiv "Content-Type" :content "text/html" :charset "utf-8"}]
      [:meta {:name "description" :content (:description project-metadata)}]
-     #_[:script {:type "text/javascript" :src "./../resources/app.js"}]
      (inline-css (str *resources* "shCore.css"))
      (css
       [:.syntaxhighlighter {:overflow "hidden !important"}])
@@ -365,7 +364,6 @@
      (inline-js (str *resources* "xregexp-min.js"))
      (inline-js (str *resources* "shCore.js"))
      (inline-js (str *resources* "shBrushClojure.js"))
-     (inline-js (str *resources* "app.js"))
      opt-resources
      [:title (:name project-metadata) " -- Marginalia"]]
     [:body
@@ -381,9 +379,7 @@
       [:a {:href "http://alexgorbatchev.com/SyntaxHighlighter/"}
        "SyntaxHighlighter"]
       floating-toc]
-     [:script {:type "text/javascript"}
-      "SyntaxHighlighter.defaults['gutter'] = false;
-       SyntaxHighlighter.all()"]]]))
+     (inline-js (str *resources* "app.js"))]]))
 
 
 ;; Syntax highlighting is done a bit differently than docco.  Instead of embedding
