@@ -112,8 +112,10 @@
          (skip-spaces-and-comments reader))
        (let [start (.getLineNumber reader)
              form (binding [*comments* sub-level-comments]
-                    (. clojure.lang.LispReader
-                       (read reader false nil false)))
+                    (try (. clojure.lang.LispReader
+                            (read reader false nil false))
+                         (catch Exception ex
+                           (throw (Exception. (str "Problem parsing near line " start))))))
              end (.getLineNumber reader)
              code {:form form :start start :end end}
              comments @top-level-comments]
@@ -149,22 +151,27 @@
   [form raw nspace-sym]
   (let [sym (second form)]
     (if (symbol? sym)
-      (do
-        (when (= 'ns (first form))
-          (try (require sym)
-               (catch Exception _)))
-        (let [nspace (find-ns sym)
-              [maybe-ds remainder] (let [[_ _ ? & more?] form] [? more?])
-              docstring (if (and (string? maybe-ds) remainder)
-                          maybe-ds
-                          (if-let [ds (:doc (meta (second form)))]
-                            ds
-                            (when nspace
-                              (-> nspace meta :doc)
-                              (get-var-docstring nspace-sym sym))))]
-          [docstring
-           (strip-docstring docstring raw)
-           (if (or (= 'ns (first form)) nspace) sym nspace-sym)]))
+      (let [maybe-metadocstring (:doc (meta sym))]
+        (do
+          (when (= 'ns (first form))
+            (try (require sym)
+                 (catch Exception _)))
+          (let [nspace (find-ns sym)
+                [maybe-ds remainder] (let [[_ _ ? & more?] form] [? more?])
+                docstring (if (and (string? maybe-ds) remainder)
+                            maybe-ds
+                            (if (= (first form) 'ns)
+                              (if (not maybe-metadocstring)
+                                maybe-ds
+                                maybe-metadocstring)
+                              (if-let [ds maybe-metadocstring]
+                                ds
+                                (when nspace
+                                  (-> nspace meta :doc)
+                                  (get-var-docstring nspace-sym sym)))))]
+            [docstring
+             (strip-docstring docstring raw)
+             (if (or (= 'ns (first form)) nspace) sym nspace-sym)])))
       [nil raw nspace-sym])))
 
 (defn- extract-impl-docstring

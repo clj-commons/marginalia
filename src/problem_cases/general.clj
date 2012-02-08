@@ -1,6 +1,5 @@
 (ns problem-cases.general
-  "A place to examine poor parser behavior.  These should go in tests when they get written."
-  )
+  "A place to examine poor parser behavior.  These should go in tests when they get written.")
 
 ::foo
 
