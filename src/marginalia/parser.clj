@@ -254,7 +254,9 @@
     (dispatch-form form raw nspace-sym)))
 
 (defn- ->str [m]
-  (replace (-> m :form .content) #"^;+\s*" ""))
+  (-> (-> m :form .content)
+      (replace #"^;+\s(\s*)" "$1")
+      (replace #"^;+" "")))
 
 (defn merge-comments [f s]
   {:form (Comment. (str (->str f) "\n" (->str s)))
