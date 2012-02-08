@@ -345,14 +345,13 @@
   "Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
    & `inline-css`) to be able to package the output as a single file (uberdoc if you will).  It goes without
    saying that all this is WIP and will prabably change in the future."
-  [project-metadata opt-resources header toc floating-toc content]
+  [project-metadata opt-resources header toc content]
   (html
    (doctype :html5)
    [:html
     [:head
      [:meta {:http-equiv "Content-Type" :content "text/html" :charset "utf-8"}]
      [:meta {:name "description" :content (:description project-metadata)}]
-     #_[:script {:type "text/javascript" :src "./../resources/app.js"}]
      (inline-css (str *resources* "shCore.css"))
      (css
       [:.syntaxhighlighter {:overflow "hidden !important"}])
@@ -365,7 +364,6 @@
      (inline-js (str *resources* "xregexp-min.js"))
      (inline-js (str *resources* "shCore.js"))
      (inline-js (str *resources* "shBrushClojure.js"))
-     (inline-js (str *resources* "app.js"))
      opt-resources
      [:title (:name project-metadata) " -- Marginalia"]]
     [:body
@@ -380,7 +378,7 @@
       "Syntax highlighting provided by Alex Gorbatchev's "
       [:a {:href "http://alexgorbatchev.com/SyntaxHighlighter/"}
        "SyntaxHighlighter"]
-      floating-toc]
+      #_floating-toc]
      [:script {:type "text/javascript"}
       "SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()"]]]))
@@ -399,7 +397,6 @@
    (opt-resources-html project-metadata)
    (header-html project-metadata)
    (toc-html {:uberdoc? true} docs)
-   (floating-toc-html docs)
    (map #(groups-html {:uberdoc? true} %) docs)))
 
 (defn index-html
@@ -419,5 +416,4 @@
    (opt-resources-html project-metadata)
    "" ;; no header
    "" ;; no toc
-   (floating-toc-html all-docs)
    (groups-html {:uberdoc? false} doc)))
