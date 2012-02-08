@@ -1,94 +1,77 @@
+SyntaxHighlighter.defaults['gutter'] = false;
+SyntaxHighlighter.all();
 
-// hackity-hack
+// hackity hack
+$(window).load(function() {
+    var ft = $("#floating-toc");
+    var ul = ft.find('ul');
+    var lis = ft.find('li');
+    var liHeight = $(lis.first()).height();
 
-$(document).ready(function() {
-    var ft = $("#floating-toc")
-    var ul = ft.find('ul')
-    var lis = ft.find('li')
-
-    ul.css('maring', '0px')
-
-    var liHeight = $(lis.get(0)).height()
-
-    ft.css('height', (liHeight) + 'px')
-
+    ul.css('margin', '0px');
+    ft.css('height', liHeight + 'px');
 
     showNs = function(ns) {
-        //this is killing performance, lookup table.
-        //var el = $("[id='floating-toc_" + ns + "']")
-        //var index = lis.index(el)
-
-        var index = 0
+        var index = 0;
 
         for(i in nsPositions.nss) {
-            if(ns == nsPositions.nss[i]) index = i
+            if(ns == nsPositions.nss[i]) index = i;
         }
 
-        console.log(index)
-
-        if(index == lastNsIndex) return;
-
-        lastNsIndex = index
-
-
-        ul.animate({marginTop: (-1 * liHeight * index) + 'px'},
-               300)
-        //        ul.css('margin-top', (-1 * liHeight * index) + 'px')
+        if(index != lastNsIndex) {
+            lastNsIndex = index;
+            ul.animate({marginTop: (-1 * liHeight * index) + 'px'},
+               300);
+        }
 
     }
 
     var calcNsPositions = function() {
-        var nss = []
-        var anchors = []
-        var positions = []
+        var hheight = $('.docs-header').first().height();
+        var nss = [];
+        var anchors = [];
+        var positions = [];
         $.each(lis, function(i, el) {
-            var ns = $(el).attr('id').split('_')[1]
-            nss.push(ns)
-            var a = $("a[name='"+ns+"']")
-            anchors.push(a)
-            positions.push(a.offset().top)
-            console.log(a.offset().top)
+            var ns = $(el).attr('id').split('_')[1];
+            nss.push(ns);
+            var a = $("a[name='"+ns+"']");
+            anchors.push(a);
+            positions.push(a.offset().top - hheight);
+            // console.log(a.offset().top)
         });
 
-        return {nss: nss, positions: positions}
+        return {nss: nss, positions: positions};
     }
 
-    var nsPositions = calcNsPositions()
-
-    console.log(nsPositions)
-
-    var lastNsIndex = -1
-
-    var $window = $(window)
+    var nsPositions = calcNsPositions();
+    // console.log(nsPositions)
+    var lastNsIndex = -1;
+    var $window = $(window);
 
     var currentSection = function(nsp) {
+        var ps = nsp.positions;
+        var scroll = $window.scrollTop();
+        var nsIndex = -1;
 
-        var ps = nsp.positions
-        var nss = nsp.nss
-        var scroll = $window.scrollTop() + 300
-        var nsIndex = -1
-        for(var i in ps) {
-            var p = ps[i]
-            if(p >= scroll) {
-                nsIndex = i-1
+        for(var i = 0, length = ps.length; i < length; i++) {
+            if(ps[i] >= scroll) {
+                nsIndex = i-1;
                 break;
             }
-                
         }
 
-        if(nsIndex == -1 && scroll >= ps[0]) {
-            nsIndex = ps.length-1
+        if(nsIndex == -1) {
+             if(scroll >= ps[0]) {
+                 nsIndex = ps.length - 1;
+             } else {
+                 nsIndex = 0;
+             }
         }
 
-        if(nsIndex == -1) nsIndex = 0
-
-        return nss[nsIndex]
+        return nsp.nss[nsIndex];
     }
 
     $(window).scroll(function(e) {
-        showNs(currentSection(nsPositions))
-    })
-
-    ul.css('margin-top', '0px')
-
-})
+        showNs(currentSection(nsPositions));
+    });
+});
