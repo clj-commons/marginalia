@@ -7,7 +7,7 @@ Marginalia is a source code documentation tool that parses Clojure code and outp
 
 To get a quick look at what marginalia output looks like, [visit the official site](http://fogus.me/fun/marginalia/).
 
-**[View the release notes for this version of Marginalia]()**
+**[View the release notes for this version of Marginalia](https://github.com/fogus/marginalia/blob/master/docs/release-notes/marginalia-v0.7.0-release-notes.markdown)**
 
 Usage
 -----
