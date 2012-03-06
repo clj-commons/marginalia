@@ -1,7 +1,16 @@
 (ns problem-cases.general
   "A place to examine poor parser behavior.  These should go in tests when they get written.")
 
-::foo
+[::foo]
+
+{:foo 43}
+{::foo 42}
+
+(defn ^:private private-fn "private docstring" [])
+
+(defn public-fn "docstring" []
+  (let [x (private-fn)]
+        (count x)))
 
 ;; Should have only this comment in the left margin.
 ;; See [https://github.com/fogus/marginalia/issues/#issue/4](https://github.com/fogus/marginalia/issues/#issue/4)

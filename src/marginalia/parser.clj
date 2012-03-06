@@ -69,23 +69,28 @@
 (defmethod print-method DoubleColonKeyword [dck ^java.io.Writer out]
   (.write out (str \: (.content dck))))
 
-(letfn [(read-token [reader c]
-          (call-method clojure.lang.LispReader :readToken
-                       [java.io.PushbackReader Character/TYPE]
-                       nil reader c))
-        (match-symbol [s]
-          (call-method clojure.lang.LispReader :matchSymbol
-                       [String]
-                       nil s))]
-  (defn read-keyword [reader colon]
-    (let [c (.read reader)]
-      (if (= \: c)
-        (-> (read-token reader c)
-            match-symbol
-            DoubleColonKeyword.)
-        (do (.unread reader c)
-            (-> (read-token reader colon)
-                match-symbol))))))
+(defmethod print-dup DoubleColonKeyword [dck ^java.io.Writer out]
+  (print-method dck out))
+
+(defn ^:private read-token [reader c]
+  (call-method clojure.lang.LispReader :readToken
+               [java.io.PushbackReader Character/TYPE]
+               nil reader c))
+
+(defn ^:private match-symbol [s]
+  (call-method clojure.lang.LispReader :matchSymbol
+               [String]
+               nil s))
+
+(defn read-keyword [reader colon]
+  (let [c (.read reader)]
+    (if (= (int \:) c)
+      (-> (read-token reader (char c))
+          match-symbol
+          DoubleColonKeyword.)
+      (do (.unread reader c)
+          (-> (read-token reader colon)
+              match-symbol)))))
 
 (defn set-keyword-reader [reader]
   (aset (get-field clojure.lang.LispReader :macros nil)
@@ -115,7 +120,14 @@
                     (try (. clojure.lang.LispReader
                             (read reader false nil false))
                          (catch Exception ex
-                           (throw (Exception. (str "Problem parsing near line " start))))))
+                           (let [msg (str "Problem parsing near line " start
+                                          " <" (.readLine reader) ">"
+                                          " original reported cause is "
+                                          (.getCause ex) " -- "
+                                          (.getMessage ex))
+                                 e (RuntimeException. msg)]
+                             (.setStackTrace e (.getStackTrace ex))
+                             (throw e)))))
              end (.getLineNumber reader)
              code {:form form :start start :end end}
              comments @top-level-comments]
