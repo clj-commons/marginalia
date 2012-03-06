@@ -174,7 +174,7 @@
                             maybe-ds
                             (if (= (first form) 'ns)
                               (if (not maybe-metadocstring)
-                                maybe-ds
+                                (when (string? maybe-ds) maybe-ds)
                                 maybe-metadocstring)
                               (if-let [ds maybe-metadocstring]
                                 ds
