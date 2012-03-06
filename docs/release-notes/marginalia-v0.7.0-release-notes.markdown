@@ -33,7 +33,7 @@ Marginalia will now discover and parse ClojureScript files.
 
 Clojure 1.3 allows docstrings in `def` forms that look like:
 
-    (def a-var value "The docstring")
+    (def a-var "The docstring" value)
 
 Marginalia will recognize this pattern and generate the associate documentation.
 
