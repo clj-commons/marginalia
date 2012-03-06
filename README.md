@@ -1,5 +1,6 @@
-Marginalia 0.6.1
-==========
+Marginalia 0.7.0
+================
+
 *Ultra-lightweight literate programming[1] for Clojure inspired by [docco](http://jashkenas.github.com/docco/)*
 
 Marginalia is a source code documentation tool that parses Clojure code and outputs a side-by-side source view with appropriate comments and docstrings aligned.  

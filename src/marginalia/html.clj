@@ -5,7 +5,7 @@
   (:require [clojure.string :as str])
   (:import [com.petebevin.markdown MarkdownProcessor]))
 
-(def ^{:dynamic true} *resources* "./resources/")
+(def ^{:dynamic true} *resources* "./vendor/")
 
 (defn css-rule [rule]
   (let [sels (reverse (rest (reverse rule)))
