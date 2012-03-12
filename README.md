@@ -1,5 +1,6 @@
-Marginalia 0.7.0
-================
+![marginalia](http://farm8.staticflickr.com/7057/6828224448_32b51e5784_z_d.jpg "Marginalia")
+
+# Marginalia v0.7.0
 
 *Ultra-lightweight literate programming[1] for Clojure inspired by [docco](http://jashkenas.github.com/docco/)*
 
