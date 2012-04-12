@@ -21,7 +21,7 @@ Currently Marginalia can be used in a number of ways as described below.
 
 To use Marginalia with Leiningen add the following code to the project's `project.clj` file, in the `:dev-dependencies` argument of the `defproject` function:
 
-    :dev-dependencies [lein-marginalia "0.7.0"]
+    :dev-dependencies [[lein-marginalia "0.7.0"]]
 
 After executing `lein deps` you can generate your complete source documentation with the command:
 
