@@ -107,5 +107,6 @@ Marginalia is...
 - [Meikel Brandmeyer](https://github.com/kotarak)
 - [Paul Dorman](https://github.com/pauldorman)
 - [Deepak Giridharagopal](https://github.com/grimradical)
+- [Tero Parviainen](https://github.com/teropa)
 
 If I've missed your name then please ping me.
