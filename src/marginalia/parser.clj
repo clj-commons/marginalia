@@ -109,7 +109,7 @@
 
 (defn parse* [reader]
   (take-while
-   :form
+   #(not= :_eof (:form %))
    (flatten
     (repeatedly
      (fn []
@@ -118,7 +118,7 @@
        (let [start (.getLineNumber reader)
              form (binding [*comments* sub-level-comments]
                     (try (. clojure.lang.LispReader
-                            (read reader false nil false))
+                            (read reader false :_eof false))
                          (catch Exception ex
                            (let [msg (str "Problem parsing near line " start
                                           " <" (.readLine reader) ">"
@@ -247,12 +247,14 @@
   [form raw nspace-sym]
   [nil raw])
 
+(defn- literal-form? [form]
+  (or (string? form) (number? form) (keyword? form) (symbol? form)
+      (char? form) (true? form) (false? form) (instance? java.util.regex.Pattern form)))
+  
 (defmethod dispatch-form :default
   [form raw nspace-sym]
-  ;; Strings which are inlined into clojure files outside of forms are parsed
-  ;; as `String` instances, while numbers - as `Number` subclasses.
-  (cond (or (string? form) (number? form) (keyword? form))
-          (dispatch-literal form raw nspace-sym)
+  (cond (literal-form? form)
+        (dispatch-literal form raw nspace-sym)
         (and (first form)
              (.isInstance clojure.lang.Named (first form))
              (re-find #"^def" (-> form first name)))
