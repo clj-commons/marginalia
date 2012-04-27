@@ -1,7 +1,19 @@
 (ns marginalia.test.helpers
   (:use clojure.test)
-  (:use [clojure.java.io :only (file)])
-  (:use [clojure.contrib.java-utils :only (delete-file-recursively)]))
+  (:use [clojure.java.io :only (file delete-file)]))
+
+
+;; copied from http://clojuredocs.org/clojure_contrib/clojure.contrib.io/delete-file-recursively
+;; N.B. that Raynes's filesystem library could possibly replace this,
+;; but that's a separate task.
+(defn delete-file-recursively
+  "Delete file f. If it's a directory, recursively delete all its contents. Raise an exception if any deletion fails unless silently is true."
+  [f & [silently]]
+  (let [f (file f)]
+    (when (.isDirectory f)
+      (doseq [child (.listFiles f)]
+        (delete-file-recursively child silently)))
+    (delete-file f silently)))
 
 (defn files-in [dir]
   (seq (.listFiles (file dir))))
