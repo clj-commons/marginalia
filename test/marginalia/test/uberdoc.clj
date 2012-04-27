@@ -6,7 +6,7 @@
 (with-project "single_page"
   (fn [source-dir output-dir metadata]
     (marginalia.core/uberdoc! (clojure.java.io/file output-dir "index.html")
-                              (marginalia.core/find-clojure-file-paths source-dir)
+                              (find-clojure-file-paths source-dir)
                               metadata))
 
   (is (= number-of-generated-pages 1)))
