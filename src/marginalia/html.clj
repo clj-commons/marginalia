@@ -407,7 +407,6 @@
    (opt-resources-html project-metadata)
    (header-html project-metadata)
    (toc-html {:uberdoc? false} docs)
-   "" ;; no floating toc
    "")) ;; no contents
 
 (defn single-page-html
