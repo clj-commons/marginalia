@@ -1,6 +1,7 @@
 (ns marginalia.test.helpers
   (:use clojure.test)
-  (:use [clojure.java.io :only (file delete-file)]))
+  (:use [clojure.java.io :only (file delete-file)])
+  (:require marginalia.core))
 
 
 ;; copied from http://clojuredocs.org/clojure_contrib/clojure.contrib.io/delete-file-recursively
@@ -14,6 +15,9 @@
       (doseq [child (.listFiles f)]
         (delete-file-recursively child silently)))
     (delete-file f silently)))
+
+(defn find-clojure-file-paths [source-dir]
+  (marginalia.core/find-processable-file-paths source-dir #".clj$"))
 
 (defn files-in [dir]
   (seq (.listFiles (file dir))))
