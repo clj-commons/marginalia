@@ -5,7 +5,7 @@
   [[org.clojure/clojure "1.3.0"]
    [org.clojure/tools.namespace "0.1.1"]
    [org.clojure/tools.cli "0.2.1"]
-   [hiccup "0.3.7"]
+   [hiccup "1.0.0"]
    [org.markdownj/markdownj "0.3.0-1.0.2b4"]]
   :dev-dependencies
   [[lein-clojars "0.6.0"]

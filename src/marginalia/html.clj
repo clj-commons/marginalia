@@ -1,7 +1,8 @@
 (ns marginalia.html
   "Utilities for converting parse results into html."
-  (:use [hiccup.core :only (html escape-html)]
-        [hiccup.page-helpers :only (doctype)])
+  (:use [hiccup.core :only (html)]
+        [hiccup.util :only (escape-html)]
+        [hiccup.page :only (html5)])
   (:require [clojure.string :as str])
   (:import [com.petebevin.markdown MarkdownProcessor]))
 
