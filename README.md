@@ -50,7 +50,7 @@ Add this code to the project's `pom.xml` file, and run the command `mvn zi:margi
     <plugin>
       <groupId>org.cloudhoist.plugin</groupId>
       <artifactId>zi</artifactId>
-      <version>0.3.1</version>
+      <version>0.5.0</version>
       <configuration>
         <marginaliaTargetDirectory>autodoc/marginalia</marginaliaTargetDirectory>
       </configuration>
