@@ -236,7 +236,7 @@
 
    If no source files are found, complain with a usage message."
   [args & [project]]
-  (let [[{:keys [dir file name version desc deps css js]} files help]
+  (let [[{:keys [dir file name version desc deps css js multi]} files help]
         (cli args
              ["-d" "--dir" "Directory into which the documentation will be written" :default "./docs"]
              ["-f" "--file" "File into which the documentation will be written" :default "uberdoc.html"]
@@ -248,11 +248,12 @@
              ["-c" "--css" "Additional css resources <resource1>;<resource2>;...
                  If not given will be taken from project.clj."]
              ["-j" "--js" "Additional javascript resources <resource1>;<resource2>;...
-                 If not given will be taken from project.clj"])
+                 If not given will be taken from project.clj"]
+             ["-m" "--multi" "Generate each namespace documentation as a separate file" :flag true])
         sources (distinct (format-sources (seq files)))]
     (if-not sources
       (do
-        (println "Wrong number of arguments passed to marginalia.")
+        (println "Wrong number of arguments passed to Marginalia.")
         (println help))
       (binding [*docs* dir]
         (let [project-clj (or project
@@ -268,14 +269,16 @@
                                 :version version
                                 :description desc
                                 :dependencies (split-deps deps)
+                                :multi multi
                                 :marginalia marg-opts}
                                project-clj)]
-          (println "Generating uberdoc for the following source files:")
+          (println "Generating Marginalia documentation for the following source files:")
           (doseq [s sources]
             (println "  " s))
           (println)
           (ensure-directory! *docs*)
-          (uberdoc! (str *docs* "/" file) sources opts)
-          (println "Done generating your documentation, please see"
-                   (str *docs* "/" file))
+          (if multi
+            (multidoc! *docs* sources opts)
+            (uberdoc!  (str *docs* "/" file) sources opts))
+          (println "Done generating your documentation in" *docs*)
           (println ""))))))

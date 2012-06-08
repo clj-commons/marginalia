@@ -1,13 +1,13 @@
-Marginalia 0.7.0
+Marginalia 0.7.1
 ================
 
-*Ultra-lightweight literate programming[1] for Clojure inspired by [docco](http://jashkenas.github.com/docco/)*
+*Ultra-lightweight literate programming[1] for [Clojure](http://clojure.org) and ClojureScript inspired by [docco](http://jashkenas.github.com/docco/)*
 
-Marginalia is a source code documentation tool that parses Clojure code and outputs a side-by-side source view with appropriate comments and docstrings aligned.  
+Marginalia is a source code documentation tool that parses Clojure and ClojureScript code and outputs a side-by-side source view with appropriate comments and docstrings aligned.  
 
-To get a quick look at what marginalia output looks like, [visit the official site](http://fogus.me/fun/marginalia/).
+To get a quick look at what the Marginalia output looks like, [visit the official site](http://fogus.me/fun/marginalia/).
 
-**[View the release notes for this version of Marginalia](https://github.com/fogus/marginalia/blob/master/docs/release-notes/marginalia-v0.7.0-release-notes.markdown)**
+**[View the release notes for this version of Marginalia](https://github.com/fogus/marginalia/blob/master/docs/release-notes/marginalia-v0.7.1-release-notes.markdown)**
 
 Usage
 -----
@@ -20,13 +20,23 @@ Currently Marginalia can be used in a number of ways as described below.
 
 To use Marginalia with Leiningen add the following code to the project's `project.clj` file, in the `:dev-dependencies` argument of the `defproject` function:
 
-    :dev-dependencies [lein-marginalia "0.7.0"]
+    :dev-dependencies [lein-marginalia "0.7.1"]
 
 After executing `lein deps` you can generate your complete source documentation with the command:
 
-    lein marg
+    lein marg <options> <files>
 
-Marginalia accepts other options as described in the *Command Line* section above.
+Marginalia accepts options as described below:
+
+  * -d --dir     Directory into which the documentation will be written (default `docs`)
+  * -f --file    File into which the documentation will be written (default `uberdoc.html`)
+  * -n --name    Project name (if not given will be taken from `project.clj`)
+  * -v --version Project version (if not given will be taken from `project.clj`)
+  * -D --desc    Project description (if not given will be taken from `project.clj`)
+  * -a --deps    Project dependencies in the form `<group1>:<artifact1>:<version1>;<group2>...` (if not given will be taken from `project.clj`)
+  * -c --css     Additional css resources `<resource1>;<resource2>;...` (if not given will be taken from `project.clj`)
+  * -j --js      Additional javascript resources `<jsfile1>;<jsfile2>;...` (if not given will be taken from `project.clj`)
+  * -m --multi   Generate each namespace documentation as a separate file
 
 ### Maven
 
