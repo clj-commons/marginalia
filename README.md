@@ -1,6 +1,8 @@
 Marginalia 0.7.1
 ================
 
+![marginalia](http://farm8.staticflickr.com/7057/6828224448_32b51e5784_z_d.jpg "Marginalia")
+
 *Ultra-lightweight literate programming[1] for [Clojure](http://clojure.org) and ClojureScript inspired by [docco](http://jashkenas.github.com/docco/)*
 
 Marginalia is a source code documentation tool that parses Clojure and ClojureScript code and outputs a side-by-side source view with appropriate comments and docstrings aligned.  
@@ -116,5 +118,6 @@ Marginalia is...
 - [Meikel Brandmeyer](https://github.com/kotarak)
 - [Paul Dorman](https://github.com/pauldorman)
 - [Deepak Giridharagopal](https://github.com/grimradical)
+- [Tero Parviainen](https://github.com/teropa)
 
 If I've missed your name then please ping me.
