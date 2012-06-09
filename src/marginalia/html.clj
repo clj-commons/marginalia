@@ -1,7 +1,6 @@
 (ns marginalia.html
   "Utilities for converting parse results into html."
-  (:use [hiccup.core :only (html escape-html)]
-        [hiccup.page-helpers :only (doctype)])
+  (:use [marginalia.hiccup :only (html escape-html)])
   (:require [clojure.string :as str])
   (:import [com.petebevin.markdown MarkdownProcessor]))
 
@@ -347,7 +346,7 @@
    saying that all this is WIP and will prabably change in the future."
   [project-metadata opt-resources header toc content]
   (html
-   (doctype :html5)
+   "<!DOCTYPE html>\n"
    [:html
     [:head
      [:meta {:http-equiv "Content-Type" :content "text/html" :charset "utf-8"}]
