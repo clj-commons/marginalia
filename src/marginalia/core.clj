@@ -166,7 +166,7 @@
      :groups groups}))
 
 
-;; ## Ouput Generation
+;; ## Output Generation
 
 (defn filename-contents
   [props output-dir all-files parsed-file]
