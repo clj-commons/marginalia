@@ -130,8 +130,9 @@
                              (throw e)))))
              end (.getLineNumber reader)
              code {:form form :start start :end end}
-             comments @top-level-comments]
+             comments (concat @top-level-comments @sub-level-comments)]
          (swap! top-level-comments (constantly []))
+         (swap! sub-level-comments (constantly []))
          (if (empty? comments)
            [code]
            (vec (concat comments [code])))))))))
@@ -337,19 +338,34 @@
                 s (first nn) (next nn) nspace)))
       sections)))
 
+(defn make-reader [src]
+  (java.io.BufferedReader. (java.io.StringReader. (str src "\n"))))
+
+(defn rip-comments [lines]
+  (let [c #"^.*;;+\s(.*)$"]
+    (keep-indexed #(when-let [m (re-matches c %2)]
+                     {:type :comment :line %1 :txt %2 :raw (get m 1)})
+                  lines)))
+
+(defn embedded-parse [sections]
+  (for [section sections]
+    (if (= :code (:type section))
+      (assoc section :embedded-comments (rip-comments (line-seq (make-reader (:raw section)))))
+      section)))
+
 (defn parse [source-string]
-  (let [make-reader #(java.io.BufferedReader.
-                      (java.io.StringReader. (str source-string "\n")))
-        lines (vec (line-seq (make-reader)))
-        reader (clojure.lang.LineNumberingPushbackReader. (make-reader))
-        old-cmt-rdr (aget (get-field clojure.lang.LispReader :macros nil) (int \;))]
+  (let [lines (vec (line-seq (make-reader source-string)))
+        old-cmt-rdr (aget (get-field clojure.lang.LispReader :macros nil) (int \;))
+        reader (clojure.lang.LineNumberingPushbackReader. (make-reader source-string))]
     (try
       (set-comment-reader read-comment)
       (set-keyword-reader read-keyword)
       (let [parsed-code (-> reader parse* doall)]
         (set-comment-reader old-cmt-rdr)
         (set-keyword-reader nil)
-        (arrange-in-sections parsed-code lines))
+        (-> parsed-code
+            (arrange-in-sections lines)
+            #_embedded-parse))
       (catch Exception e
         (set-comment-reader old-cmt-rdr)
         (set-keyword-reader nil)
@@ -357,3 +373,19 @@
 
 (defn parse-file [file]
   (parse (slurp file)))
+
+(comment
+
+(parse
+ "
+;; test
+
+(defn foo
+  []
+  ;; embedded comment
+  42) ;; on a line
+
+")
+
+
+)

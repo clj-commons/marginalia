@@ -35,7 +35,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string  :as str])
   (:use [marginalia
-         [html :only (uberdoc-html index-html single-page-html)]
+         [html :only (uberdoc-html index-html single-page-html)] ;; more targets please
          [parser :only (parse-file)]]
         [clojure.tools
          [namespace :only (read-file-ns-decl)]

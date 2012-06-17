@@ -11,7 +11,8 @@
    [jline "0.9.94"]
    ;; lein vimclojure& #starts the nailgun server
    [org.clojars.autre/lein-vimclojure "1.0.0"]
-   [lein-marginalia "0.8.0-SNAPSHOT"]]
+   [lein-marginalia "0.8.0-SNAPSHOT"]
+   [lein-swank "1.4.2"]]
   :resources-path "vendor"
   ;;Needed for testing Latex equation formatting. You must download
   ;;and install MathJax in you doc directory.
