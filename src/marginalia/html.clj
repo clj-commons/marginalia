@@ -343,7 +343,7 @@
 (defn page-template
   "Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
    & `inline-css`) to be able to package the output as a single file (uberdoc if you will).  It goes without
-   saying that all this is WIP and will prabably change in the future."
+   saying that all this is WIP and will probably change in the future."
   [project-metadata opt-resources header toc content]
   (html
    "<!DOCTYPE html>\n"
