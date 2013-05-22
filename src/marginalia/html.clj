@@ -359,7 +359,7 @@
      header-css
      floating-toc-css
      general-css
-     (inline-js (str *resources* "jquery-1.4.4.min.js"))
+     (inline-js (str *resources* "jquery-1.7.1.min.js"))
      (inline-js (str *resources* "xregexp-min.js"))
      (inline-js (str *resources* "shCore.js"))
      (inline-js (str *resources* "shBrushClojure.js"))
@@ -377,10 +377,8 @@
       "Syntax highlighting provided by Alex Gorbatchev's "
       [:a {:href "http://alexgorbatchev.com/SyntaxHighlighter/"}
        "SyntaxHighlighter"]
-      #_floating-toc]
-     [:script {:type "text/javascript"}
-      "SyntaxHighlighter.defaults['gutter'] = false;
-       SyntaxHighlighter.all()"]]]))
+      floating-toc]
+     (inline-js (str *resources* "app.js"))]]))
 
 
 ;; Syntax highlighting is done a bit differently than docco.  Instead of embedding
