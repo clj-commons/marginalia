@@ -91,7 +91,7 @@ I would also like to thank Justin Balthrop and Brenton Ashworth for their suppor
 License
 -------
 
-Copyright (C) 2010, 2011 Fogus and contributors.
+Copyright (C) 2010-2013 Fogus and contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
