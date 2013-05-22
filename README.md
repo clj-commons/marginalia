@@ -119,5 +119,7 @@ Marginalia is...
 - [Paul Dorman](https://github.com/pauldorman)
 - [Deepak Giridharagopal](https://github.com/grimradical)
 - [Tero Parviainen](https://github.com/teropa)
+- [MerelyAPseudonym](https://github.com/MerelyAPseudonym)
+- [Ivan](https://github.com/ivantm)
 
 If I've missed your name then please ping me.
