@@ -7,10 +7,8 @@
    [org.clojure/tools.cli "0.2.1"]
    [org.markdownj/markdownj "0.3.0-1.0.2b4"]]
 
-  :resources-path "vendor"
+  :resource-paths ["vendor"]
 
   ;;Needed for testing Latex equation formatting. You must download
   ;;and install MathJax in you doc directory.
-  :marginalia {:javascript ["mathjax/MathJax.js"]}
-
-  :eval-in-leiningen true)
+  :marginalia {:javascript ["mathjax/MathJax.js"]})

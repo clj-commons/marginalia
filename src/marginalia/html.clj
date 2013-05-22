@@ -33,7 +33,7 @@
     (catch java.lang.NullPointerException npe
       (println (str "Could not locate resources at " resource-name))
       (println "    ... attempting to fix.")
-      (let [resource-name (str "./resources/" resource-name)]
+      (let [resource-name (str *resources* resource-name)]
         (try
           (-> (.getContextClassLoader (Thread/currentThread))
               (.getResourceAsStream resource-name)
@@ -377,7 +377,7 @@
       "Syntax highlighting provided by Alex Gorbatchev's "
       [:a {:href "http://alexgorbatchev.com/SyntaxHighlighter/"}
        "SyntaxHighlighter"]
-      floating-toc]
+      floating-toc-html]
      (inline-js (str *resources* "app.js"))]]))
 
 
