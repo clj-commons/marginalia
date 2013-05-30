@@ -5,7 +5,7 @@ Marginalia 0.7.1
 
 *Ultra-lightweight literate programming[1] for [Clojure](http://clojure.org) and ClojureScript inspired by [docco](http://jashkenas.github.com/docco/)*
 
-Marginalia is a source code documentation tool that parses Clojure and ClojureScript code and outputs a side-by-side source view with appropriate comments and docstrings aligned.  
+Marginalia is a source code documentation tool that parses Clojure and ClojureScript code and outputs a side-by-side source view with appropriate comments and docstrings aligned.
 
 To get a quick look at what the Marginalia output looks like, [visit the official site](http://fogus.me/fun/marginalia/).
 
@@ -88,19 +88,12 @@ I would like to thank Zachary Kim for taking a pile of incoherent code and makin
 
 I would also like to thank Justin Balthrop and Brenton Ashworth for their support and code contributions.
 
-License
--------
-
-Copyright (C) 2010-2013 Fogus and contributors.
-
-Distributed under the Eclipse Public License, the same as Clojure.
-
 Notes
 -----
 
 [1] While the phrase *ultra-lightweight literate programming* is used to describe Marginalia, it is in no way a tool for classical literate programming.  That is, Marginalia is a linear documentation generator allowing no out-of-order reassembly of source.
 
-Marginalia is... 
+Marginalia is...
 ----------------
 
 *sorted by first commit*
@@ -123,3 +116,10 @@ Marginalia is...
 - [Ivan](https://github.com/ivantm)
 
 If I've missed your name then please ping me.
+
+License
+-------
+
+Copyright (C) 2010-2013 Fogus and contributors.
+
+Distributed under the Eclipse Public License, the same as Clojure.
