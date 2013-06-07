@@ -1,0 +1,19 @@
+{{=<% %>=}}
+\textbf{namespaces:}\\
+<%#namespaces%>
+<%ns%>\ref{-<%ns%>-marginaliaref}, page~\pageref{-<%ns%>-marginaliaref}.\\
+<%/namespaces%>
+<%#namespaces%>
+<%ns-header%>
+\label{-<%ns%>-marginaliaref}
+<%#groups%>
+\noindent\begin{minipage}[t]{0.35\linewidth}
+<%&doc%>
+\end{minipage}\hfill
+\noindent\begin{minipage}[t]{0.6\linewidth}
+\begin{minted}{clojure}
+<%&code%>
+\end{minted}
+\end{minipage}\vspace{.5cm}
+<%/groups%>
+<%/namespaces%>
