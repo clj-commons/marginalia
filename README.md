@@ -20,11 +20,13 @@ Currently Marginalia can be used in a number of ways as described below.
 
 [http://github.com/fogus/lein-marginalia](http://github.com/fogus/lein-marginalia)
 
-To use Marginalia with Leiningen add the following code to the project's `project.clj` file, in the `:dev-dependencies` argument of the `defproject` function:
+To use Marginalia with Leiningen add the following code to the project's `project.clj` file:
 
-    :dev-dependencies [[lein-marginalia "0.7.1"]]
+With Leiningen 1.x, add `[lein-marginalia "0.7.1"]` to your project.clj's `:dev-dependencies` argument of the `defproject` function, then run `lein deps`.
+With Leiningen 2.x, add `[[lein-marginalia "0.7.1"]]` to the `:plugins` entry in either your project.clj file or your `:user` profile.
+See the [lein-marginalia](http://github.com/fogus/lein-marginalia) page for more details. 
 
-After executing `lein deps` you can generate your complete source documentation with the command:
+Once installed,  you can generate your complete source documentation with the command:
 
     lein marg <options> <files>
 
