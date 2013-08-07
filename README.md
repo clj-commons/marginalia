@@ -1,6 +1,8 @@
 Marginalia 0.7.1
 ================
 
+**I'm looking for a [new home for Marginalia](http://blog.fogus.me/2013/08/07/marginalia-needs-a-home/) -- interested in taking over development?**
+
 ![marginalia](http://farm8.staticflickr.com/7057/6828224448_32b51e5784_z_d.jpg "Marginalia")
 
 *Ultra-lightweight literate programming[1] for [Clojure](http://clojure.org) and ClojureScript inspired by [docco](http://jashkenas.github.com/docco/)*
