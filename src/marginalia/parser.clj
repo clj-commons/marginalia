@@ -296,7 +296,7 @@
     (if f
       (cond
        ;; ignore comments with only one semicolon
-       (and (comment? f) (re-find #"^;\s" (-> f :form .content)))
+       (and (comment? f) (re-find #"^;(\s|$)" (-> f :form .content)))
        (recur sections s (first nn) (next nn) nspace)
        ;; merging comments block
        (and (comment? f) (comment? s) (adjacent? f s))
