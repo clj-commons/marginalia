@@ -1,7 +1,7 @@
 Marginalia 0.7.1
 ================
 
-**I'm looking for a [new home for Marginalia](http://blog.fogus.me/2013/08/07/marginalia-needs-a-home/) -- interested in taking over development?**
+**[Marginalia has a new home](http://blog.fogus.me/2013/08/12/marginalia-has-a-new-home/)**
 
 ![marginalia](http://farm8.staticflickr.com/7057/6828224448_32b51e5784_z_d.jpg "Marginalia")
 
