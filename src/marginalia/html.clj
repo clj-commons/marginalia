@@ -153,7 +153,9 @@
    [:tr
     [:td {:class "docs"}
      [:div {:class "header"}
-      [:h1 {:class "project-name"} (:name project-info)]
+      [:h1 {:class "project-name"} (if (seq (:url project-info))
+                                     [:a {:href (:url project-info)} (:name project-info)]
+                                     (:name project-info))]
       [:h2 {:class "project-version"} (:version project-info)]
       [:br]
       (md (:description project-info))]
