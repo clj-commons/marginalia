@@ -20,13 +20,13 @@ Currently Marginalia can be used in a number of ways as described below.
 
 ### Leiningen
 
-[http://github.com/fogus/lein-marginalia](http://github.com/fogus/lein-marginalia)
+[http://github.com/gdeer81/lein-marginalia](http://github.com/gdeer81/lein-marginalia)
 
 To use Marginalia with Leiningen add the following code to the project's `project.clj` file:
 
 With Leiningen 1.x, add `[lein-marginalia "0.7.1"]` to your project.clj's `:dev-dependencies` argument of the `defproject` function, then run `lein deps`.
 With Leiningen 2.x, add `[[lein-marginalia "0.7.1"]]` to the `:plugins` entry in either your project.clj file or your `:user` profile.
-See the [lein-marginalia](http://github.com/fogus/lein-marginalia) page for more details. 
+See the [lein-marginalia](http://github.com/gdeer81/lein-marginalia) page for more details.
 
 Once installed,  you can generate your complete source documentation with the command:
 
@@ -103,13 +103,13 @@ Marginalia is...
 *sorted by first commit*
 
 - [Fogus](http://fogus.me/fun/)
-- [Zachary Kim](https://github.com/zkim)
+- [Zachary Kim](https://github.com/zk)
 - [Justin Balthrop](https://github.com/ninjudd)
 - [Brenton Ashworth](https://github.com/brentonashworth)
 - [Nicolas Buduroi](https://github.com/budu)
 - [Michael Harrison](https://github.com/goodmike)
 - [Anthony Grimes](https://github.com/Raynes)
-- [Sam Ritchie](https://github.com/fogus/marginalia/commits/master?author=sritchie)
+- [Sam Ritchie](https://github.com/sritchie)
 - [Hugo Duncan](https://github.com/hugoduncan)
 - [Vadim](https://github.com/dm3)
 - [Meikel Brandmeyer](https://github.com/kotarak)
