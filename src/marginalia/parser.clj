@@ -4,7 +4,8 @@
 (ns marginalia.parser
   "Provides the parsing facilities for Marginalia."
   (:refer-clojure :exclude [replace])
-  (:use [clojure [string :only (join replace)]]))
+  (:use [clojure [string :only (join replace lower-case)]]
+        [cljs.tagged-literals :only [*cljs-data-readers*]]))
 
 
 ;; Extracted from clojure.contrib.reflect
@@ -355,5 +356,12 @@
         (set-keyword-reader nil)
         (throw e)))))
 
+(defn cljs-file? [filepath]
+  (.endsWith (lower-case filepath) "cljs"))
+
 (defn parse-file [file]
-  (parse (slurp file)))
+  (let [readers (if (cljs-file? file)
+                  (->> default-data-readers (merge *cljs-data-readers*))
+                  default-data-readers)]
+    (binding [*data-readers* readers]
+      (parse (slurp file)))))
