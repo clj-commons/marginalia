@@ -50,14 +50,14 @@
 
 (def directives
   "Marginalia can be given directives in comments.  A directive is a comment
-   line containing a directive name, in the form `;; #DirectiveName`.
+   line containing a directive name, in the form `;; @DirectiveName`.
    Directives change the behavior of the parser within the files that contain
    them.
 
    The following directives are defined:
 
-   * `#MargDisable` suppresses subsequent comments from the docs
-   * `#MargEnable` includes subsequent comments in the docs"
+   * `@MargDisable` suppresses subsequent comments from the docs
+   * `@MargEnable` includes subsequent comments in the docs"
   {"MargDisable" (fn [] (swap! *comments-enabled* (constantly false)))
    "MargEnable"  (fn [] (swap! *comments-enabled* (constantly true)))})
 
@@ -66,7 +66,7 @@
    indicating whether the line should be included in the comments
    list."
   [line]
-  (let [directive (->> (re-find #"^;+\s*#(\w+)" line)
+  (let [directive (->> (re-find #"^;+\s*@(\w+)" line)
                        (last)
                        (get directives))]
     (when directive
