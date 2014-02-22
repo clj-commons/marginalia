@@ -42,6 +42,36 @@
 (def sub-level-comments (atom []))
 
 (def ^{:dynamic true} *comments* nil)
+(def ^{:dynamic true} *comments-enabled* nil)
+
+(defn comments-enabled?
+  []
+  @*comments-enabled*)
+
+(def directives
+  "Marginalia can be given directives in comments.  A directive is a comment
+   line containing a directive name, in the form `;; @DirectiveName`.
+   Directives change the behavior of the parser within the files that contain
+   them.
+
+   The following directives are defined:
+
+   * `@MargDisable` suppresses subsequent comments from the docs
+   * `@MargEnable` includes subsequent comments in the docs"
+  {"MargDisable" (fn [] (swap! *comments-enabled* (constantly false)))
+   "MargEnable"  (fn [] (swap! *comments-enabled* (constantly true)))})
+
+(defn process-directive!
+  "If the given line is a directive, applies it.  Returns a value
+   indicating whether the line should be included in the comments
+   list."
+  [line]
+  (let [directive (->> (re-find #"^;+\s*@(\w+)" line)
+                       (last)
+                       (get directives))]
+    (when directive
+      (directive))
+    (not directive)))
 
 (defn read-comment [reader semicolon]
   (let [sb (StringBuilder.)]
@@ -50,11 +80,13 @@
       (let [ch (char c)]
         (if (or (= ch \newline)
                 (= ch \return))
-          (let [line (dec (.getLineNumber reader))]
-            (swap! *comments* conj
-                   {:form (Comment. (.toString sb))
-                    :start line
-                    :end line})
+          (let [line (dec (.getLineNumber reader))
+                text (.toString sb)
+                include? (process-directive! text)]
+            (when (and include? (comments-enabled?))
+              (swap! *comments* conj {:form (Comment. text)
+                                      :start line
+                                      :end line}))
             reader)
           (do
             (.append sb (Character/toString ch))
@@ -363,5 +395,6 @@
   (let [readers (if (cljs-file? file)
                   (->> default-data-readers (merge *cljs-data-readers*))
                   default-data-readers)]
-    (binding [*data-readers* readers]
+    (binding [*data-readers* readers
+              *comments-enabled* (atom true)]
       (parse (slurp file)))))
