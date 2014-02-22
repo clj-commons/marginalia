@@ -118,6 +118,7 @@ Marginalia is...
 - [Tero Parviainen](https://github.com/teropa)
 - [MerelyAPseudonym](https://github.com/MerelyAPseudonym)
 - [Ivan](https://github.com/ivantm)
+- [benjamin bader] (https://github.com/benjamin-bader)
 
 If I've missed your name then please ping me.
 
