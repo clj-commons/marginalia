@@ -346,7 +346,7 @@
   "Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
    & `inline-css`) to be able to package the output as a single file (uberdoc if you will).  It goes without
    saying that all this is WIP and will probably change in the future."
-  [project-metadata opt-resources header toc content]
+  [project-metadata opt-resources header toc content floating-toc]
   (html
    "<!DOCTYPE html>\n"
    [:html
@@ -379,7 +379,7 @@
       "Syntax highlighting provided by Alex Gorbatchev's "
       [:a {:href "http://alexgorbatchev.com/SyntaxHighlighter/"}
        "SyntaxHighlighter"]
-      floating-toc-html]
+      floating-toc]
      (inline-js (str *resources* "app.js"))]]))
 
 
@@ -396,7 +396,8 @@
    (opt-resources-html project-metadata)
    (header-html project-metadata)
    (toc-html {:uberdoc? true} docs)
-   (map #(groups-html {:uberdoc? true} %) docs)))
+   (map #(groups-html {:uberdoc? true} %) docs)
+   (floating-toc-html docs)))
 
 (defn index-html
   [project-metadata docs]
@@ -405,7 +406,8 @@
    (opt-resources-html project-metadata)
    (header-html project-metadata)
    (toc-html {:uberdoc? false} docs)
-   "")) ;; no contents
+   ""   ;; no contents
+   "")) ;; no floating toc
 
 (defn single-page-html
   [project-metadata doc all-docs]
@@ -414,4 +416,6 @@
    (opt-resources-html project-metadata)
    "" ;; no header
    "" ;; no toc
-   (groups-html {:uberdoc? false} doc)))
+   (groups-html {:uberdoc? false} doc)
+   "" ;; no floating toc
+   ))
