@@ -11,7 +11,7 @@ Marginalia is a source code documentation tool that parses Clojure and ClojureSc
 
 To get a quick look at what the Marginalia output looks like, [visit the official site](http://gdeer81.github.io/marginalia/).
 
-**[View the release notes for this version of Marginalia](https://github.com/fogus/marginalia/blob/master/docs/release-notes/marginalia-v0.7.1-release-notes.markdown)**
+**[View the release notes for this version of Marginalia](https://github.com/gdeer81/marginalia/blob/master/docs/release-notes/marginalia-v0.7.1-release-notes.markdown)**
 
 Usage
 -----
