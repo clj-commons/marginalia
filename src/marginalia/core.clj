@@ -87,13 +87,14 @@
     (-> file find-file-extension pred)))
 
 (defn find-processable-file-paths
-  "Returns a seq of processable file paths (strings) in alphabetical order."
+  "Returns a seq of processable file paths (strings) in alphabetical order by
+  namespace."
   [dir pred]
   (->> (io/file dir)
        (file-seq)
        (filter (partial processable-file? pred))
-       (map #(.getCanonicalPath %))
-       (sort)))
+       (sort-by #(->> % read-file-ns-decl second))
+       (map #(.getCanonicalPath %))))
 
 ;; ## Project Info Parsing
 ;; Marginalia will parse info out of your project.clj to display in
