@@ -302,6 +302,8 @@
            :background-color "#F5F5FF"}]
    [:h1 {:font-size "20px"
          :margin-top 0}]
+   [:h2 {:font-size "18px"}]
+   [:h3 {:font-size "16px"}]
    [:a.anchor {:text-decoration "none"
               :color "#252519"}]
    [:a.anchor:hover {:color "#5050A6"}]

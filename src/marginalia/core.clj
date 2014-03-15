@@ -74,14 +74,27 @@
   [path]
   (.isDirectory (java.io.File. path)))
 
+(defn find-file-extension
+  "Returns a string containing the files extension."
+  [^java.io.File file]
+  (second (re-find #"\.([^.]+)$" (.getName file))))
+
+(defn processable-file?
+  "Predicate. Returns true for \"normal\" files with a file extension which
+  passes the provided predicate."
+  [pred ^java.io.File file]
+  (when (.isFile file)
+    (-> file find-file-extension pred)))
+
 (defn find-processable-file-paths
-  "Returns a seq of clojure file paths (strings) in alphabetical order."
-  [dir matching-re]
+  "Returns a seq of processable file paths (strings) in alphabetical order by
+  namespace."
+  [dir pred]
   (->> (io/file dir)
        (file-seq)
-       (filter #(re-find matching-re (.getCanonicalPath %)))
-       (map #(.getCanonicalPath %))
-       (sort)))
+       (filter (partial processable-file? pred))
+       (sort-by #(->> % read-file-ns-decl second))
+       (map #(.getCanonicalPath %))))
 
 ;; ## Project Info Parsing
 ;; Marginalia will parse info out of your project.clj to display in
@@ -202,20 +215,18 @@
 ;; These functions support Marginalia's use by client software or command-line
 ;; users.
 
+(def ^:private file-extensions #{"clj" "cljs" "cljx"})
+
 (defn format-sources
-  "Given a collection of filepaths, returns a lazy sequence of filepaths to
-   all .clj files on those paths: directory paths will be searched recursively
-   for .clj files."
+  "Given a collection of filepaths, returns a lazy sequence of filepaths to all
+   .clj, .cljs, and .cljx files on those paths: directory paths will be searched
+   recursively for files."
   [sources]
   (if (nil? sources)
-    (concat
-     (find-processable-file-paths "./src" #"\.clj$")
-     (find-processable-file-paths "./src" #"\.cljs$"))
+    (find-processable-file-paths "./src" file-extensions)
     (->> sources
          (mapcat #(if (dir? %)
-                    (concat
-                     (find-processable-file-paths % #"\.clj$")
-                     (find-processable-file-paths % #"\.cljs$"))
+                    (find-processable-file-paths % file-extensions)
                     [(.getCanonicalPath (io/file %))])))))
 
 (defn split-deps [deps]
