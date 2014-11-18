@@ -170,10 +170,12 @@
      :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))
 
 (defn path-to-doc [fn]
-  (let [ns (-> (java.io.File. fn)
+  (let [file (java.io.File. fn)
+        ns (-> file
                (read-file-ns-decl)
                (second)
                (str))
+        ns (if (or (nil? ns) (empty? ns)) (.getName file) ns)
         groups (parse-file fn)]
     {:ns ns
      :groups groups}))
@@ -264,10 +266,6 @@
              ["-l" "--leiningen" "Generate the documentation for a Leiningen project file." :default "./project.clj"])
         sources (distinct (format-sources (seq files)))
         sources (if leiningen (cons leiningen sources) sources)]
-    (println "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    (println leiningen)
-    (println sources)
-    (println "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     (if-not sources
       (do
         (println "Wrong number of arguments passed to Marginalia.")
