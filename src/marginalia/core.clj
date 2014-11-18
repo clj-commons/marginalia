@@ -247,7 +247,7 @@
 
    If no source files are found, complain with a usage message."
   [args & [project]]
-  (let [[{:keys [dir file name version desc deps css js multi]} files help]
+  (let [[{:keys [dir file name version desc deps css js multi leiningen]} files help]
         (cli args
              ["-d" "--dir" "Directory into which the documentation will be written" :default "./docs"]
              ["-f" "--file" "File into which the documentation will be written" :default "uberdoc.html"]
@@ -260,8 +260,14 @@
                  If not given will be taken from project.clj."]
              ["-j" "--js" "Additional javascript resources <resource1>;<resource2>;...
                  If not given will be taken from project.clj"]
-             ["-m" "--multi" "Generate each namespace documentation as a separate file" :flag true])
-        sources (distinct (format-sources (seq files)))]
+             ["-m" "--multi" "Generate each namespace documentation as a separate file" :flag true]
+             ["-l" "--leiningen" "Generate the documentation for a Leiningen project file." :default "./project.clj"])
+        sources (distinct (format-sources (seq files)))
+        sources (if leiningen (cons leiningen sources) sources)]
+    (println "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    (println leiningen)
+    (println sources)
+    (println "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     (if-not sources
       (do
         (println "Wrong number of arguments passed to Marginalia.")
@@ -273,7 +279,8 @@
               choose #(or %1 %2)
               marg-opts (merge-with choose
                                     {:css (when css (.split css ";"))
-                                     :javascript (when js (.split js ";"))}
+                                     :javascript (when js (.split js ";"))
+                                     :leiningen leiningen}
                                     (:marginalia project-clj))
               opts (merge-with choose
                                {:name name
