@@ -391,10 +391,17 @@
 (defn cljs-file? [filepath]
   (.endsWith (lower-case filepath) "cljs"))
 
+(defn cljx-file? [filepath]
+  (.endsWith (lower-case filepath) "cljx"))
+
+(def cljx-data-readers {'+clj identity
+                        '+cljs identity})
+
 (defn parse-file [file]
-  (let [readers (if (cljs-file? file)
-                  (->> default-data-readers (merge *cljs-data-readers*))
-                  default-data-readers)]
+  (let [readers (merge {}
+                       (when (cljs-file? file) *cljs-data-readers*)
+                       (when (cljx-file? file) cljx-data-readers)
+                       default-data-readers)]
     (binding [*data-readers* readers
               *comments-enabled* (atom true)]
       (parse (slurp file)))))
