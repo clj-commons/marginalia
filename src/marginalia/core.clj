@@ -36,9 +36,8 @@
             [clojure.string  :as str])
   (:use [marginalia
          [html :only (uberdoc-html index-html single-page-html)]
-         [parser :only (parse-file)]]
+         [parser :only (parse-file parse-ns)]]
         [clojure.tools
-         [namespace :only (read-file-ns-decl)]
          [cli :only (cli)]]))
 
 
@@ -93,7 +92,7 @@
   (->> (io/file dir)
        (file-seq)
        (filter (partial processable-file? pred))
-       (sort-by #(->> % read-file-ns-decl second))
+       (sort-by #(->> % parse-ns second))
        (map #(.getCanonicalPath %))))
 
 ;; ## Project Info Parsing
@@ -170,15 +169,8 @@
      :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))
 
 (defn path-to-doc [fn]
-  (let [file (java.io.File. fn)
-        ns (-> file
-               (read-file-ns-decl)
-               (second)
-               (str))
-        ns (if (or (nil? ns) (empty? ns)) (.getName file) ns)
-        groups (parse-file fn)]
-    {:ns ns
-     :groups groups}))
+  {:ns     (parse-ns (java.io.File. fn))
+   :groups (parse-file fn)})
 
 
 ;; ## Output Generation
