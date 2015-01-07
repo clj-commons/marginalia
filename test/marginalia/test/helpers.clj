@@ -27,7 +27,7 @@
    Provides the following variables to the assertion context:
 
    * `number-of-generated-pages` - result of running the `doc-generator`
-      function (which should ultimately call one of the marginalias' own
+      function (which should ultimately call one of the Marginalia's own
       functions.
 
    * `project-name` - the name of the project
