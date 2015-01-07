@@ -2751,7 +2751,7 @@ I wonder?</p>
                     (group-lines))]
     {:ns ns
      :groups groups}))
-</pre></td></tr><tr><td class="docs"><h2>Ouput Generation</h2>
+</pre></td></tr><tr><td class="docs"><h2>Output Generation</h2>
 </td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs"><p>Generates an uberdoc html file from 3 pieces of information:</p>
 
 <ol>
@@ -3199,7 +3199,7 @@ saying that all this is WIP and will prabably change in the future.</p>
       &quot;SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()&quot;]]]))
 </pre></td></tr><tr><td class="docs"><p>Syntax highlighting is done a bit differently than docco.  Instead of embedding
-the higlighting metadata on the parse / html gen phase, we use <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
+the highlighting metadata on the parse / html gen phase, we use <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a>
 to do it in javascript.</p>
 </td><td class="codes"><pre class="brush: clojure"></pre></td></tr><tr><td class="docs"><p>This generates a stand alone html file (think <code>lein uberjar</code>).
 It's probably the only var consumers will use.</p>

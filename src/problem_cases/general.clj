@@ -105,7 +105,7 @@
   "GENERATED ALWAYS AS IDENTITY")
 
 (defn strict-eval-op-fn
-  "`strict-eval-op-fn` is used to define functions of the above pattern for fuctions such as `+`, `*`,   etc.  Cljs special forms defined this way are applyable, such as `(apply + [1 2 3])`.
+  "`strict-eval-op-fn` is used to define functions of the above pattern for functions such as `+`, `*`,   etc.  Cljs special forms defined this way are applyable, such as `(apply + [1 2 3])`.
 
    Resulting expressions are wrapped in an anonymous function and, down the line, `call`ed, like so:
 
