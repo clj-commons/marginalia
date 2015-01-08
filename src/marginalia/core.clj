@@ -122,9 +122,13 @@
   ([path]
       (try
         (let [rdr (clojure.lang.LineNumberingPushbackReader.
-                   (java.io.FileReader.
-                    (java.io.File. path)))]
-          (parse-project-form (read rdr)))
+                    (java.io.FileReader.
+                     (java.io.File. path)))]
+          (loop [line (read rdr)]
+            (let [found-project? (= 'defproject (first line))]
+              (if found-project?
+                (parse-project-form line)
+                (recur (read rdr))))))
 	(catch Exception e
           (throw (Exception.
                   (str
