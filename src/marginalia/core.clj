@@ -275,7 +275,7 @@
                  If not given will be taken from project.clj"]
              ["-m" "--multi" "Generate each namespace documentation as a separate file" :flag true]
              ["-l" "--leiningen" "Generate the documentation for a Leiningen project file."]
-             ["-e" "--exclude" "Exclude source file(s) from the document generation process <resource1>;<resource2>;...
+             ["-e" "--exclude" "Exclude source file(s) from the document generation process <file1>;<file2>;...
                  If not given will be taken from project.clj"])
         sources (distinct (format-sources (seq files)))
         sources (if leiningen (cons leiningen sources) sources)]
