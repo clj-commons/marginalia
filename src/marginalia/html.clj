@@ -395,7 +395,7 @@
 
 
 ;; Syntax highlighting is done a bit differently than docco.  Instead of embedding
-;; the higlighting metadata on the parse / html gen phase, we use [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/)
+;; the highlighting metadata on the parse / html gen phase, we use [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/)
 ;; to do it in javascript.
 
 (defn uberdoc-html

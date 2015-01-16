@@ -5,7 +5,8 @@
   "Provides the parsing facilities for Marginalia."
   (:refer-clojure :exclude [replace])
   (:use [clojure [string :only (join replace lower-case)]]
-        [cljs.tagged-literals :only [*cljs-data-readers*]]))
+        [cljs.tagged-literals :only [*cljs-data-readers*]]
+        [clojure.tools.namespace :only (read-file-ns-decl)]))
 
 
 ;; Extracted from clojure.contrib.reflect
@@ -391,10 +392,30 @@
 (defn cljs-file? [filepath]
   (.endsWith (lower-case filepath) "cljs"))
 
-(defn parse-file [file]
-  (let [readers (if (cljs-file? file)
-                  (->> default-data-readers (merge *cljs-data-readers*))
-                  default-data-readers)]
-    (binding [*data-readers* readers
-              *comments-enabled* (atom true)]
-      (parse (slurp file)))))
+(defn cljx-file? [filepath]
+  (.endsWith (lower-case filepath) "cljx"))
+
+(def cljx-data-readers {'+clj identity
+                        '+cljs identity})
+
+(defmacro with-readers-for [file & body]
+  `(let [readers# (merge {}
+                        (when (cljs-file? ~file) *cljs-data-readers*)
+                        (when (cljx-file? ~file) cljx-data-readers)
+                        default-data-readers)]
+     (binding [*data-readers* readers#]
+       ~@body)))
+
+(defn parse-file [fn]
+  (with-readers-for fn
+    (binding [*comments-enabled* (atom true)]
+      (parse (slurp fn)))))
+
+(defn parse-ns [file]
+  (let [filename (.getName file)]
+    (with-readers-for filename
+                      (or (not-empty (-> file
+                                         (read-file-ns-decl)
+                                         (second)
+                                         (str)))
+                          filename))))

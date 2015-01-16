@@ -119,7 +119,7 @@ Marginalia is...
 - [Tero Parviainen](https://github.com/teropa)
 - [MerelyAPseudonym](https://github.com/MerelyAPseudonym)
 - [Ivan](https://github.com/ivantm)
-- [benjamin bader](https://github.com/benjamin-bader)
+- [Benjamin Bader](https://github.com/benjamin-bader)
 - [Frederick Giasson](https://github.com/fgiasson)
 
 If I've missed your name then please ping me.
@@ -127,6 +127,6 @@ If I've missed your name then please ping me.
 License
 -------
 
-Copyright (C) 2010-2013 Fogus and contributors.
+Copyright (C) 2010-2015 Fogus and contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure.
