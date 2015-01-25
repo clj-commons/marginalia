@@ -131,6 +131,15 @@
 ;; to project.clj. Below is a simple example of both inline and block
 ;; formatted equations.
 ;;
+;; Optionally, you can put the MathJax CDN URL directly as a value of `:javascript`
+;; like this:
+;;
+;;     :marginalia {
+;;       :javascript 
+;;         ["http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"]}
+;;
+;; That way you won't have to download and carry around the MathJax library.
+;;
 ;; When \\(a \ne 0\\), there are two solutions to \\(ax^2 + bx + c = 0\\) and they are
 ;; $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
 

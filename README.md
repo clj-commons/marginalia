@@ -43,6 +43,7 @@ Marginalia accepts options as described below:
   * -c --css     Additional css resources `<resource1>;<resource2>;...` (if not given will be taken from `project.clj`)
   * -j --js      Additional javascript resources `<jsfile1>;<jsfile2>;...` (if not given will be taken from `project.clj`)
   * -m --multi   Generate each namespace documentation as a separate file
+  * -e --exclude Exclude source file(s) from the document generation process `<file1>;<file2>;...` (if not given will be taken from `project.clj`)
 
 ### Maven
 
@@ -119,6 +120,7 @@ Marginalia is...
 - [MerelyAPseudonym](https://github.com/MerelyAPseudonym)
 - [Ivan](https://github.com/ivantm)
 - [Benjamin Bader](https://github.com/benjamin-bader)
+- [Frederick Giasson](https://github.com/fgiasson)
 
 If I've missed your name then please ping me.
 
