@@ -74,24 +74,27 @@
       (directive))
     (not directive)))
 
-(defn read-comment [reader semicolon]
-  (let [sb (StringBuilder.)]
-    (.append sb semicolon)
-    (loop [c (.read reader)]
-      (let [ch (char c)]
-        (if (or (= ch \newline)
-                (= ch \return))
-          (let [line (dec (.getLineNumber reader))
-                text (.toString sb)
-                include? (process-directive! text)]
-            (when (and include? (comments-enabled?))
-              (swap! *comments* conj {:form (Comment. text)
-                                      :start line
-                                      :end line}))
-            reader)
-          (do
-            (.append sb (Character/toString ch))
-            (recur (.read reader))))))))
+(defn read-comment
+  ([reader semicolon]
+   (let [sb (StringBuilder.)]
+     (.append sb semicolon)
+     (loop [c (.read reader)]
+       (let [ch (char c)]
+         (if (or (= ch \newline)
+                 (= ch \return))
+           (let [line (dec (.getLineNumber reader))
+                 text (.toString sb)
+                 include? (process-directive! text)]
+             (when (and include? (comments-enabled?))
+               (swap! *comments* conj {:form (Comment. text)
+                                       :start line
+                                       :end line}))
+             reader)
+           (do
+             (.append sb (Character/toString ch))
+             (recur (.read reader))))))))
+  ([reader semicolon opts pending]
+   (read-comment reader semicolon)))
 
 (defn set-comment-reader [reader]
   (aset (get-field clojure.lang.LispReader :macros nil)
@@ -116,15 +119,18 @@
                [String]
                nil s))
 
-(defn read-keyword [reader colon]
-  (let [c (.read reader)]
-    (if (= (int \:) c)
-      (-> (read-token reader (char c))
-          match-symbol
-          DoubleColonKeyword.)
-      (do (.unread reader c)
-          (-> (read-token reader colon)
-              match-symbol)))))
+(defn read-keyword
+  ([reader colon]
+   (let [c (.read reader)]
+     (if (= (int \:) c)
+       (-> (read-token reader (char c))
+           match-symbol
+           DoubleColonKeyword.)
+       (do (.unread reader c)
+           (-> (read-token reader colon)
+               match-symbol)))))
+  ([reader colon opts pending]
+   (read-keyword reader colon)))
 
 (defn set-keyword-reader [reader]
   (aset (get-field clojure.lang.LispReader :macros nil)
