@@ -1,7 +1,6 @@
 Marginalia 0.8.0
 ================
-
-http://t.co/RGPXK2ZVkg
+![b](http://t.co/RGPXK2ZVkg)
 
 **[Marginalia has a new home](http://blog.fogus.me/2013/08/12/marginalia-has-a-new-home/)**
 
