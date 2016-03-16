@@ -213,11 +213,11 @@
 ;; These functions support Marginalia's use by client software or command-line
 ;; users.
 
-(def ^:private file-extensions #{"clj" "cljs" "cljx"})
+(def ^:private file-extensions #{"clj" "cljs" "cljx" "cljc"})
 
 (defn format-sources
   "Given a collection of filepaths, returns a lazy sequence of filepaths to all
-   .clj, .cljs, and .cljx files on those paths: directory paths will be searched
+   .clj, .cljs, .cljx, and .cljc files on those paths: directory paths will be searched
    recursively for files."
   [sources]
   (if (nil? sources)
