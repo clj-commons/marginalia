@@ -1,6 +1,5 @@
-Marginalia 0.8.0
+Marginalia 0.9.0
 ================
-![b](http://t.co/RGPXK2ZVkg)
 
 **[Marginalia has a new home](http://blog.fogus.me/2013/08/12/marginalia-has-a-new-home/)**
 
@@ -122,7 +121,8 @@ Marginalia is...
 - [Ivan](https://github.com/ivantm)
 - [Benjamin Bader](https://github.com/benjamin-bader)
 - [Frederick Giasson](https://github.com/fgiasson)
-
+- [Michael Bloom](https://github.com/MichaelBlume)
+- [Tristan Strange](https://github.com/triss)
 If I've missed your name then please ping me.
 
 License
