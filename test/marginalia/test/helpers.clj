@@ -17,7 +17,7 @@
     (delete-file f silently)))
 
 (defn find-clojure-file-paths [source-dir]
-  (marginalia.core/find-processable-file-paths source-dir #".clj$"))
+  (marginalia.core/find-processable-file-paths source-dir #(re-find #"\.clj$" %)))
 
 (defn files-in [dir]
   (seq (.listFiles (file dir))))
