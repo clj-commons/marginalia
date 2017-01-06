@@ -204,26 +204,22 @@
   (let [sym (second form)]
     (if (symbol? sym)
       (let [maybe-metadocstring (:doc (meta sym))]
-        (do
-          (when (= 'ns (first form))
-            (try (require sym)
-                 (catch Exception _)))
-          (let [nspace (find-ns sym)
-                [maybe-ds remainder] (let [[_ _ ? & more?] form] [? more?])
-                docstring (if (and (string? maybe-ds) remainder)
-                            maybe-ds
-                            (if (= (first form) 'ns)
-                              (if (not maybe-metadocstring)
-                                (when (string? maybe-ds) maybe-ds)
-                                maybe-metadocstring)
-                              (if-let [ds maybe-metadocstring]
-                                ds
-                                (when nspace
-                                  (-> nspace meta :doc)
-                                  (get-var-docstring nspace-sym sym)))))]
-            [docstring
-             (strip-docstring docstring raw)
-             (if (or (= 'ns (first form)) nspace) sym nspace-sym)])))
+        (let [nspace (find-ns sym)
+              [maybe-ds remainder] (let [[_ _ ? & more?] form] [? more?])
+              docstring (if (and (string? maybe-ds) remainder)
+                          maybe-ds
+                          (if (= (first form) 'ns)
+                            (if (not maybe-metadocstring)
+                              (when (string? maybe-ds) maybe-ds)
+                              maybe-metadocstring)
+                            (if-let [ds maybe-metadocstring]
+                              ds
+                              (when nspace
+                                (-> nspace meta :doc)
+                                (get-var-docstring nspace-sym sym)))))]
+          [docstring
+           (strip-docstring docstring raw)
+           (if (or (= 'ns (first form)) nspace) sym nspace-sym)]))
       [nil raw nspace-sym])))
 
 (defn- extract-impl-docstring
