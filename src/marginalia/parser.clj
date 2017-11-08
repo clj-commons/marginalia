@@ -114,10 +114,21 @@
                [java.io.PushbackReader Character/TYPE]
                nil reader c))
 
-(defn ^:private match-symbol [s]
-  (call-method clojure.lang.LispReader :matchSymbol
-               [String]
-               nil s))
+;;; Clojure 1.9 changed the signature of LispReader/matchSymbol, taking a new
+;;; parameter of type LispReader$Resolver.  Conveniently, we can test for the
+;;; existence of the *reader-resolver* var to detect running under 1.9.
+;;;
+;;; We must take care to use the correct overload for the project's runtime,
+;;; else we will crash and fail people's builds.
+(if-let [resolver-var (resolve '*reader-resolver*)]
+  (defn ^:private match-symbol [s]
+    (call-method clojure.lang.LispReader :matchSymbol
+                 [String, (Class/forName "clojure.lang.LispReader$Resolver")]
+                 nil s (deref resolver-var)))
+  (defn ^:private match-symbol [s]
+    (call-method clojure.lang.LispReader :matchSymbol
+                 [String]
+                 nil s)))
 
 (defn read-keyword
   ([reader colon]
