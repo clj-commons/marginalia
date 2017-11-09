@@ -1,4 +1,4 @@
-Marginalia 0.9.0
+Marginalia 0.9.1
 ================
 
 **[Marginalia has a new home](http://blog.fogus.me/2013/08/12/marginalia-has-a-new-home/)**
@@ -11,7 +11,7 @@ Marginalia is a source code documentation tool that parses Clojure and ClojureSc
 
 To get a quick look at what the Marginalia output looks like, [visit the official site](http://gdeer81.github.io/marginalia/).
 
-**[View the release notes for this version of Marginalia](https://github.com/gdeer81/marginalia/blob/master/docs/release-notes/marginalia-v0.7.1-release-notes.markdown)**
+**[View the release notes for this version of Marginalia](https://github.com/gdeer81/marginalia/blob/master/docs/release-notes/marginalia-v0.9.1-release-notes.markdown)**
 
 Usage
 -----
@@ -24,8 +24,8 @@ Currently Marginalia can be used in a number of ways as described below.
 
 To use Marginalia with Leiningen add the following code to the project's `project.clj` file:
 
-With Leiningen 1.x, add `[lein-marginalia "0.9.0"]` to your project.clj's `:dev-dependencies` argument of the `defproject` function, then run `lein deps`.
-With Leiningen 2.x, add `[[lein-marginalia "0.9.0"]]` to the `:plugins` entry in either your project.clj file or your `:user` profile.
+With Leiningen 1.x, add `[lein-marginalia "0.9.1"]` to your project.clj's `:dev-dependencies` argument of the `defproject` function, then run `lein deps`.
+With Leiningen 2.x, add `[[lein-marginalia "0.9.1"]]` to the `:plugins` entry in either your project.clj file or your `:user` profile.
 See the [lein-marginalia](http://github.com/gdeer81/lein-marginalia) page for more details.
 
 Once installed,  you can generate your complete source documentation with the command:
@@ -49,7 +49,8 @@ Marginalia accepts options as described below:
 
 The [zi plugin](https://github.com/pallet/zi) supports Marginalia.
 
-Add this code to the project's `pom.xml` file, and run the command `mvn zi:marginalia`.
+<details>
+  <summary>Add this code to the project's `pom.xml` file, and run the command `mvn zi:marginalia`.</summary>
 
 ```xml
     <plugin>
@@ -85,6 +86,7 @@ And the following to the project's `settings.xml` file.
       <activeProfile>clojure-dev</activeProfile>
     </activeProfiles>
 ```
+</details>
 
 Contributors and thanks
 -----------------------
@@ -128,6 +130,6 @@ If I've missed your name then please ping me.
 License
 -------
 
-Copyright (C) 2010-2015 Fogus and contributors.
+Copyright (C) 2010-2017 Gary, Fogus and contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure.
