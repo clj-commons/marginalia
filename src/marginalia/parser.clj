@@ -21,12 +21,12 @@
 ;; Extracted from clojure.contrib.reflect
 (defn call-method
   "Calls a private or protected method.
- 
+
    params is a vector of classes which correspond to the arguments to
    the method e
- 
+
    obj is nil for static methods, the instance object otherwise.
- 
+
    The method-name is given a symbol or a keyword (something Named)."
   [klass method-name params obj & args]
   (-> klass (.getDeclaredMethod (name method-name)
@@ -44,6 +44,7 @@
 
 (def ^{:dynamic true} *comments* nil)
 (def ^{:dynamic true} *comments-enabled* nil)
+(def ^{:dynamic true} *lift-inline-comments* nil)
 
 (defn comments-enabled?
   []
@@ -181,8 +182,13 @@
                              (throw e)))))
              end (.getLineNumber reader)
              code {:form form :start start :end end}
-             comments @top-level-comments]
+             ;; We optionally lift inline comments to the top of the form.
+             inline-comments (when *lift-inline-comments*
+                               (map #(assoc % :start start :end (dec start))
+                                    @sub-level-comments))
+             comments (concat @top-level-comments inline-comments)]
          (swap! top-level-comments (constantly []))
+         (swap! sub-level-comments (constantly []))
          (if (empty? comments)
            [code]
            (vec (concat comments [code])))))))))
@@ -297,7 +303,7 @@
 (defn- literal-form? [form]
   (or (string? form) (number? form) (keyword? form) (symbol? form)
       (char? form) (true? form) (false? form) (instance? java.util.regex.Pattern form)))
-  
+
 (defmethod dispatch-form :default
   [form raw nspace-sym]
   (cond (literal-form? form)
