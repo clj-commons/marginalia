@@ -191,19 +191,17 @@
              ;; blank comment between non-adjacent inline comments. When merged
              ;; and converted to markdown, this will produce a paragraph for
              ;; each separate block of inline comments.
+             paragraph-comment {:form (Comment. ";;")} ; start/end added below
              inline-comments (when *lift-inline-comments*
                                (->> @sub-level-comments
                                     (reduce (fn [cs c]
                                               (if-let [t (peek cs)]
                                                 (if (adjacent? t c)
                                                   (conj cs c)
-                                                  (conj cs
-                                                        (assoc c
-                                                               :form
-                                                               (Comment. ";;"))
-                                                        c))
+                                                  (conj cs paragraph-comment c))
                                                 (conj cs c)))
                                             [])
+                                    (into [paragraph-comment])
                                     (mapv #(assoc % :start start :end (dec start)))))
              comments (concat @top-level-comments inline-comments)]
          (swap! top-level-comments (constantly []))
