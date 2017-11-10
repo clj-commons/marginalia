@@ -159,6 +159,9 @@
           (recur (.read rdr))
           :else (.unread rdr c))))
 
+(declare adjacent?)
+(declare merge-comments)
+
 (defn parse* [reader]
   (take-while
    #(not= :_eof (:form %))
@@ -183,9 +186,25 @@
              end (.getLineNumber reader)
              code {:form form :start start :end end}
              ;; We optionally lift inline comments to the top of the form.
+             ;; This monstrosity ensures that each consecutive group of inline
+             ;; comments is treated as a mergable block, but with a fake
+             ;; blank comment between non-adjacent inline comments. When merged
+             ;; and converted to markdown, this will produce a paragraph for
+             ;; each separate block of inline comments.
              inline-comments (when *lift-inline-comments*
-                               (map #(assoc % :start start :end (dec start))
-                                    @sub-level-comments))
+                               (->> @sub-level-comments
+                                    (reduce (fn [cs c]
+                                              (if-let [t (peek cs)]
+                                                (if (adjacent? t c)
+                                                  (conj cs c)
+                                                  (conj cs
+                                                        (assoc c
+                                                               :form
+                                                               (Comment. ";;"))
+                                                        c))
+                                                (conj cs c)))
+                                            [])
+                                    (mapv #(assoc % :start start :end (dec start)))))
              comments (concat @top-level-comments inline-comments)]
          (swap! top-level-comments (constantly []))
          (swap! sub-level-comments (constantly []))
