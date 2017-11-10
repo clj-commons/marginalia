@@ -21,12 +21,12 @@
 ;; Extracted from clojure.contrib.reflect
 (defn call-method
   "Calls a private or protected method.
- 
+
    params is a vector of classes which correspond to the arguments to
    the method e
- 
+
    obj is nil for static methods, the instance object otherwise.
- 
+
    The method-name is given a symbol or a keyword (something Named)."
   [klass method-name params obj & args]
   (-> klass (.getDeclaredMethod (name method-name)
@@ -44,6 +44,7 @@
 
 (def ^{:dynamic true} *comments* nil)
 (def ^{:dynamic true} *comments-enabled* nil)
+(def ^{:dynamic true} *lift-inline-comments* nil)
 
 (defn comments-enabled?
   []
@@ -158,6 +159,9 @@
           (recur (.read rdr))
           :else (.unread rdr c))))
 
+(declare adjacent?)
+(declare merge-comments)
+
 (defn parse* [reader]
   (take-while
    #(not= :_eof (:form %))
@@ -181,8 +185,27 @@
                              (throw e)))))
              end (.getLineNumber reader)
              code {:form form :start start :end end}
-             comments @top-level-comments]
+             ;; We optionally lift inline comments to the top of the form.
+             ;; This monstrosity ensures that each consecutive group of inline
+             ;; comments is treated as a mergable block, but with a fake
+             ;; blank comment between non-adjacent inline comments. When merged
+             ;; and converted to markdown, this will produce a paragraph for
+             ;; each separate block of inline comments.
+             paragraph-comment {:form (Comment. ";;")} ; start/end added below
+             inline-comments (when *lift-inline-comments*
+                               (->> @sub-level-comments
+                                    (reduce (fn [cs c]
+                                              (if-let [t (peek cs)]
+                                                (if (adjacent? t c)
+                                                  (conj cs c)
+                                                  (conj cs paragraph-comment c))
+                                                (conj cs c)))
+                                            [])
+                                    (into [paragraph-comment])
+                                    (mapv #(assoc % :start start :end (dec start)))))
+             comments (concat @top-level-comments inline-comments)]
          (swap! top-level-comments (constantly []))
+         (swap! sub-level-comments (constantly []))
          (if (empty? comments)
            [code]
            (vec (concat comments [code])))))))))
@@ -297,7 +320,7 @@
 (defn- literal-form? [form]
   (or (string? form) (number? form) (keyword? form) (symbol? form)
       (char? form) (true? form) (false? form) (instance? java.util.regex.Pattern form)))
-  
+
 (defmethod dispatch-form :default
   [form raw nspace-sym]
   (cond (literal-form? form)

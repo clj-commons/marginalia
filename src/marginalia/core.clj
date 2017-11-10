@@ -36,7 +36,7 @@
             [clojure.string  :as str])
   (:use [marginalia
          [html :only (uberdoc-html index-html single-page-html)]
-         [parser :only (parse-file parse-ns)]]
+         [parser :only (parse-file parse-ns *lift-inline-comments*)]]
         [clojure.tools
          [cli :only (cli)]]))
 
@@ -256,7 +256,8 @@
 
    If no source files are found, complain with a usage message."
   [args & [project]]
-  (let [[{:keys [dir file name version desc deps css js multi leiningen exclude]} files help]
+  (let [[{:keys [dir file name version desc deps css js multi
+                 leiningen exclude lift-inline-comments]} files help]
         (cli args
              ["-d" "--dir" "Directory into which the documentation will be written" :default "./docs"]
              ["-f" "--file" "File into which the documentation will be written" :default "uberdoc.html"]
@@ -272,14 +273,16 @@
              ["-m" "--multi" "Generate each namespace documentation as a separate file" :flag true]
              ["-l" "--leiningen" "Generate the documentation for a Leiningen project file."]
              ["-e" "--exclude" "Exclude source file(s) from the document generation process <file1>;<file2>;...
-                 If not given will be taken from project.clj"])
+                 If not given will be taken from project.clj"]
+             ["-L" "--lift-inline-comments" "Lift ;; inline comments to the top of the enclosing form.
+                 They will be treated as if they preceded the enclosing form." :flag true])
         sources (distinct (format-sources (seq files)))
         sources (if leiningen (cons leiningen sources) sources)]
     (if-not sources
       (do
         (println "Wrong number of arguments passed to Marginalia.")
         (println help))
-      (binding [*docs* dir]
+      (binding [*docs* dir *lift-inline-comments* lift-inline-comments]
         (let [project-clj (or project
                               (when (.exists (io/file "project.clj"))
                                 (parse-project-file)))
