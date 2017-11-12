@@ -36,7 +36,10 @@
             [clojure.string  :as str])
   (:use [marginalia
          [html :only (uberdoc-html index-html single-page-html)]
-         [parser :only (parse-file parse-ns *lift-inline-comments*)]]
+         [parser :only (parse-file
+                        parse-ns
+                        *lift-inline-comments*
+                        *delete-lifted-comments*)]]
         [clojure.tools
          [cli :only (cli)]]))
 
@@ -257,7 +260,8 @@
    If no source files are found, complain with a usage message."
   [args & [project]]
   (let [[{:keys [dir file name version desc deps css js multi
-                 leiningen exclude lift-inline-comments]} files help]
+                 leiningen exclude
+                 lift-inline-comments exclude-lifted-comments]} files help]
         (cli args
              ["-d" "--dir" "Directory into which the documentation will be written" :default "./docs"]
              ["-f" "--file" "File into which the documentation will be written" :default "uberdoc.html"]
@@ -275,14 +279,18 @@
              ["-e" "--exclude" "Exclude source file(s) from the document generation process <file1>;<file2>;...
                  If not given will be taken from project.clj"]
              ["-L" "--lift-inline-comments" "Lift ;; inline comments to the top of the enclosing form.
-                 They will be treated as if they preceded the enclosing form." :flag true])
+                 They will be treated as if they preceded the enclosing form." :flag true]
+             ["-X" "--exclude-lifted-comments" "If ;; inline comments are being lifted into documentation
+                 then also exclude them from the source code display." :flag true])
         sources (distinct (format-sources (seq files)))
         sources (if leiningen (cons leiningen sources) sources)]
     (if-not sources
       (do
         (println "Wrong number of arguments passed to Marginalia.")
         (println help))
-      (binding [*docs* dir *lift-inline-comments* lift-inline-comments]
+      (binding [*docs* dir
+                *lift-inline-comments* lift-inline-comments
+                *delete-lifted-comments* exclude-lifted-comments]
         (let [project-clj (or project
                               (when (.exists (io/file "project.clj"))
                                 (parse-project-file)))
