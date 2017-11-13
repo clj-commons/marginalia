@@ -261,7 +261,11 @@
                               (when nspace
                                 (-> nspace meta :doc)
                                 (get-var-docstring nspace-sym sym)))))]
-          [docstring
+          [(when docstring
+             ;; Exclude flush left docstrings from adjustment:
+             (if (re-find #"\n[^\s]" docstring)
+               docstring
+               (replace docstring #"\n  " "\n")))
            (strip-docstring docstring raw)
            (if (or (= 'ns (first form)) nspace) sym nspace-sym)]))
       [nil raw nspace-sym])))
