@@ -45,6 +45,7 @@
 (def ^{:dynamic true} *comments* nil)
 (def ^{:dynamic true} *comments-enabled* nil)
 (def ^{:dynamic true} *lift-inline-comments* nil)
+(def ^{:dynamic true} *delete-lifted-comments* nil)
 
 (defn comments-enabled?
   []
@@ -88,6 +89,7 @@
                  include? (process-directive! text)]
              (when (and include? (comments-enabled?))
                (swap! *comments* conj {:form (Comment. text)
+                                       :text [text]
                                        :start line
                                        :end line}))
              reader)
@@ -191,18 +193,26 @@
              ;; blank comment between non-adjacent inline comments. When merged
              ;; and converted to markdown, this will produce a paragraph for
              ;; each separate block of inline comments.
-             paragraph-comment {:form (Comment. ";;")} ; start/end added below
-             inline-comments (when *lift-inline-comments*
-                               (->> @sub-level-comments
-                                    (reduce (fn [cs c]
-                                              (if-let [t (peek cs)]
-                                                (if (adjacent? t c)
-                                                  (conj cs c)
-                                                  (conj cs paragraph-comment c))
-                                                (conj cs c)))
-                                            [])
-                                    (into [paragraph-comment])
-                                    (mapv #(assoc % :start start :end (dec start)))))
+             paragraph-comment {:form (Comment. ";;")
+                                :text [";;"]}
+             merge-inline-comments (fn [cs c]
+                                     (if (re-find #"^;(\s|$)"
+                                                  (.content (:form c)))
+                                       cs
+                                       (if-let [t (peek cs)]
+                                         (if (adjacent? t c)
+                                           (conj cs c)
+                                           (conj cs paragraph-comment c))
+                                         (conj cs c))))
+             inline-comments (when (and *lift-inline-comments*
+                                        (seq @sub-level-comments))
+                               (cond->> (reduce merge-inline-comments
+                                                []
+                                                @sub-level-comments)
+                                 (seq @top-level-comments)
+                                 (into [paragraph-comment])
+                                 true
+                                 (mapv #(assoc % :start start :end (dec start)))))
              comments (concat @top-level-comments inline-comments)]
          (swap! top-level-comments (constantly []))
          (swap! sub-level-comments (constantly []))
@@ -344,6 +354,7 @@
 
 (defn merge-comments [f s]
   {:form (Comment. (str (->str f) "\n" (->str s)))
+   :text (into (:text f) (:text s))
    :start (:start f)
    :end (:end s)})
 
@@ -387,7 +398,18 @@
        (let [[doc code nspace] (extract-docstring s raw-code nspace)]
          (recur sections (assoc s
                            :type :code
-                           :raw code
+                           :raw (if *delete-lifted-comments*
+                                  ;; this is far from perfect but should work
+                                  ;; for most cases: erase matching comments
+                                  ;; and then remove lines that are blank
+                                  (-> (reduce (fn [raw comment]
+                                                (replace raw
+                                                         (str comment "\n")
+                                                         "\n"))
+                                              code
+                                              (:text f))
+                                      (replace #"\n\s+\n" "\n"))
+                                  code)
                            :docstring (str doc "\n\n" (->str f)))
                 (first nn) (next nn) nspace))
        ;; adding comment section
