@@ -1,4 +1,4 @@
-(defproject marginalia "0.9.1"
+(defproject marginalia "0.9.2-SNAPSHOT"
   :description "lightweight literate programming for clojure -- inspired by [docco](http://jashkenas.github.com/docco/)"
 ;;  :main marginalia.main
   :dependencies
