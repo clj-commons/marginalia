@@ -7,7 +7,8 @@
   "The main entry point into Marginalia."
   [& sources]
   (binding [*resources* ""]
-    (run-marginalia sources)))
+    (run-marginalia sources)
+    (shutdown-agents)))
 
 ;; # Example Usage
 (comment
