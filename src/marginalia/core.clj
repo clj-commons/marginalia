@@ -95,7 +95,7 @@
   (->> (io/file dir)
        (file-seq)
        (filter (partial processable-file? pred))
-       (sort-by #(->> % parse-ns second))
+       (sort-by parse-ns second)
        (map #(.getCanonicalPath %))))
 
 ;; ## Project Info Parsing
