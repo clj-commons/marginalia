@@ -175,7 +175,8 @@
        (let [start (.getLineNumber reader)
              form (binding [*comments* sub-level-comments]
                     (try (. clojure.lang.LispReader
-                            (read reader false :_eof false))
+                            (read  reader {:read-cond :allow
+                                           :eof :_eof}))
                          (catch Exception ex
                            (let [msg (str "Problem parsing near line " start
                                           " <" (.readLine reader) ">"
