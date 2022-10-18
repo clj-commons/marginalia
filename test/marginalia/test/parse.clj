@@ -11,6 +11,8 @@
   (is (= (count (marginalia.parser/parse "(ns test)\n\"some string\"")) 1))
   (is (= (count (marginalia.parser/parse "(ns test (:require [marginalia.parser :as parser]))\n(defn foo [] ::parser/foo)")) 1)))
 
+(deftest extend-via-metadata
+  (is (marginalia.parser/parse "(ns test)\n(defprotocol Foo \"Does a Foo\" :extend-via-metadata true (do-foo! [_ opts] \"Foo!\"))")))
 
 (def simple-fn
   "(defn some-fn
