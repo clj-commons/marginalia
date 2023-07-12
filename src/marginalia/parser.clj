@@ -281,10 +281,17 @@
 
 (defmethod dispatch-form 'defprotocol
   [form raw nspace-sym]
-  (let [[ds r s] (extract-common-docstring form raw nspace-sym)]
-    (let [internal-dses (if ds
-                          (extract-internal-docstrings (nthnext form 3))
-                          (extract-internal-docstrings (nthnext form 2)))]
+  (let [[ds r s] (extract-common-docstring form raw nspace-sym)
+        ;; Clojure 1.10 added `:extend-via-metadata` to the `defprotocol` macro.
+        ;; If the flag is present, `extract-internal-docstrings` needs to start
+        ;; 2 forms later, to account for the presence of a keyword,
+        ;; `:extend-via-metadata` and a boolean `true` in the macro body.
+        evm      (contains? (set form) :extend-via-metadata)]
+    (let [internal-dses (cond
+                          (and evm ds) (extract-internal-docstrings (nthnext form 5))
+                          evm          (extract-internal-docstrings (nthnext form 4))
+                          ds           (extract-internal-docstrings (nthnext form 3))
+                          :else        (extract-internal-docstrings (nthnext form 2)))]
       (with-meta
         [ds r s]
         {:internal-docstrings internal-dses}))))
