@@ -19,7 +19,7 @@
     (delete-file f silently)))
 
 (defn find-clojure-file-paths [source-dir]
-  (core/find-processable-file-paths source-dir #(re-find #"\.clj$" %)))
+  (core/find-processable-file-paths source-dir #(re-find #"clj$" %)))
 
 (defn files-in [dir]
   (seq (.listFiles (file dir))))

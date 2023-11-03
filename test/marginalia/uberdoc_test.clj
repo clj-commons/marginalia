@@ -12,4 +12,4 @@
                                 (find-clojure-file-paths source-dir)
                                 metadata))
 
-    (is (= number-of-generated-pages 1))))
+    (is (= 1 number-of-generated-pages))))
