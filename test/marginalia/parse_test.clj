@@ -1,7 +1,8 @@
-(ns marginalia.test.parse
+(ns marginalia.parse-test
   "This module does stuff"
-  (:use clojure.test)
-  (:require [marginalia.parser :as p]))
+  (:require
+   [clojure.test :refer :all]
+   [marginalia.parser :as p]))
 
 (deftest test-inline-literals
   (is (= (count (marginalia.parser/parse "(ns test)")) 1))
