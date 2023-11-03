@@ -4,9 +4,10 @@
 (ns marginalia.parser
   "Provides the parsing facilities for Marginalia."
   (:refer-clojure :exclude [replace])
-  (:use [clojure [string :only (join replace lower-case)]]
-        [cljs.tagged-literals :only [*cljs-data-readers*]]
-        [clojure.tools.namespace :only (read-file-ns-decl)]))
+  (:require
+   [cljs.tagged-literals :refer [*cljs-data-readers*]]
+   [clojure.string :refer [join replace lower-case]]
+   [clojure.tools.namespace :refer [read-file-ns-decl]]))
 
 
 ;; Extracted from clojure.contrib.reflect
@@ -175,7 +176,8 @@
        (let [start (.getLineNumber reader)
              form (binding [*comments* sub-level-comments]
                     (try (. clojure.lang.LispReader
-                            (read reader false :_eof false))
+                            (read reader {:read-cond :allow
+                                          :eof       :_eof}))
                          (catch Exception ex
                            (let [msg (str "Problem parsing near line " start
                                           " <" (.readLine reader) ">"

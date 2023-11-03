@@ -26,11 +26,23 @@
     (is (= :code type))
     (is (= "the docstring" docstring))))
 
+(def reader-conditional-fn
+  "(defn error
+  \"Returns a language-appropriate error\"
+  [^String msg]
+  #?(:clj  (Exception. msg)
+     :cljs (js/Error. msg)))")
+
+(deftest test-reader-conditional
+  (let [{:keys [type docstring]} (first (marginalia.parser/parse reader-conditional-fn))]
+    (is (= :code type))
+    (is (= "Returns a language-appropriate error" docstring))))
+
 (deftest inline-comments
   (testing "inline comments ignored by default"
     (binding [p/*comments-enabled* (atom true)]
       (let [result (p/parse
-                     "(ns test)
+                    "(ns test)
 
                      (defn foo
                        \"docstring\"
@@ -45,7 +57,7 @@
     (binding [p/*comments-enabled* (atom true)]
       ;; tests that prelude is appended to docstring
       (let [result (p/parse
-                     "(ns test)
+                    "(ns test)
 
                      ;; A
                      (defn foo
@@ -62,7 +74,7 @@
     (binding [p/*comments-enabled* (atom true)
               p/*lift-inline-comments* true]
       (let [result (p/parse
-                     "(ns test)
+                    "(ns test)
 
                      (defn foo
                        \"docstring\"
@@ -78,7 +90,7 @@
     (binding [p/*comments-enabled* (atom true)
               p/*lift-inline-comments* true]
       (let [result (p/parse
-                     "(ns test)
+                    "(ns test)
 
                      (defn foo
                        \"docstring\"
@@ -94,7 +106,7 @@
               p/*lift-inline-comments* true]
       ;; A and B should be separate paragraphs
       (let [result (p/parse
-                     "(ns test)
+                    "(ns test)
 
                      (defn foo
                        \"docstring\"
@@ -113,7 +125,7 @@
               p/*lift-inline-comments* true]
       ;; prelude A follows docstring, then B and C as separate paragraphs
       (let [result (p/parse
-                     "(ns test)
+                    "(ns test)
 
                      ;; A
                      (defn foo
@@ -133,7 +145,7 @@
               p/*lift-inline-comments* true]
       ;; this checks that consecutive comment lines stay in the same paragraph
       (let [result (p/parse
-                     "(ns test)
+                    "(ns test)
 
                      ;; A
                      (defn foo
@@ -155,7 +167,7 @@
       ;; this checks that a comment above the function doesn't merge in
       ;; when separated by a blank line
       (let [result (p/parse
-                     "(ns test)
+                    "(ns test)
 
                      ;; A
 
@@ -179,7 +191,7 @@
       ;; this checks that a comment above the function does merge in
       ;; when a blank comment joins it to the function
       (let [result (p/parse
-                     "(ns test)
+                    "(ns test)
 
                      ;; A
                      ;;
