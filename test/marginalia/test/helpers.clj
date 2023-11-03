@@ -1,7 +1,9 @@
 (ns marginalia.test.helpers
-  (:use clojure.test)
-  (:use [clojure.java.io :only (file delete-file)])
-  (:require marginalia.core))
+  (:require
+   [clojure.java.io :refer [file delete-file]]
+   [clojure.test :refer :all]
+   [marginalia.core :as core]
+   [marginalia.html :as html]))
 
 
 ;; copied from http://clojuredocs.org/clojure_contrib/clojure.contrib.io/delete-file-recursively
@@ -17,7 +19,7 @@
     (delete-file f silently)))
 
 (defn find-clojure-file-paths [source-dir]
-  (marginalia.core/find-processable-file-paths source-dir #(re-find #"\.clj$" %)))
+  (core/find-processable-file-paths source-dir #(re-find #"\.clj$" %)))
 
 (defn files-in [dir]
   (seq (.listFiles (file dir))))
@@ -50,7 +52,7 @@
     `(do
        (delete-file-recursively ~test-project-target true)
        (.mkdirs (file ~test-project-target))
-       (binding [marginalia.html/*resources* ""]
+       (binding [html/*resources* ""]
          (~doc-generator ~test-project-src ~test-project-target ~test-metadata))
        (let [~'number-of-generated-pages (count (files-in ~test-project-target))]
          ;; We need to `deftest` in order for test runners (e.g. `lein test`) to pick up failures
