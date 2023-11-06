@@ -257,24 +257,37 @@
                  leiningen exclude
                  lift-inline-comments exclude-lifted-comments]} files help]
         (cli args
-             ["-d" "--dir" "Directory into which the documentation will be written" :default "./docs"]
-             ["-f" "--file" "File into which the documentation will be written" :default "uberdoc.html"]
-             ["-n" "--name" "Project name - if not given will be taken from project.clj"]
-             ["-v" "--version" "Project version - if not given will be taken from project.clj"]
-             ["-D" "--desc" "Project description - if not given will be taken from project.clj"]
-             ["-a" "--deps" "Project dependencies in the form <group1>:<artifact1>:<version1>;<group2>...
+             ["-d" "--dir"
+              "Directory into which the documentation will be written" :default "./docs"]
+             ["-f" "--file"
+              "File into which the documentation will be written" :default "uberdoc.html"]
+             ["-n" "--name"
+              "Project name - if not given will be taken from project.clj"]
+             ["-v" "--version"
+              "Project version - if not given will be taken from project.clj"]
+             ["-D" "--desc"
+              "Project description - if not given will be taken from project.clj"]
+             ["-a" "--deps"
+              "Project dependencies in the form <group1>:<artifact1>:<version1>;<group2>...
                  If not given will be taken from project.clj"]
-             ["-c" "--css" "Additional css resources <resource1>;<resource2>;...
+             ["-c" "--css"
+              "Additional css resources <resource1>;<resource2>;...
                  If not given will be taken from project.clj."]
-             ["-j" "--js" "Additional javascript resources <resource1>;<resource2>;...
+             ["-j" "--js"
+              "Additional javascript resources <resource1>;<resource2>;...
                  If not given will be taken from project.clj"]
-             ["-m" "--multi" "Generate each namespace documentation as a separate file" :flag true]
-             ["-l" "--leiningen" "Generate the documentation for a Leiningen project file."]
-             ["-e" "--exclude" "Exclude source file(s) from the document generation process <file1>;<file2>;...
+             ["-m" "--multi"
+              "Generate each namespace documentation as a separate file" :flag true]
+             ["-l" "--leiningen"
+              "Generate the documentation for a Leiningen project file."]
+             ["-e" "--exclude"
+              "Exclude source file(s) from the document generation process <file1>;<file2>;...
                  If not given will be taken from project.clj"]
-             ["-L" "--lift-inline-comments" "Lift ;; inline comments to the top of the enclosing form.
+             ["-L" "--lift-inline-comments"
+              "Lift ;; inline comments to the top of the enclosing form.
                  They will be treated as if they preceded the enclosing form." :flag true]
-             ["-X" "--exclude-lifted-comments" "If ;; inline comments are being lifted into documentation
+             ["-X" "--exclude-lifted-comments"
+              "If ;; inline comments are being lifted into documentation
                  then also exclude them from the source code display." :flag true])
         sources (distinct (format-sources (seq files)))
         sources (if leiningen (cons leiningen sources) sources)]
