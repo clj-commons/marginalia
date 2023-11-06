@@ -295,7 +295,7 @@
       (do
         (println "Wrong number of arguments passed to Marginalia.")
         (println help))
-      (binding [*lift-inline-comments* lift-inline-comments
+      (binding [*lift-inline-comments*   lift-inline-comments
                 *delete-lifted-comments* exclude-lifted-comments]
         (let [project-clj (or project
                               (when (.exists (io/file "project.clj"))
