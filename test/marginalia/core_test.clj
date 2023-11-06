@@ -4,4 +4,5 @@
    [marginalia.core :as core]))
 
 (deftest parse-project-file-simple
-  (is (= "project-name" (:name (marginalia.core/parse-project-file "test/marginalia/resources/multi-def-project.clj.txt")))))
+  (is (= "project-name"
+         (:name (marginalia.core/parse-project-file "test/marginalia/resources/multi-def-project.clj.txt")))))

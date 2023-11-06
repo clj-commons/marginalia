@@ -14,8 +14,8 @@
 ;; is as simple as running it on your codebase. However, if you’re unaccustomed to documenting your source, then
 ;; the guidelines herein will help you make the most out of Marginalia for true-power documentation.
 ;;
-;; Following the guidelines will work to make your code not only easier to follow – it will make it better.
-;; The very process of using Marginalia will help to crystalize your understanding of problem and its solution(s).
+;; Following the guidelines will work to make your code not only easier to follow: it will make it better.
+;; The very process of using Marginalia will help to crystallize your understanding of problem and its solution(s).
 ;;
 ;; The quality of the prose in your documentation will often reflect the quality of the code itself thus highlighting
 ;; problem areas. The elimination of problem areas will solidify your code and its accompanying prose. Marginalia
@@ -32,21 +32,16 @@
 ;; 7. Repeat from step #4 until complete
 ;;
 (ns marginalia.core
-  (:require [clojure.java.io :as io]
-            [clojure.string  :as str])
-  (:use [marginalia
-         [html :only (uberdoc-html index-html single-page-html)]
-         [parser :only (parse-file
-                        parse-ns
-                        *lift-inline-comments*
-                        *delete-lifted-comments*)]]
-        [clojure.tools
-         [cli :only (cli)]]))
+  (:require
+   [clojure.java.io :as io]
+   [clojure.string  :as str]
+   [clojure.tools.cli :refer [cli]]
+   [marginalia.html :refer [uberdoc-html index-html single-page-html]]
+   [marginalia.parser :refer [parse-file parse-ns *lift-inline-comments* *delete-lifted-comments*]])
+  (:import
+   (java.io File FileReader)))
 
-
-(def ^{:dynamic true} *test* "src/marginalia/core.clj")
-(def ^{:dynamic true} *docs* "./docs")
-(def ^{:dynamic true} *comment* #"^\s*;;\s?")
+(set! *warn-on-reflection* true)
 
 ;; ## File System Utilities
 
@@ -55,7 +50,7 @@
    at a given directory.  If a path to a file is supplied, then the seq contains only the
    original path given."
   [path]
-  (let [file (java.io.File. path)]
+  (let [file (io/file path)]
     (if (.isDirectory file)
       (seq (.list file))
       (when (.exists file)
@@ -74,17 +69,17 @@
 (defn dir?
   "Many Marginalia fns use dir? to recursively search a filepath."
   [path]
-  (.isDirectory (java.io.File. path)))
+  (.isDirectory (io/file path)))
 
 (defn find-file-extension
   "Returns a string containing the files extension."
-  [^java.io.File file]
+  [^File file]
   (second (re-find #"\.([^.]+)$" (.getName file))))
 
 (defn processable-file?
   "Predicate. Returns true for \"normal\" files with a file extension which
   passes the provided predicate."
-  [pred ^java.io.File file]
+  [pred ^File file]
   (when (.isFile file)
     (-> file find-file-extension pred)))
 
@@ -96,7 +91,7 @@
        (file-seq)
        (filter (partial processable-file? pred))
        (sort-by parse-ns)
-       (map #(.getCanonicalPath %))))
+       (map #(.getCanonicalPath ^File %))))
 
 ;; ## Project Info Parsing
 ;; Marginalia will parse info out of your project.clj to display in
@@ -114,7 +109,7 @@
   by merging into the name and version information the rest of the defproject
   forms (`:dependencies`, etc)"
   [[_ project-name version-number & attributes]]
-  (merge {:name (str project-name)
+  (merge {:name    (str project-name)
 	  :version version-number}
 	 (apply hash-map attributes)))
 
@@ -125,8 +120,8 @@
   ([path]
       (try
         (let [rdr (clojure.lang.LineNumberingPushbackReader.
-                    (java.io.FileReader.
-                     (java.io.File. path)))]
+                    (FileReader.
+                     (io/file path)))]
           (loop [line (read rdr)]
             (let [found-project? (= 'defproject (first line))]
               (if found-project?
@@ -141,8 +136,8 @@
 
 ;; ## Source File Analysis
 
-
-(defn end-of-block? [cur-group groups lines]
+;; TODO: why are these args unused?
+(defn end-of-block? [_cur-group _groups lines]
   (let [line (first lines)
         next-line (second lines)
         next-line-code (get next-line :code-text "")]
@@ -175,16 +170,16 @@
 
      :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))
 
-(defn path-to-doc [fn]
-  {:ns     (parse-ns (java.io.File. fn))
-   :groups (parse-file fn)})
+(defn path-to-doc [filename]
+  {:ns     (parse-ns (io/file filename))
+   :groups (parse-file filename)})
 
 
 ;; ## Output Generation
 
 (defn filename-contents
   [props output-dir all-files parsed-file]
-  {:name (io/file output-dir (str (:ns parsed-file) ".html"))
+  {:name     (io/file output-dir (str (:ns parsed-file) ".html"))
    :contents (single-page-html props parsed-file all-files)})
 
 (defn multidoc!
@@ -192,7 +187,7 @@
   (let [parsed-files (map path-to-doc files-to-analyze)
         index (index-html props parsed-files)
         pages (map #(filename-contents props output-dir parsed-files %) parsed-files)]
-    (doseq [f (conj pages {:name (io/file output-dir "toc.html")
+    (doseq [f (conj pages {:name     (io/file output-dir "toc.html")
                            :contents index})]
            (spit (:name f) (:contents f)))))
 
@@ -203,8 +198,7 @@
    1. Results from processing source files (`path-to-doc`)
    3. Project metadata as a map, containing at a minimum the following:
      - :name
-     - :version
-  "
+     - :version"
   [output-file-name files-to-analyze props]
   (let [source (uberdoc-html
                 props
@@ -232,8 +226,8 @@
 
 (defn split-deps [deps]
   (when deps
-    (for [d (.split deps ";")
-          :let [[group artifact version] (.split d ":")]]
+    (for [d (str/split deps #";")
+          :let [[group artifact version] (str/split d #":")]]
       [(if (= group artifact) artifact (str group "/" artifact))
        version])))
 
@@ -288,26 +282,25 @@
       (do
         (println "Wrong number of arguments passed to Marginalia.")
         (println help))
-      (binding [*docs* dir
-                *lift-inline-comments* lift-inline-comments
+      (binding [*lift-inline-comments* lift-inline-comments
                 *delete-lifted-comments* exclude-lifted-comments]
         (let [project-clj (or project
                               (when (.exists (io/file "project.clj"))
                                 (parse-project-file)))
               choose #(or %1 %2)
               marg-opts (merge-with choose
-                                    {:css (when css (.split css ";"))
-                                     :javascript (when js (.split js ";"))
-                                     :exclude (when exclude (.split exclude ";"))
-                                     :leiningen leiningen}
+                                    {:css        (when css (str/split css #";"))
+                                     :javascript (when js (str/split js #";"))
+                                     :exclude    (when exclude (str/split exclude #";"))
+                                     :leiningen  leiningen}
                                     (:marginalia project-clj))
               opts (merge-with choose
-                               {:name name
-                                :version version
-                                :description desc
+                               {:name         name
+                                :version      version
+                                :description  desc
                                 :dependencies (split-deps deps)
-                                :multi multi
-                                :marginalia marg-opts}
+                                :multi        multi
+                                :marginalia   marg-opts}
                                project-clj)
               sources (->> sources
                            (filter #(not (source-excluded? % opts)))
@@ -316,9 +309,9 @@
           (doseq [s sources]
             (println "  " s))
           (println)
-          (ensure-directory! *docs*)
+          (ensure-directory! dir)
           (if multi
-            (multidoc! *docs* sources opts)
-            (uberdoc!  (str *docs* "/" file) sources opts))
-          (println "Done generating your documentation in" *docs*)
+            (multidoc! dir sources opts)
+            (uberdoc! (str dir "/" file) sources opts))
+          (println "Done generating your documentation in" dir)
           (println ""))))))
