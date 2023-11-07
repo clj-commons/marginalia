@@ -11,13 +11,16 @@
 
   :resource-paths ["vendor"]
 
-  ;;Needed for testing Latex equation formatting. You must download
-  ;;and install MathJax in you doc directory.
-  :marginalia {:javascript ["mathjax/MathJax.js"]}
+  ;; updated to match the latest mathjax website information:
+  :marginalia {:javascript ["https://polyfill.io/v3/polyfill.min.js?features=es6"
+                            "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"]}
 
   ;; lein docs assumes the lein-marginalia repo is a sibling of this
-  ;; marginalia repo!
+  ;; marginalia repo -- and that there is a marginalia-gh-pages sibling
+  ;; which is marginalia checked out to the gh-pages branch:
   :aliases {"docs" ["run" "-m" "marginalia.main"
+                    "-d" "../marginalia-gh-pages"
+                    "-f" "index.html"
                     "../lein-marginalia/src/leiningen/marg.clj"
                     "src/marginalia/core.clj"
                     "src/marginalia/html.clj"
