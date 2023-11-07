@@ -5,13 +5,13 @@ Marginalia is an ultra-lightweight literate programming tool for Clojure and Clo
 
 To get a quick look at what the output looks like, [visit the official Marginalia website](http://fogus.me/fun/marginalia/).
 
-**Usage notes and examples are found on the [Marginalia Github page](http://github.com/fogus/marginalia).**
+**Usage notes and examples are found on the [Marginalia Github page](https://github.com/clj-commons/marginalia).**
 
 Places
 ------
 
-* [Source code](https://github.com/fogus/marginalia)
-* [Ticket system](https://github.com/fogus/marginalia/issues)
+* [Source code](https://github.com/clj-commons/marginalia)
+* [Ticket system](https://github.com/clj-commons/marginalia/issues)
 * [manifesto](http://blog.fogus.me/2011/01/05/the-marginalia-manifesto/)
 
 Changes from v7.0.0
@@ -19,7 +19,7 @@ Changes from v7.0.0
 
 ### lein-marginalia
 
-As always, the prefered way to use Marginalia to generate your documentation is via the [lein-marginalia](http://github.com/fogus/lein-marginalia) Leiningen plugin, like so:
+As always, the prefered way to use Marginalia to generate your documentation is via the [lein-marginalia](https://github.com/fogus/lein-marginalia) Leiningen plugin, like so:
 
     :dev-dependencies [[lein-marginalia "0.7.1"]]
 
@@ -43,7 +43,7 @@ The following capabilities are under design, development, or consideration for f
 * Nicer looking `toc.html` generation in `--multi` mode output.
 * protocol docstring support
 * Stand-alone application
-* Explore the possibility of leveraging the [ClojureScript](http://github.com/clojure/clojurescript) analyzer.
+* Explore the possibility of leveraging the [ClojureScript](https://github.com/clojure/clojurescript) analyzer.
 * Explore the possibility of leveraging [sjacket](https://github.com/cgrand/sjacket)
 * More documentation and examples
 

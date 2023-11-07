@@ -13,7 +13,7 @@
         (count x)))
 
 ;; Should have only this comment in the left margin.
-;; See [https://github.com/gdeer81/marginalia/issues/4](https://github.com/gdeer81/marginalia/issues/4)
+;; See [https://github.com/clj-commons/marginalia/issues/4](https://github.com/clj-commons/marginalia/issues/4)
 
 (defn parse-bool [v] (condp = (.trim (str v))
                          "0" false

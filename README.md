@@ -11,9 +11,9 @@ Marginalia 0.9.1
 
 Marginalia is a source code documentation tool that parses Clojure and ClojureScript code and outputs a side-by-side source view with appropriate comments and docstrings aligned.
 
-To get a quick look at what the Marginalia output looks like, [visit the official site](http://gdeer81.github.io/marginalia/).
+To get a quick look at what the Marginalia output looks like, **visit the official site** _[we're working on getting a version of this back up and running!]_.
 
-**[View the release notes for this version of Marginalia](https://github.com/gdeer81/marginalia/blob/master/docs/release-notes/marginalia-v0.9.1-release-notes.markdown)**
+**[View the release notes for this version of Marginalia](https://github.com/clj-commons/marginalia/blob/master/docs/release-notes/marginalia-v0.9.1-release-notes.markdown)**
 
 Usage
 -----
@@ -22,13 +22,13 @@ Currently Marginalia can be used in a number of ways as described below.
 
 ### Leiningen
 
-[http://github.com/gdeer81/lein-marginalia](http://github.com/gdeer81/lein-marginalia)
+[https://github.com/clj-commons/lein-marginalia](https://github.com/clj-commons/lein-marginalia)
 
 To use Marginalia with Leiningen add the following code to the project's `project.clj` file:
 
 With Leiningen 1.x, add `[lein-marginalia "0.9.1"]` to your project.clj's `:dev-dependencies` argument of the `defproject` function, then run `lein deps`.
 With Leiningen 2.x, add `[[lein-marginalia "0.9.1"]]` to the `:plugins` entry in either your project.clj file or your `:user` profile.
-See the [lein-marginalia](http://github.com/gdeer81/lein-marginalia) page for more details.
+See the [lein-marginalia](https://github.com/clj-commons/lein-marginalia) page for more details.
 
 Once installed,  you can generate your complete source documentation with the command:
 
