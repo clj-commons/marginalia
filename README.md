@@ -11,7 +11,7 @@ Marginalia 0.9.1
 
 Marginalia is a source code documentation tool that parses Clojure and ClojureScript code and outputs a side-by-side source view with appropriate comments and docstrings aligned.
 
-To get a quick look at what the Marginalia output looks like, **visit the official site** _[we're working on getting a version of this back up and running!]_.
+To get a quick look at what the Marginalia output looks like, [visit the official site](https://clj-commons.org/marginalia/).
 
 **[View the release notes for this version of Marginalia](https://github.com/clj-commons/marginalia/blob/master/docs/release-notes/marginalia-v0.9.1-release-notes.markdown)**
 
