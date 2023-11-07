@@ -13,4 +13,11 @@
 
   ;;Needed for testing Latex equation formatting. You must download
   ;;and install MathJax in you doc directory.
-  :marginalia {:javascript ["mathjax/MathJax.js"]})
+  :marginalia {:javascript ["mathjax/MathJax.js"]}
+
+  :aliases {"docs" ["run" "-m" "marginalia.main"
+                    ;; leiningen/marg.clj ??
+                    "src/marginalia/core.clj"
+                    "src/marginalia/html.clj"
+                    ;; "src/marginalia/tasks.clj"
+                    "src/problem_cases/general.clj"]})
