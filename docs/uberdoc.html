@@ -2866,7 +2866,69 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><script src="mathjax/MathJax.js" type="text/javascript"></script><title>marginalia -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">marginalia</h1><h2 class="project-version">0.9.2-SNAPSHOT</h2><br /><p>lightweight literate programming for clojure -- inspired by <a href="http://jashkenas.github.com/docco/">docco</a></p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.11.1</td></tr><tr><td class="dep-name">org.clojure/clojurescript</td><td class="dotted"><hr /></td><td class="dep-version">1.7.228</td></tr><tr><td class="dep-name">org.clojure/tools.namespace</td><td class="dotted"><hr /></td><td class="dep-version">0.2.10</td></tr><tr><td class="dep-name">org.clojure/tools.cli</td><td class="dotted"><hr /></td><td class="dep-version">0.3.3</td></tr><tr><td class="dep-name">org.markdownj/markdownj</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0-1.0.2b4</td></tr><tr><td class="dep-name">de.ubercode.clostache/clostache</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#marginalia.core">marginalia.core</a></li><li><a href="#marginalia.html">marginalia.html</a></li><li><a href="#problem-cases.general">problem-cases.general</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#marginalia.core" name="marginalia.core"><h1 class="project-name">marginalia.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>A new way to think about programs</h2>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.11.1</td></tr><tr><td class="dep-name">org.clojure/clojurescript</td><td class="dotted"><hr /></td><td class="dep-version">1.7.228</td></tr><tr><td class="dep-name">org.clojure/tools.namespace</td><td class="dotted"><hr /></td><td class="dep-version">0.2.10</td></tr><tr><td class="dep-name">org.clojure/tools.cli</td><td class="dotted"><hr /></td><td class="dep-version">0.3.3</td></tr><tr><td class="dep-name">org.markdownj/markdownj</td><td class="dotted"><hr /></td><td class="dep-version">0.3.0-1.0.2b4</td></tr><tr><td class="dep-name">de.ubercode.clostache/clostache</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#leiningen.marg">leiningen.marg</a></li><li><a href="#marginalia.core">marginalia.core</a></li><li><a href="#marginalia.html">marginalia.html</a></li><li><a href="#problem-cases.general">problem-cases.general</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#leiningen.marg" name="leiningen.marg"><h1 class="project-name">leiningen.marg</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns leiningen.marg)</pre></td></tr><tr><td class="docs"><p>Support eval-in-project in both Leiningen 1.x and 2.x.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn eval-in-project
+  [project form init]
+  (let [[eip two?] (or (try (require 'leiningen.core.eval)
+                            [(resolve 'leiningen.core.eval/eval-in-project)
+                             true]
+                            (catch java.io.FileNotFoundException _))
+                       (try (require 'leiningen.compile)
+                            [(resolve 'leiningen.compile/eval-in-project)]
+                            (catch java.io.FileNotFoundException _)))]
+    (if two?
+      (eip project form init)
+      (eip project form nil nil init))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def dep ['marginalia &quot;0.9.1&quot;])</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn- add-marg-dep [project]
+  ;; Leiningen 2 is a bit smarter about only conjing it in if it
+  ;; doesn't already exist and warning the user.
+  (if-let [conj-dependency (resolve 'leiningen.core.project/conj-dependency)]
+    (conj-dependency project dep)
+    (update-in project [:dependencies] conj dep)))</pre></td></tr><tr><td class="docs"><h2>Note:</h2>
+
+<p>The docstring for the marg function is used by Leiningen when a
+user types <code>lein help marg</code>. Because of this, and because, for
+instance, an escaped asterisk in a docstring will cause errors when
+you attempt to run <code>lein marg</code>, some extra care (read: hacking) is
+required to get this docstring to look reasonable both in the lein
+help output and in a marginalia uberdoc.</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Run Marginalia against your project source files.</p>
+
+<p>Usage:</p>
+
+<pre><code>lein marg &lt;options&gt; &lt;files&gt;
+</code></pre>
+
+<p>Marginalia accepts options as described below:</p>
+
+<p>-d --dir     Directory into which the documentation will be written (default <code>docs</code>)</p>
+
+<p>-f --file    File into which the documentation will be written (default <code>uberdoc.html</code>)</p>
+
+<p>-n --name    Project name (Taken from <code>project.clj</code> by default.)</p>
+
+<p>-v --version Project version (Taken from <code>project.clj</code> by default.)</p>
+
+<p>-D --desc    Project description (Taken from <code>project.clj</code> by default.)</p>
+
+<p>-a --deps    Project dependencies in the form <code>&lt;group1&gt;:&lt;artifact1&gt;:&lt;version1&gt;;&lt;group2&gt;...</code>
+             (Taken from <code>project.clj</code> by default.)</p>
+
+<p>-c --css     Additional css resources <code>&lt;resource1&gt;;&lt;resource2&gt;;...</code>
+             (Taken from <code>project.clj</code> by default.)</p>
+
+<p>-j --js      Additional javascript resources <code>&lt;jsfile1&gt;;&lt;jsfile2&gt;;...</code>
+             (Taken from <code>project.clj</code> by default.)</p>
+
+<p>-m --multi   Generate each namespace documentation as a separate file</p>
+</td><td class="codes"><pre class="brush: clojure">(defn marg
+  [project &amp; args]
+  (eval-in-project (add-marg-dep project)
+                   `(binding [marginalia.html/*resources* &quot;&quot;]
+                      (marginalia.core/run-marginalia (list ~@args)))
+                   '(require 'marginalia.core)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#marginalia.core" name="marginalia.core"><h1 class="project-name">marginalia.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><h2>A new way to think about programs</h2>
 
 <p>What if your code and its documentation were one and the same?</p>
 
@@ -3669,7 +3731,7 @@ See <a href="https://github.com/clj-commons/marginalia/issues/4">https://github.
 </td><td class="codes"><pre class="brush: clojure">(defmulti ns-kw-mm identity)
 (defmethod ns-kw-mm ::foo [_] :problem-cases.general/foo)
 (defmethod ns-kw-mm :user/foo [_] :user/foo)
-(defmethod ns-kw-mm :foo [_] :foo)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/clj-commons/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_marginalia.core">marginalia.core</li><li class="floating-toc-li" id="floating-toc_marginalia.html">marginalia.html</li><li class="floating-toc-li" id="floating-toc_problem-cases.general">problem-cases.general</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+(defmethod ns-kw-mm :foo [_] :foo)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/clj-commons/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_leiningen.marg">leiningen.marg</li><li class="floating-toc-li" id="floating-toc_marginalia.core">marginalia.core</li><li class="floating-toc-li" id="floating-toc_marginalia.html">marginalia.html</li><li class="floating-toc-li" id="floating-toc_problem-cases.general">problem-cases.general</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
 SyntaxHighlighter.all();
 
 // hackity hack
