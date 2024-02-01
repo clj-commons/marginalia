@@ -1,4 +1,4 @@
-(defproject marginalia "0.9.2"
+(defproject marginalia "0.9.3-SNAPSHOT"
   :description "lightweight literate programming for clojure -- inspired by [docco](http://jashkenas.github.com/docco/)"
   :license {:name "Eclipse Public License - v 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"
