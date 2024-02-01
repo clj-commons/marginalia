@@ -1,12 +1,12 @@
-(defproject marginalia "0.9.2-SNAPSHOT"
+(defproject marginalia "0.9.2"
   :description "lightweight literate programming for clojure -- inspired by [docco](http://jashkenas.github.com/docco/)"
 ;;  :main marginalia.main
   :dependencies
   [[org.clojure/clojure "1.11.1"]
-   [org.clojure/clojurescript "1.7.228"]
-   [org.clojure/tools.namespace "0.2.10"]
-   [org.clojure/tools.cli "0.3.3"]
-   [org.markdownj/markdownj "0.3.0-1.0.2b4"]
+   [org.clojure/clojurescript "1.11.132"]
+   [org.clojure/tools.namespace "1.4.5"]
+   [org.clojure/tools.cli "1.0.219"]
+   [org.markdownj/markdownj-core "0.4"]
    [de.ubercode.clostache/clostache "1.4.0"]]
 
   :resource-paths ["vendor"]

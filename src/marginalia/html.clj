@@ -120,16 +120,35 @@
                            [:td {:class "dep-version"} (second %)]])
                    deps)]]))))
 
+
+;; # Generate Optional Metadata
+;; Add metadata to your documentation.
+;;
+;; To add <meta name="robots" content="noindex"> to the head of the
+;; docs, specify a hash map for the :meta key :marginalia in project.clj:
+;;
+;;     :marginalia {:meta {:robots "noindex"}}
+
+(defn metadata-html
+  "Generate meta tags from project info."
+  [project-info]
+  (let [options (:marginalia project-info)
+        meta (:meta options)]
+    (html (when meta
+            (map #(vector :meta {:name (name (key %)) :contents (val %)}) meta)))))
+
 ;; # Load Optional Resources
 ;; Use external Javascript and CSS in your documentation. For example:
+;;
 ;; To format Latex math equations, download the
 ;; [MathJax](http://www.mathjax.org/) Javascript library to the docs
 ;; directory and then add
 ;;
 ;;     :marginalia {:javascript ["mathjax/MathJax.js"]}
 ;;
-;; to project.clj. Below is a simple example of both inline and block
-;; formatted equations.
+;; to project.clj. :javascript and :css accept a vector of paths or URLs
+;;
+;; Below is a simple example of both inline and block formatted equations.
 ;;
 ;; Optionally, you can put the MathJax CDN URL directly as a value of `:javascript`
 ;; like this:
@@ -364,6 +383,7 @@
     [:head
      [:meta {:http-equiv "Content-Type" :content "text/html" :charset "utf-8"}]
      [:meta {:name "description" :content (:description project-metadata)}]
+     (metadata-html project-metadata)
      (inline-css (str *resources* "shCore.css"))
      (css
       [:.syntaxhighlighter {:overflow "hidden !important"}])

@@ -12,18 +12,18 @@ jobs:
   build-clj:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: "Setup Java 17"
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
     - name: Setup Clojure
-      uses: DeLaGuardo/setup-clojure@12.1
+      uses: DeLaGuardo/setup-clojure@12.3
       with:
-        lein: 2.10.0
+        lein: 2.11.1
     - name: Cache dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.m2/repository
         key: "m2-${{ hashFiles('project.clj') }}"
