@@ -1,6 +1,10 @@
 (defproject marginalia "0.9.2"
   :description "lightweight literate programming for clojure -- inspired by [docco](http://jashkenas.github.com/docco/)"
-;;  :main marginalia.main
+  :license {:name "Eclipse Public License - v 1.0"
+            :url "http://www.eclipse.org/legal/epl-v10.html"
+            :distribution :repo
+            :comments "same as Clojure"}
+  ;;  :main marginalia.main
   :dependencies
   [[org.clojure/clojure "1.11.1"]
    [org.clojure/clojurescript "1.11.132"]
@@ -10,6 +14,11 @@
    [de.ubercode.clostache/clostache "1.4.0"]]
 
   :resource-paths ["vendor"]
+
+  :deploy-repositories [["releases" {:url "https://clojars.org/repo"
+                                     :sign-releases false}]
+                        ["snapshots" {:url "https://clojars.org/repo"
+                                      :sign-releases false}]]
 
   ;; updated to match the latest mathjax website information:
   :marginalia {:javascript ["https://polyfill.io/v3/polyfill.min.js?features=es6"
