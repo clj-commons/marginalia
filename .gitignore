@@ -1,9 +1,10 @@
-.cake
+*jar
 .DS_Store
+.cake
+.calva/repl.calva-repl
 .lein-deps-sum
 .lein-failures
 .nrepl-port
-*jar
 /.calva/output-window/
 /.clj-kondo/.cache
 /.lsp/.cache
