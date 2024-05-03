@@ -355,10 +355,9 @@
         :else
           (dispatch-inner-form form raw nspace-sym)))
 
-(defn extract-docstring [m raw nspace-sym]
-  (let [raw (join "\n" (subvec raw (-> m :start dec) (:end m)))
-        form (:form m)]
-    (dispatch-form form raw nspace-sym)))
+(defn extract-docstring [{:keys [start end form]} raw-lines nspace-sym]
+  (let [new-lines (join "\n" (subvec raw-lines (dec start) (min end (count raw-lines))))]
+    (dispatch-form form new-lines nspace-sym)))
 
 (defn- ->str [m]
   (-> (-> m :form .content)
@@ -371,82 +370,84 @@
    :start (:start f)
    :end (:end s)})
 
-(defn comment? [o]
-  (->> o :form (instance? Comment)))
+(defn comment? [{:keys [form]}]
+  (instance? Comment form))
 
-(defn code? [o]
-  (and (->> o :form (instance? Comment) not)
-       (->> o :form nil? not)))
+(defn code? [{:keys [form] :as o}]
+  (and (not (nil? form))
+       (not (comment? o))))
 
-(defn adjacent? [f s]
-  (= (-> f :end) (-> s :start dec)))
+(defn adjacent?
+  "Two parsed objects are adjacent if the end of the first is followed by the start of the second."
+  [{:keys [end] :as _first} {:keys [start] :as _second}]
+  (= end (dec start)))
 
 (defn arrange-in-sections [parsed-code raw-code]
   (loop [sections []
-         f (first parsed-code)
-         s (second parsed-code)
-         nn (nnext parsed-code)
-         nspace nil]
+         f        (first parsed-code)
+         s        (second parsed-code)
+         nn       (nnext parsed-code)
+         nspace   nil]
     (if f
       (cond
-       ;; ignore comments with only one semicolon
-       (and (comment? f) (re-find #"^;(\s|$)" (-> f :form .content)))
-       (recur sections s (first nn) (next nn) nspace)
-       ;; merging comments block
-       (and (comment? f) (comment? s) (adjacent? f s))
-       (recur sections (merge-comments f s)
-              (first nn) (next nn)
-              nspace)
-       ;; merging adjacent code blocks
-       (and (code? f) (code? s) (adjacent? f s))
-       (let [[fdoc fcode nspace] (extract-docstring f raw-code nspace)
-             [sdoc scode _] (extract-docstring s raw-code nspace)]
-         (recur sections (assoc s
-                           :type :code
-                           :raw (str (or (:raw f) fcode) "\n" scode)
-                           :docstring (str (or (:docstring f) fdoc) "\n\n" sdoc))
-                (first nn) (next nn) nspace))
-       ;; adjacent comments are added as extra documentation to code block
-       (and (comment? f) (code? s) (adjacent? f s))
-       (let [[doc code nspace] (extract-docstring s raw-code nspace)]
-         (recur sections (assoc s
-                           :type :code
-                           :raw (if *delete-lifted-comments*
-                                  ;; this is far from perfect but should work
-                                  ;; for most cases: erase matching comments
-                                  ;; and then remove lines that are blank
-                                  (-> (reduce (fn [raw comment]
-                                                (replace raw
-                                                         (str comment "\n")
-                                                         "\n"))
-                                              code
-                                              (:text f))
-                                      (replace #"\n\s+\n" "\n"))
-                                  code)
-                           :docstring (str doc "\n\n" (->str f)))
-                (first nn) (next nn) nspace))
-       ;; adding comment section
-       (comment? f)
-       (recur (conj sections (assoc f :type :comment :raw (->str f)))
-              s
-              (first nn) (next nn)
-              nspace)
-       ;; adding code section
-       :else
-       (let [[doc code nspace] (extract-docstring f raw-code nspace)]
-         (recur (conj sections (if (= (:type f) :code)
-                                 f
-                                 {:type :code
-                                  :raw code
-                                  :docstring doc}))
-                s (first nn) (next nn) nspace)))
+        ;; ignore comments with only one semicolon
+        (and (comment? f) (re-find #"^;(\s|$)" (-> f :form .content)))
+        (recur sections s (first nn) (next nn) nspace)
+        ;; merging comments block
+        (and (comment? f) (comment? s) (adjacent? f s))
+        (recur sections (merge-comments f s)
+               (first nn) (next nn)
+               nspace)
+        ;; merging adjacent code blocks
+        (and (code? f) (code? s) (adjacent? f s))
+        (let [[fdoc fcode nspace] (extract-docstring f raw-code nspace)
+              [sdoc scode _]      (extract-docstring s raw-code nspace)]
+          (recur sections (assoc s
+                                 :type      :code
+                                 :raw       (str (or (:raw f) fcode) "\n" scode)
+                                 :docstring (str (or (:docstring f) fdoc) "\n\n" sdoc))
+                 (first nn) (next nn) nspace))
+        ;; adjacent comments are added as extra documentation to code block
+        (and (comment? f) (code? s) (adjacent? f s))
+        (let [[doc code nspace] (extract-docstring s raw-code nspace)]
+          (recur sections (assoc s
+                                 :type :code
+                                 :raw (if *delete-lifted-comments*
+                                        ;; this is far from perfect but should work
+                                        ;; for most cases: erase matching comments
+                                        ;; and then remove lines that are blank
+                                        (-> (reduce (fn [raw comment]
+                                                      (replace raw
+                                                               (str comment "\n")
+                                                               "\n"))
+                                                    code
+                                                    (:text f))
+                                            (replace #"\n\s+\n" "\n"))
+                                        code)
+                                 :docstring (str doc "\n\n" (->str f)))
+                 (first nn) (next nn) nspace))
+        ;; adding comment section
+        (comment? f)
+        (recur (conj sections (assoc f :type :comment :raw (->str f)))
+               s
+               (first nn) (next nn)
+               nspace)
+        ;; adding code section
+        :else
+        (let [[doc code nspace] (extract-docstring f raw-code nspace)]
+          (recur (conj sections (if (= (:type f) :code)
+                                  f
+                                  {:type :code
+                                   :raw code
+                                   :docstring doc}))
+                 s (first nn) (next nn) nspace)))
       sections)))
 
 (defn parse [source-string]
   (let [make-reader #(java.io.BufferedReader.
                       (java.io.StringReader. (str source-string "\n")))
-        lines (vec (line-seq (make-reader)))
-        reader (clojure.lang.LineNumberingPushbackReader. (make-reader))
+        lines       (vec (line-seq (make-reader)))
+        reader      (clojure.lang.LineNumberingPushbackReader. (make-reader))
         old-cmt-rdr (aget (get-field clojure.lang.LispReader :macros nil) (int \;))]
     (try
       (set-comment-reader read-comment)
