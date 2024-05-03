@@ -2,6 +2,7 @@
 .DS_Store
 .cake
 .calva/repl.calva-repl
+.cpcache
 .lein-deps-sum
 .lein-failures
 .nrepl-port
