@@ -26,26 +26,49 @@ Currently Marginalia can be used in a number of ways as described below.
 
 To use Marginalia with Leiningen add the following code to the project's `project.clj` file:
 
-With Leiningen 1.x, add `[lein-marginalia "0.9.2"]` to your project.clj's `:dev-dependencies` argument of the `defproject` function, then run `lein deps`.
-With Leiningen 2.x, add `[[lein-marginalia "0.9.2"]]` to the `:plugins` entry in either your project.clj file or your `:user` profile.
+With Leiningen 1.x, add `[lein-marginalia "0.9.2"]` to your project.clj's `:dev-dependencies` argument of the
+`defproject` function, then run `lein deps`.
+
+With Leiningen 2.x, add `[[lein-marginalia "0.9.2"]]` to the `:plugins` entry in either your project.clj file or your
+`:user` profile.
+
 See the [lein-marginalia](https://github.com/clj-commons/lein-marginalia) page for more details.
 
 Once installed,  you can generate your complete source documentation with the command:
 
     lein marg <options> <files>
 
+### deps.edn
+
+Add `marginalia/marginalia {:mvn/version "0.9.2"}` as a dep. To use it from the command line, do something like
+this:
+
+```clojure
+{:aliases
+  {:marginalia
+   {:extra-deps {marginalia/marginalia {:mvn/version "0.9.2"}}
+    :main-opts  ["-m" "marginalia.main" "-n" "YourProjectName"
+                 "src" "test"]}}}
+```
+
+And invoke it with `clojure -M:marginalia`. Without the alias, you could use `clojure -M -m marginalia.main`.
+
+### Invocation
+
 Marginalia accepts options as described below:
 
-  * -d --dir     Directory into which the documentation will be written (default `docs`)
-  * -f --file    File into which the documentation will be written (default `uberdoc.html`)
-  * -n --name    Project name (if not given will be taken from `project.clj`)
-  * -v --version Project version (if not given will be taken from `project.clj`)
-  * -D --desc    Project description (if not given will be taken from `project.clj`)
-  * -a --deps    Project dependencies in the form `<group1>:<artifact1>:<version1>;<group2>...` (if not given will be taken from `project.clj`)
-  * -c --css     Additional css resources `<resource1>;<resource2>;...` (if not given will be taken from `project.clj`)
-  * -j --js      Additional javascript resources `<jsfile1>;<jsfile2>;...` (if not given will be taken from `project.clj`)
-  * -m --multi   Generate each namespace documentation as a separate file
-  * -e --exclude Exclude source file(s) from the document generation process `<file1>;<file2>;...` (if not given will be taken from `project.clj`)
+| Flag |           | Default              | Description                                                                       |
+| ---- | --------- | -------------------- | ----------------------------------------------------------------------------------|
+| -d   | --dir     | `docs`               | Directory into which the documentation will be written                            |
+| -f   | --file    | `uberdoc.html`       | File into which the documentation will be written                                 |
+| -n   | --name    | (from `project.clj`) | Project name                                                                      |
+| -v   | --version | (from `project.clj`) | Project version                                                                   |
+| -D   | --desc    | (from `project.clj`) | Project description                                                               |
+| -a   | --deps    | (from `project.clj`) | Project dependencies in the form `<group1>:<artifact1>:<version1>;<group2>...`    |
+| -c   | --css     | (from `project.clj`) | Additional css resources `<resource1>;<resource2>;...`                            |
+| -j   | --js      | (from `project.clj`) | Additional javascript resources `<jsfile1>;<jsfile2>;...`                         |
+| -m   | --multi   | disabled             | Generate each namespace documentation as a separate file                          |
+| -e   | --exclude | (from `project.clj`) | Exclude source file(s) from the document generation process `<file1>;<file2>;...` |
 
 ### Maven
 
@@ -97,6 +120,8 @@ I would like to thank Zachary Kim for taking a pile of incoherent code and makin
 
 I would also like to thank Justin Balthrop and Brenton Ashworth for their support and code contributions.
 
+Marginalia is currently maintained by Tim Macdonald and Sean Corfield.
+
 Notes
 -----
 
@@ -127,6 +152,9 @@ Marginalia is...
 - [Frederick Giasson](https://github.com/fgiasson)
 - [Michael Bloom](https://github.com/MichaelBlume)
 - [Tristan Strange](https://github.com/triss)
+- [Sean Corfield](https://github.com/seancorfield)
+- [Tim Macdonald](https://github.com/tsmacdonald)
+
 If I've missed your name then please ping me.
 
 License
