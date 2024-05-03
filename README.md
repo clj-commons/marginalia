@@ -57,18 +57,21 @@ And invoke it with `clojure -M:marginalia`. Without the alias, you could use `cl
 
 Marginalia accepts options as described below:
 
-| Flag |           | Default              | Description                                                                       |
-| ---- | --------- | -------------------- | ----------------------------------------------------------------------------------|
-| -d   | --dir     | `docs`               | Directory into which the documentation will be written                            |
-| -f   | --file    | `uberdoc.html`       | File into which the documentation will be written                                 |
-| -n   | --name    | (from `project.clj`) | Project name                                                                      |
-| -v   | --version | (from `project.clj`) | Project version                                                                   |
-| -D   | --desc    | (from `project.clj`) | Project description                                                               |
-| -a   | --deps    | (from `project.clj`) | Project dependencies in the form `<group1>:<artifact1>:<version1>;<group2>...`    |
-| -c   | --css     | (from `project.clj`) | Additional css resources `<resource1>;<resource2>;...`                            |
-| -j   | --js      | (from `project.clj`) | Additional javascript resources `<jsfile1>;<jsfile2>;...`                         |
-| -m   | --multi   | disabled             | Generate each namespace documentation as a separate file                          |
-| -e   | --exclude | (from `project.clj`) | Exclude source file(s) from the document generation process `<file1>;<file2>;...` |
+| Flag |             | Default                | Description                                                                       |
+| ---- | ----------- | ---------------------- | ----------------------------------------------------------------------------------|
+| -d   | --dir       | `./docs`               | Directory into which the documentation will be written                            |
+| -f   | --file      | `uberdoc.html`         | File into which the documentation will be written                                 |
+| -n   | --name      | (from `project.clj`)   | Project name                                                                      |
+| -v   | --version   | (from `project.clj`)   | Project version                                                                   |
+| -D   | --desc      | (from `project.clj`)   | Project description                                                               |
+| -a   | --deps      | (from `project.clj`)   | Project dependencies in the form `<group1>:<artifact1>:<version1>;<group2>...`    |
+| -c   | --css       | (from `project.clj`)   | Additional css resources `<resource1>;<resource2>;...`                            |
+| -j   | --js        | (from `project.clj`)   | Additional javascript resources `<jsfile1>;<jsfile2>;...`                         |
+| -m   | --multi     | disabled               | Generate each namespace documentation as a separate file                          |
+| -e   | --exclude   | (from `project.clj`)   | Exclude source file(s) from the document generation process `<file1>;<file2>;...` |
+| -l   | --leiningen |                        | Generate the documentation for a Leiningen project file                           |
+| -L   | --lift-in-line-comments   | disabled | Lift ;; inline comments to the top of the enclosing form.                         |
+| -X   | --exclude-lifted-comments | disabled | If inline comments are being lifted, then also exclude them from the source code display |
 
 ### Maven
 
