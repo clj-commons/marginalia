@@ -28,10 +28,10 @@
   :warn-on-reflection                    {:level :warning}
   :unresolved-symbol
   {:exclude
-   [(marginalia.test.helpers/with-project [number-of-generated-pages
-                                           project-name
-                                           doc-generator
-                                           tests])]}}
+   [number-of-generated-pages
+    project-name
+    doc-generator
+    tests]}}
 
  :lint-as
  {}
