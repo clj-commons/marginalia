@@ -1,12 +1,15 @@
 (ns marginalia.html
   "Utilities for converting parse results into html."
-  (:use [marginalia.hiccup :only (html escape-html)])
-  (:require [clojure.string :as str])
-  (:import [com.petebevin.markdown MarkdownProcessor]))
+  (:require
+   [marginalia.hiccup :as hiccup :refer [html]])
+  (:import
+   [com.petebevin.markdown MarkdownProcessor]))
 
-(def ^{:dynamic true} *resources* "./vendor/")
+(set! *warn-on-reflection* true)
 
-(defn css-rule [rule]
+(def ^{:dynamic true} *resources* "Directory in which to find resources (CSS, JS, etc.)" "./vendor/")
+
+(defn- css-rule [rule]
   (let [sels (reverse (rest (reverse rule)))
         props (last rule)]
     (str (apply str (interpose " " (map name sels)))
@@ -30,7 +33,7 @@
         (.getResourceAsStream resource-name)
         (java.io.InputStreamReader.)
         (slurp))
-    (catch java.lang.NullPointerException npe
+    (catch java.lang.NullPointerException _
       (println (str "Could not locate resources at " resource-name))
       (println "    ... attempting to fix.")
       (let [resource-name (str *resources* resource-name)]
@@ -39,18 +42,16 @@
               (.getResourceAsStream resource-name)
               (java.io.InputStreamReader.)
               (slurp))
-          (catch java.lang.NullPointerException npe
+          (catch java.lang.NullPointerException _
             (println (str "    STILL could not locate resources at " resource-name ". Giving up!"))))))))
 
-(defn inline-js [resource]
-  (let [src (slurp-resource resource)]
-    (html [:script {:type "text/javascript"}
-            src])))
+(defn- inline-js [resource]
+  (html [:script {:type "text/javascript"}
+         (slurp-resource resource)]))
 
-(defn inline-css [resource]
-  (let [src (slurp-resource resource)]
-    (html [:style {:type "text/css"}
-           (slurp-resource resource)])))
+(defn- inline-css [resource]
+  (html [:style {:type "text/css"}
+         (slurp-resource resource)]))
 
 
 
@@ -59,7 +60,7 @@
 ;; based) for display through html & css.
 
 ;; Markdown processor.
-(def mdp (com.petebevin.markdown.MarkdownProcessor.))
+(def ^:private ^MarkdownProcessor mdp (MarkdownProcessor.))
 
 (defn md
   "Markdown string to html converter. Translates strings like:
@@ -69,7 +70,7 @@
    \"## header!\" -> `\"<h2>header!</h2>\"`
 
    ..."
-  [s]
+  [^String s]
   (.markdown mdp s))
 
 ;; As a result of docifying then grouping, you'll end up with a seq like this one:
@@ -87,18 +88,17 @@
 
    ex. (docs-to-html [{:doc-text \"# hello world!\"} {:docstring-text \"I'm a docstring!}])
 
-   ->  `\"<h1>hello world!</h1><br />\"`
-   "
+   ->  `\"<h1>hello world!</h1><br />\"`"
   [docs]
   (-> docs
       str
       (md)))
 
-(defn codes-to-html [code-block]
+(defn- codes-to-html [code-block]
   (html [:pre {:class "brush: clojure"}
-         (escape-html code-block)]))
+         (hiccup/escape-html code-block)]))
 
-(defn section-to-html [section]
+(defn- section-to-html [section]
   (html [:tr
          [:td {:class "docs"} (docs-to-html
                                (if (= (:type section) :comment)
@@ -108,7 +108,7 @@
                                   (codes-to-html (:raw section))
                                   "")]]))
 
-(defn dependencies-html [deps & header-name]
+(defn- dependencies-html [deps & header-name]
   (when-let [deps (seq deps)]
     (let [header-name (or header-name "dependencies")]
       (html [:div {:class "dependencies"}
@@ -132,10 +132,8 @@
 (defn metadata-html
   "Generate meta tags from project info."
   [project-info]
-  (let [options (:marginalia project-info)
-        meta (:meta options)]
-    (html (when meta
-            (map #(vector :meta {:name (name (key %)) :contents (val %)}) meta)))))
+  (html (when-let [m (get-in project-info [:marginalia :meta])]
+          (map #(vector :meta {:name (name (key %)) :contents (val %)}) m))))
 
 ;; # Load Optional Resources
 ;; Use external Javascript and CSS in your documentation. For example:
@@ -165,18 +163,16 @@
 (defn opt-resources-html
   "Generate script and link tags for optional external javascript and css."
   [project-info]
-  (let [options (:marginalia project-info)
-        javascript (:javascript options)
-        css (:css options)]
+  (let [options    (:marginalia project-info)]
     (html (concat
-           (when javascript
-             (map #(vector :script {:type "text/javascript" :src %}) javascript))
-           (when css
-             (map #(vector :link {:tyle "text/css" :rel "stylesheet" :href %}) css))))))
+           (when-let [js (:javascript options)]
+             (map #(vector :script {:type "text/javascript" :src %}) js))
+           (when-let [the-css (:css options)]
+             (map #(vector :link {:tyle "text/css" :rel "stylesheet" :href %}) the-css))))))
 
 ;; Is &lt;h1/&gt; overloaded?  Maybe we should consider redistributing
 ;; header numbers instead of adding classes to all the h1 tags.
-(defn header-html [project-info]
+(defn- header-html [project-info]
   (html
    [:tr
     [:td {:class "docs"}
@@ -213,7 +209,7 @@
   [anchor?]
   (link-to-namespace "toc" anchor? {:class "toc-link"}))
 
-(defn toc-html [props docs]
+(defn- toc-html [props docs]
   (html
    [:tr
     [:td {:class "docs"}
@@ -224,7 +220,7 @@
             docs)]]]
     [:td {:class "codes"} "&nbsp;"]]))
 
-(defn floating-toc-html [docs]
+(defn- floating-toc-html [docs]
   [:div {:id "floating-toc"}
    [:ul
     (map #(vector :li {:class "floating-toc-li"
@@ -232,7 +228,7 @@
                   (:ns %))
          docs)]])
 
-(defn groups-html [props doc]
+(defn- groups-html [props doc]
   (html
    [:tr
     [:td {:class "docs"}
@@ -247,7 +243,7 @@
     [:td {:class "spacer docs"} "&nbsp;"]
     [:td {:class "codes"}]]))
 
-(def reset-css
+(def ^:private reset-css
   (css [:html {:margin 0 :padding 0}]
        [:h1 {:margin 0 :padding 0}]
        [:h2 {:margin 0 :padding 0}]
@@ -256,7 +252,7 @@
        [:a {:color "#261A3B"}]
        [:a:visited {:color "#261A3B"}]))
 
-(def header-css
+(def ^:private header-css
   (css [:.header {:margin-top "30px"}]
        [:h1.project-name {:font-size "34px"
                           :display "inline"}]
@@ -309,7 +305,7 @@
                        :padding-left 0}]
        [:.header :p {:margin-left "20px"}]))
 
-(def floating-toc-css
+(def ^:private floating-toc-css
   (css [:#floating-toc {:position "fixed"
                         :top "10px"
                         :right "20px"
@@ -320,7 +316,7 @@
                             :margin 0
                             :padding 0}]))
 
-(def general-css
+(def ^:private general-css
   (css
    [:body {:margin 0
            :padding 0
@@ -373,9 +369,10 @@
    [:.footer {:text-align "center"}]))
 
 (defn page-template
-  "Notice that we're inlining the css & javascript for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js`
-   & `inline-css`) to be able to package the output as a single file (uberdoc if you will).  It goes without
-   saying that all this is WIP and will probably change in the future."
+  "Notice that we're inlining the CSS and Javascript
+  for [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) (`inline-js` & `inline-css`) to be able to
+  package the output as a single file (uberdoc, if you will).  It goes without saying that all this is WIP and will
+  probably change in the future."
   [project-metadata opt-resources header toc content floating-toc]
   (html
    "<!DOCTYPE html>\n"
@@ -414,9 +411,9 @@
      (inline-js (str *resources* "app.js"))]]))
 
 
-;; Syntax highlighting is done a bit differently than docco.  Instead of embedding
-;; the highlighting metadata on the parse / html gen phase, we use [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/)
-;; to do it in javascript.
+;; Syntax highlighting is done a bit differently than docco. Instead of embedding the highlighting metadata on the
+;; parse / html gen phase, we use [SyntaxHighlighter](http://alexgorbatchev.com/SyntaxHighlighter/) to do it in
+;; Javascript.
 
 (defn uberdoc-html
   "This generates a stand alone html file (think `lein uberjar`).
@@ -431,6 +428,7 @@
    (floating-toc-html docs)))
 
 (defn index-html
+  "Generate the HTML for the index page (in multi-page mode)"
   [project-metadata docs]
   (page-template
    project-metadata
@@ -441,7 +439,8 @@
    "")) ;; no floating toc
 
 (defn single-page-html
-  [project-metadata doc all-docs]
+  "Generate a given page's HTML"
+  [project-metadata doc _all-docs]
   (page-template
    project-metadata
    (opt-resources-html project-metadata)
