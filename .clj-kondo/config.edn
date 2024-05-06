@@ -1,0 +1,50 @@
+{:linters
+ {:refer-all
+  {:exclude [clojure.test
+             marginalia.hiccup
+             marginalia.test.helpers]}
+
+  :refer
+  {:level   :warning
+   :exclude [clojure.test
+             marginalia.hiccup
+             marginalia.test.helpers]}
+
+  :docstring-leading-trailing-whitespace {:level :warning}
+  :keyword-binding                       {:level :warning}
+  :misplaced-docstring                   {:level :warning}
+  :missing-body-in-when                  {:level :warning}
+  :missing-docstring                     {:level :warning}
+  :missing-else-branch                   {:level :warning}
+  :namespace-name-mismatch               {:level :warning}
+  :non-arg-vec-return-type-hint          {:level :warning}
+  :reduce-without-init                   {:level :warning}
+  :redundant-fn-wrapper                  {:level :warning}
+  :shadowed-var                          {:level :warning}
+  :single-key-in                         {:level :warning}
+  :unsorted-required-namespaces          {:level :warning}
+  :use                                   {:level :warning}
+  :used-underscored-binding              {:level :warning}
+  :warn-on-reflection                    {:level :warning}
+  :unresolved-symbol
+  {:exclude
+   [(marginalia.test.helpers/with-project [number-of-generated-pages
+                                           project-name
+                                           doc-generator
+                                           tests])]}}
+
+ :lint-as
+ {}
+
+ :config-in-comment
+ {:linters {:unresolved-symbol {:level :off}}}
+
+ :ns-groups
+ ;; tests are anything that ends in `-test`
+ [{:pattern ".*-test$"
+   :name    tests}]
+
+ :config-in-ns
+ {tests
+  {:linters
+   {:missing-docstring {:level :off}}}}}
