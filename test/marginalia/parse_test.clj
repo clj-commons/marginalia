@@ -22,8 +22,8 @@
   (* x x))")
 
 (deftest test-parse-fn-docstring
-  (let [{:keys [type docstring]} (first (marginalia.parser/parse simple-fn))]
-    (is (= :code type))
+  (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse simple-fn))]
+    (is (= :code the-type))
     (is (= "the docstring" docstring))))
 
 (def reader-conditional-fn
@@ -34,8 +34,8 @@
      :cljs (js/Error. msg)))")
 
 (deftest test-reader-conditional
-  (let [{:keys [type docstring]} (first (marginalia.parser/parse reader-conditional-fn))]
-    (is (= :code type))
+  (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse reader-conditional-fn))]
+    (is (= :code the-type))
     (is (= "Returns a language-appropriate error" docstring))))
 
 (deftest inline-comments
