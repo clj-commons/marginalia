@@ -29,3 +29,16 @@ jobs:
         key: "m2-${{ hashFiles('project.clj') }}"
     - name: Run tests
       run: lein test
+  kondo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v4.1.0
+    - uses: DeLaGuardo/clojure-lint-action@master
+      with:
+        check-name: Run clj-kondo
+        clj-kondo-args: >-
+          --lint
+          src/marginalia
+          test
+        github_token: ${{ secrets.GITHUB_TOKEN }}
