@@ -35,9 +35,9 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string  :as str]
-   [clojure.tools.cli :refer [cli]]
-   [marginalia.html :refer [uberdoc-html index-html single-page-html]]
-   [marginalia.parser :refer [parse-file parse-ns *lift-inline-comments* *delete-lifted-comments*]])
+   [clojure.tools.cli :as cli]
+   [marginalia.html :as html]
+   [marginalia.parser :as parser])
   (:import
    (java.io File FileReader)))
 
@@ -45,7 +45,7 @@
 
 ;; ## File System Utilities
 
-(defn ls
+(defn- ls
   "Performs roughly the same task as the UNIX `ls`.  That is, returns a seq of the filenames
    at a given directory.  If a path to a file is supplied, then the seq contains only the
    original path given."
@@ -56,10 +56,10 @@
       (when (.exists file)
         [path]))))
 
-(defn mkdir [path]
+(defn- mkdir [path]
   (.mkdirs (io/file path)))
 
-(defn ensure-directory!
+(defn- ensure-directory!
   "Ensure that the directory specified by `path` exists.  If not then make it so.
    Here is a snowman ☃"
   [path]
@@ -71,12 +71,12 @@
   [path]
   (.isDirectory (io/file path)))
 
-(defn find-file-extension
+(defn- find-file-extension
   "Returns a string containing the files extension."
   [^File file]
   (second (re-find #"\.([^.]+)$" (.getName file))))
 
-(defn processable-file?
+(defn- processable-file?
   "Predicate. Returns true for \"normal\" files with a file extension which
   passes the provided predicate."
   [pred ^File file]
@@ -90,7 +90,7 @@
   (->> (io/file dir)
        (file-seq)
        (filter (partial processable-file? pred))
-       (sort-by parse-ns)
+       (sort-by parser/parse-ns)
        (map #(.getCanonicalPath ^File %))))
 
 ;; ## Project Info Parsing
@@ -127,66 +127,29 @@
               (if found-project?
                 (parse-project-form line)
                 (recur (read rdr))))))
-	(catch Exception e
+	(catch Exception _
           (throw (Exception.
                   (str
                    "There was a problem reading the project definition from "
                    path)))))))
 
-
-;; ## Source File Analysis
-
-;; TODO: why are these args unused?
-(defn end-of-block? [_cur-group _groups lines]
-  (let [line (first lines)
-        next-line (second lines)
-        next-line-code (get next-line :code-text "")]
-    (when (or (and (:code-text line)
-                   (:docs-text next-line))
-              (re-find #"^\(def" (str/trim next-line-code)))
-      true)))
-
-(defn merge-line [line m]
-  (cond
-   (:docstring-text line) (assoc m
-                            :docs
-                            (conj (get m :docs []) line))
-   (:code-text line)      (assoc m
-                            :codes
-                            (conj (get m :codes []) line))
-   (:docs-text line)      (assoc m
-                            :docs
-                            (conj (get m :docs []) line))))
-
-(defn group-lines [doc-lines]
-  (loop [cur-group {}
-         groups []
-         lines doc-lines]
-    (cond
-     (empty? lines) (conj groups cur-group)
-
-     (end-of-block? cur-group groups lines)
-     (recur (merge-line (first lines) {}) (conj groups cur-group) (rest lines))
-
-     :else (recur (merge-line (first lines) cur-group) groups (rest lines)))))
-
-(defn path-to-doc [filename]
-  {:ns     (parse-ns (io/file filename))
-   :groups (parse-file filename)})
-
-
 ;; ## Output Generation
 
-(defn filename-contents
+(defn- path-to-doc [filename]
+  {:ns     (parser/parse-ns (io/file filename))
+   :groups (parser/parse-file filename)})
+
+(defn- filename-contents
   [props output-dir all-files parsed-file]
   {:name     (io/file output-dir (str (:ns parsed-file) ".html"))
-   :contents (single-page-html props parsed-file all-files)})
+   :contents (html/single-page-html props parsed-file all-files)})
 
 (defn multidoc!
+  "Generate documentation for the given `files-to-analyze`, write the doc files to disk in the `output-dir`"
   [output-dir files-to-analyze props]
   (let [parsed-files (map path-to-doc files-to-analyze)
-        index (index-html props parsed-files)
-        pages (map #(filename-contents props output-dir parsed-files %) parsed-files)]
+        index        (html/index-html props parsed-files)
+        pages        (map #(filename-contents props output-dir parsed-files %) parsed-files)]
     (doseq [f (conj pages {:name     (io/file output-dir "toc.html")
                            :contents index})]
            (spit (:name f) (:contents f)))))
@@ -200,7 +163,7 @@
      - :name
      - :version"
   [output-file-name files-to-analyze props]
-  (let [source (uberdoc-html
+  (let [source (html/uberdoc-html
                 props
                 (map path-to-doc files-to-analyze))]
     (spit output-file-name source)))
@@ -224,7 +187,7 @@
                     (find-processable-file-paths % file-extensions)
                     [(.getCanonicalPath (io/file %))])))))
 
-(defn split-deps [deps]
+(defn- split-deps [deps]
   (when deps
     (for [d (str/split deps #";")
           :let [[group artifact version] (str/split d #":")]]
@@ -253,41 +216,43 @@
 
    If no source files are found, complain with a usage message."
   [args & [project]]
-  (let [[{:keys [dir file name version desc deps css js multi
+  (let [[{:keys [dir file version desc deps css js multi
                  leiningen exclude
-                 lift-inline-comments exclude-lifted-comments]} files help]
-        (cli args
-             ["-d" "--dir"
-              "Directory into which the documentation will be written" :default "./docs"]
-             ["-f" "--file"
-              "File into which the documentation will be written" :default "uberdoc.html"]
-             ["-n" "--name"
-              "Project name - if not given will be taken from project.clj"]
-             ["-v" "--version"
-              "Project version - if not given will be taken from project.clj"]
-             ["-D" "--desc"
-              "Project description - if not given will be taken from project.clj"]
-             ["-a" "--deps"
-              "Project dependencies in the form <group1>:<artifact1>:<version1>;<group2>...
+                 lift-inline-comments exclude-lifted-comments]
+          project-name :name}
+         files help]
+        (cli/cli args
+                 ["-d" "--dir"
+                  "Directory into which the documentation will be written" :default "./docs"]
+                 ["-f" "--file"
+                  "File into which the documentation will be written" :default "uberdoc.html"]
+                 ["-n" "--name"
+                  "Project name - if not given will be taken from project.clj"]
+                 ["-v" "--version"
+                  "Project version - if not given will be taken from project.clj"]
+                 ["-D" "--desc"
+                  "Project description - if not given will be taken from project.clj"]
+                 ["-a" "--deps"
+                  "Project dependencies in the form <group1>:<artifact1>:<version1>;<group2>...
                  If not given will be taken from project.clj"]
-             ["-c" "--css"
-              "Additional css resources <resource1>;<resource2>;...
+                 ["-c" "--css"
+                  "Additional css resources <resource1>;<resource2>;...
                  If not given will be taken from project.clj."]
-             ["-j" "--js"
-              "Additional javascript resources <resource1>;<resource2>;...
+                 ["-j" "--js"
+                  "Additional javascript resources <resource1>;<resource2>;...
                  If not given will be taken from project.clj"]
-             ["-m" "--multi"
-              "Generate each namespace documentation as a separate file" :flag true]
-             ["-l" "--leiningen"
-              "Generate the documentation for a Leiningen project file."]
-             ["-e" "--exclude"
-              "Exclude source file(s) from the document generation process <file1>;<file2>;...
+                 ["-m" "--multi"
+                  "Generate each namespace documentation as a separate file" :flag true]
+                 ["-l" "--leiningen"
+                  "Generate the documentation for a Leiningen project file."]
+                 ["-e" "--exclude"
+                  "Exclude source file(s) from the document generation process <file1>;<file2>;...
                  If not given will be taken from project.clj"]
-             ["-L" "--lift-inline-comments"
-              "Lift ;; inline comments to the top of the enclosing form.
+                 ["-L" "--lift-inline-comments"
+                  "Lift ;; inline comments to the top of the enclosing form.
                  They will be treated as if they preceded the enclosing form." :flag true]
-             ["-X" "--exclude-lifted-comments"
-              "If ;; inline comments are being lifted into documentation
+                 ["-X" "--exclude-lifted-comments"
+                  "If ;; inline comments are being lifted into documentation
                  then also exclude them from the source code display." :flag true])
         sources (distinct (format-sources (seq files)))
         sources (if leiningen (cons leiningen sources) sources)]
@@ -295,8 +260,8 @@
       (do
         (println "Wrong number of arguments passed to Marginalia.")
         (println help))
-      (binding [*lift-inline-comments*   lift-inline-comments
-                *delete-lifted-comments* exclude-lifted-comments]
+      (binding [parser/*lift-inline-comments*   lift-inline-comments
+                parser/*delete-lifted-comments* exclude-lifted-comments]
         (let [project-clj (or project
                               (when (.exists (io/file "project.clj"))
                                 (parse-project-file)))
@@ -308,7 +273,7 @@
                                      :leiningen  leiningen}
                                     (:marginalia project-clj))
               opts (merge-with choose
-                               {:name         name
+                               {:name         project-name
                                 :version      version
                                 :description  desc
                                 :dependencies (split-deps deps)
