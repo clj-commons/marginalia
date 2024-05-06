@@ -1,23 +1,39 @@
 (ns marginalia.hiccup
   "Library for rendering a tree of vectors into a string of HTML.
   Pre-compiles where possible for performance."
-  (:import [clojure.lang IPersistentVector ISeq]
-           java.net.URI))
+  (:import
+   [clojure.lang IPersistentVector ISeq]
+   [java.net URI]))
 
-;; Pulled from old-contrib to avoid dependency
+(set! *warn-on-reflection* true)
+
 (defn as-str
+  "Very similar to `clojure.core/str`, but uses `name` instead of `str` when possible:
+
+   ```
+   (for [x [{:a 1 :b 2} :foo \"bar\"]]
+     {:as-str (as-str x)
+      :str   (str x)})
+   ;; =>
+   ({:as-str \"{:a 1, :b 2}\"
+     :str    \"{:a 1, :b 2}\"},
+    {:as-str \"foo\"
+     :str    \":foo\"},
+    {:as-str \"bar\"
+     :str    \"bar\"})
+   ```"
   ([] "")
   ([x] (if (instance? clojure.lang.Named x)
          (name x)
          (str x)))
   ([x & ys]
-     ((fn [^StringBuilder sb more]
-        (if more
-          (recur (. sb  (append (as-str (first more)))) (next more))
-          (str sb)))
-      (new StringBuilder ^String (as-str x)) ys)))
+   ((fn [^StringBuilder sb more]
+      (if more
+        (recur (. sb  (append (as-str (first more)))) (next more))
+        (str sb)))
+    (new StringBuilder ^String (as-str x)) ys)))
 
-(def ^:dynamic *html-mode* :xml)
+(def ^:dynamic *html-mode* "TODO: where is this used? :O":xml)
 
 (defn escape-html
   "Change special characters into HTML character entities."
@@ -28,27 +44,25 @@
     (replace ">"  "&gt;")
     (replace "\"" "&quot;")))
 
-(def h escape-html)  ; alias for escape-html
-
 (defn- xml-mode? []
   (= *html-mode* :xml))
 
 (defn- end-tag []
   (if (xml-mode?) " />" ">"))
 
-(defn- xml-attribute [name value]
-  (str " " (as-str name) "=\"" (escape-html value) "\""))
+(defn- xml-attribute [attr-name value]
+  (str " " (as-str attr-name) "=\"" (escape-html value) "\""))
 
-(defn- render-attribute [[name value]]
+(defn- render-attribute [[attr-name value]]
   (cond
     (true? value)
       (if (xml-mode?)
-        (xml-attribute name name)
-        (str " " (as-str name)))
+        (xml-attribute attr-name attr-name)
+        (str " " (as-str attr-name)))
     (not value)
       ""
     :else
-      (xml-attribute name value)))
+      (xml-attribute attr-name value)))
 
 (defn- render-attr-map [attrs]
   (apply str
@@ -60,17 +74,19 @@
 (def ^{:doc "A list of tags that need an explicit ending tag when rendered." :private true}
   container-tags
   #{"a" "b" "body" "canvas" "dd" "div" "dl" "dt" "em" "fieldset" "form" "h1" "h2" "h3"
-    "h4" "h5" "h6" "head" "html" "i" "iframe" "label" "li" "ol" "option" "pre" 
+    "h4" "h5" "h6" "head" "html" "i" "iframe" "label" "li" "ol" "option" "pre"
     "script" "span" "strong" "style" "table" "textarea" "ul"})
 
 (defn- normalize-element
   "Ensure a tag vector is of the form [tag-name attrs content]."
   [[tag & content]]
-  (when (not (or (keyword? tag) (symbol? tag) (string? tag)))
+  (when (not (or (keyword? tag)
+                 (symbol? tag)
+                 (string? tag)))
     (throw (IllegalArgumentException. (str tag " is not a valid tag name."))))
-  (let [[_ tag id class] (re-matches re-tag (as-str tag))
-        tag-attrs        {:id id
-                          :class (if class (.replace ^String class "." " "))}
+  (let [[_ tag id klass] (re-matches re-tag (as-str tag))
+        tag-attrs        {:id    id
+                          :class (when klass (.replace ^String klass "." " "))}
         map-attrs        (first content)]
     (if (map? map-attrs)
       [tag (merge tag-attrs map-attrs) (next content)]
@@ -119,7 +135,8 @@
 (defn- form-name
   "Get the name of the supplied form."
   [form]
-  (if (and (seq? form) (symbol? (first form)))
+  (when (and (seq? form)
+             (symbol? (first form)))
     (name (first form))))
 
 (defmulti compile-form
@@ -141,15 +158,15 @@
 
 (defn- not-hint?
   "True if x is not hinted to be the supplied type."
-  [x type]
-  (if-let [hint (-> x meta :tag)]
-    (not (isa? (eval hint) type))))
+  [x the-type]
+  (when-let [hint (-> x meta :tag)]
+    (not (isa? (eval hint) the-type))))
 
 (defn- hint?
   "True if x is hinted to be the supplied type."
-  [x type]
-  (if-let [hint (-> x meta :tag)]
-    (isa? (eval hint) type)))
+  [x the-type]
+  (when-let [hint (-> x meta :tag)]
+    (isa? (eval hint) the-type)))
 
 (defn- literal?
   "True if x is a literal value that can be rendered as-is."
@@ -167,7 +184,7 @@
 
 (defn- element-compile-strategy
   "Returns the compilation strategy to use for a given element."
-  [[tag attrs & content :as element]]
+  [[tag attrs & _ :as element]]
   (cond
     (every? literal? element)
       ::all-literal                    ; e.g. [:span "foo"]
@@ -272,10 +289,10 @@
 
 (defmacro defhtml
   "Define a function, but wrap its output in an implicit html macro."
-  [name & fdecl]
+  [fn-name & fdecl]
   (let [[fhead fbody] (split-with #(not (or (list? %) (vector? %))) fdecl)
         wrap-html (fn [[args & body]] `(~args (html ~@body)))]
-    `(defn ~name
+    `(defn ~fn-name
        ~@fhead
        ~@(if (vector? (first fbody))
            (wrap-html fbody)
@@ -293,14 +310,13 @@
       (apply func args))))
 
 (defmacro defelem
-  "Defines a function that will return a tag vector. If the first argument
-  passed to the resulting function is a map, it merges it with the attribute
-  map of the returned tag value."
-  [name & fdecl]
-  `(do (defn ~name ~@fdecl)
+  "Defines a function that will return a tag vector. If the first argument passed to the resulting function is a map, it
+  merges it with the attribute map of the returned tag value."
+  [fn-name & fdecl]
+  `(do (defn ~fn-name ~@fdecl)
        (alter-var-root (var ~name) add-optional-attrs)))
 
-(def ^:dynamic *base-url* nil)
+(def ^:dynamic *base-url* "Base URL to prepend to URIs (if supplied)" nil)
 
 (defmacro with-base-url
   "Add a base-url that will be added to the output of the resolve-uri function."
