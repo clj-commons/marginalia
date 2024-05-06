@@ -57,7 +57,7 @@
        (.mkdirs (io/file ~test-project-target))
        (binding [html/*resources* ""]
          (~doc-generator ~test-project-src ~test-project-target ~test-metadata))
-       (let [~'number-of-generated-pages (count (io/files-in ~test-project-target))]
+       (let [~'number-of-generated-pages (count (files-in ~test-project-target))]
          ;; We need to `deftest` in order for test runners (e.g. `lein test`) to pick up failures
          (deftest ~(gensym (str project-name "-"))
            ~@tests))
