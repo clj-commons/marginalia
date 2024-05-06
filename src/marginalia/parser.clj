@@ -3,19 +3,23 @@
 ;; Clojure parsing solution.
 (ns marginalia.parser
   "Provides the parsing facilities for Marginalia."
-  (:refer-clojure :exclude [replace])
   (:require
-   [cljs.tagged-literals :refer [*cljs-data-readers*]]
-   [clojure.string :refer [join replace lower-case]]
-   [clojure.tools.namespace :refer [read-file-ns-decl]]))
+   [cljs.tagged-literals :as cljs]
+   [clojure.string :as str]
+   [clojure.tools.namespace :as tools.ns])
+  (:import
+   [clojure.lang LineNumberingPushbackReader LispReader]
+   [java.io File Reader Writer]))
 
+(set! *warn-on-reflection* true)
 
 ;; Extracted from clojure.contrib.reflect
 (defn get-field
   "Access to private or protected field.  field-name is a symbol or
   keyword."
-  [klass field-name obj]
-  (-> klass (.getDeclaredField (name field-name))
+  [^Class klass field-name obj]
+  (->  klass
+      (.getDeclaredField (name field-name))
       (doto (.setAccessible true))
       (.get obj)))
 
@@ -29,26 +33,27 @@
    obj is nil for static methods, the instance object otherwise.
 
    The method-name is given a symbol or a keyword (something Named)."
-  [klass method-name params obj & args]
-  (-> klass (.getDeclaredMethod (name method-name)
-                                (into-array Class params))
+  [^Class klass method-name params obj & args]
+  (-> klass
+      (.getDeclaredMethod (name method-name)
+                          (into-array Class params))
       (doto (.setAccessible true))
       (.invoke obj (into-array Object args))))
 
 (defrecord Comment [content])
 
-(defmethod print-method Comment [comment ^String out]
-  (.write out (str \" (.content comment) \")))
+(defmethod print-method Comment [^Comment the-comment ^Writer out]
+  (.write out (str \" (.content the-comment) \")))
 
-(def top-level-comments (atom []))
-(def sub-level-comments (atom []))
+(def ^:private top-level-comments (atom []))
+(def ^:private sub-level-comments (atom []))
 
-(def ^{:dynamic true} *comments* nil)
-(def ^{:dynamic true} *comments-enabled* nil)
-(def ^{:dynamic true} *lift-inline-comments* nil)
-(def ^{:dynamic true} *delete-lifted-comments* nil)
+(def ^:dynamic *comments* "TODO: document" nil)
+(def ^:dynamic *comments-enabled* "TODO: document" nil)
+(def ^:dynamic *lift-inline-comments* "TODO: document" nil)
+(def ^:dynamic *delete-lifted-comments*"TODO: document" nil)
 
-(defn comments-enabled?
+(defn- comments-enabled?
   []
   @*comments-enabled*)
 
@@ -77,8 +82,8 @@
       (directive))
     (not directive)))
 
-(defn read-comment
-  ([reader semicolon]
+(defn- read-comment
+  ([^LineNumberingPushbackReader reader semicolon]
    (let [sb (StringBuilder.)]
      (.append sb semicolon)
      (loop [c (.read reader)]
@@ -97,17 +102,17 @@
            (do
              (.append sb (Character/toString ch))
              (recur (.read reader))))))))
-  ([reader semicolon opts pending]
+  ([^Reader reader semicolon _opts _pending] ;; TODO: who uses this?
    (read-comment reader semicolon)))
 
-(defn set-comment-reader [reader]
-  (aset (get-field clojure.lang.LispReader :macros nil)
+(defn- set-comment-reader [^Reader reader]
+  (aset ^"[Lclojure.lang.IFn;" (get-field LispReader :macros nil)
         (int \;)
         reader))
 
 (defrecord DoubleColonKeyword [content])
 
-(defmethod print-method DoubleColonKeyword [dck ^java.io.Writer out]
+(defmethod print-method DoubleColonKeyword [^DoubleColonKeyword dck ^java.io.Writer out]
   (.write out (str \: (.content dck))))
 
 (defmethod print-dup DoubleColonKeyword [dck ^java.io.Writer out]
@@ -126,16 +131,16 @@
 ;;; else we will crash and fail people's builds.
 (if-let [resolver-var (resolve '*reader-resolver*)]
   (defn ^:private match-symbol [s]
-    (call-method clojure.lang.LispReader :matchSymbol
+    (call-method LispReader :matchSymbol
                  [String, (Class/forName "clojure.lang.LispReader$Resolver")]
                  nil s (deref resolver-var)))
   (defn ^:private match-symbol [s]
-    (call-method clojure.lang.LispReader :matchSymbol
+    (call-method LispReader :matchSymbol
                  [String]
                  nil s)))
 
-(defn read-keyword
-  ([reader colon]
+(defn- read-keyword
+  ([^LineNumberingPushbackReader reader colon]
    (let [c (.read reader)]
      (if (= (int \:) c)
        (-> (read-token reader (char c))
@@ -144,28 +149,34 @@
        (do (.unread reader c)
            (-> (read-token reader colon)
                match-symbol)))))
-  ([reader colon opts pending]
+  ([^LineNumberingPushbackReader reader colon _opts _pending] ;; TODO: who uses this?
    (read-keyword reader colon)))
 
-(defn set-keyword-reader [reader]
-  (aset (get-field clojure.lang.LispReader :macros nil)
+(defn- set-keyword-reader [reader]
+  (aset ^"[Lclojure.lang.IFn;" (get-field LispReader :macros nil)
         (int \:)
         reader))
 
-(defn skip-spaces-and-comments [rdr]
+(defn- skip-spaces-and-comments [^LineNumberingPushbackReader rdr]
   (loop [c (.read rdr)]
-    (cond (= c -1) nil
-          (= (char c) \;)
-          (do (read-comment rdr \;)
-              (recur (.read rdr)))
-          (#{\space \tab \return \newline \,} (char c))
-          (recur (.read rdr))
-          :else (.unread rdr c))))
+    (cond
+      (= c -1)
+      nil
+
+      (= (char c) \;)
+      (do (read-comment rdr \;)
+          (recur (.read rdr)))
+
+      (#{\space \tab \return \newline \,} (char c))
+      (recur (.read rdr))
+
+      :else
+      (.unread rdr c))))
 
 (declare adjacent?)
 (declare merge-comments)
 
-(defn parse* [reader]
+(defn- parse* [^LineNumberingPushbackReader reader]
   (take-while
    #(not= :_eof (:form %))
    (flatten
@@ -173,67 +184,67 @@
      (fn []
        (binding [*comments* top-level-comments]
          (skip-spaces-and-comments reader))
-       (let [start (.getLineNumber reader)
-             form (binding [*comments* sub-level-comments]
-                    (try (. clojure.lang.LispReader
-                            (read reader {:read-cond :allow
-                                          :eof       :_eof}))
-                         (catch Exception ex
-                           (let [msg (str "Problem parsing near line " start
-                                          " <" (.readLine reader) ">"
-                                          " original reported cause is "
-                                          (.getCause ex) " -- "
-                                          (.getMessage ex))
-                                 e (RuntimeException. msg)]
-                             (.setStackTrace e (.getStackTrace ex))
-                             (throw e)))))
-             end (.getLineNumber reader)
-             code {:form form :start start :end end}
+       (let [start                 (.getLineNumber reader)
+             form                  (binding [*comments* sub-level-comments]
+                                     (try (. LispReader
+                                             (read reader {:read-cond :allow
+                                                           :eof       :_eof}))
+                                          (catch Exception ex
+                                            (let [msg (str "Problem parsing near line " start
+                                                           " <" (.readLine reader) ">"
+                                                           " original reported cause is "
+                                                           (.getCause ex) " -- "
+                                                           (.getMessage ex))
+                                                  e (RuntimeException. msg)]
+                                              (.setStackTrace e (.getStackTrace ex))
+                                              (throw e)))))
+             end                   (.getLineNumber reader)
+             code                  {:form form :start start :end end}
              ;; We optionally lift inline comments to the top of the form.
              ;; This monstrosity ensures that each consecutive group of inline
              ;; comments is treated as a mergable block, but with a fake
              ;; blank comment between non-adjacent inline comments. When merged
              ;; and converted to markdown, this will produce a paragraph for
              ;; each separate block of inline comments.
-             paragraph-comment {:form (Comment. ";;")
-                                :text [";;"]}
+             paragraph-comment     {:form (Comment. ";;")
+                                    :text [";;"]}
              merge-inline-comments (fn [cs c]
                                      (if (re-find #"^;(\s|$)"
-                                                  (.content (:form c)))
+                                                  (.content ^Comment (:form c)))
                                        cs
                                        (if-let [t (peek cs)]
                                          (if (adjacent? t c)
                                            (conj cs c)
                                            (conj cs paragraph-comment c))
                                          (conj cs c))))
-             inline-comments (when (and *lift-inline-comments*
-                                        (seq @sub-level-comments))
-                               (cond->> (reduce merge-inline-comments
-                                                []
-                                                @sub-level-comments)
-                                 (seq @top-level-comments)
-                                 (into [paragraph-comment])
-                                 true
-                                 (mapv #(assoc % :start start :end (dec start)))))
-             comments (concat @top-level-comments inline-comments)]
+             inline-comments       (when (and *lift-inline-comments*
+                                              (seq @sub-level-comments))
+                                     (cond->> (reduce merge-inline-comments
+                                                      []
+                                                      @sub-level-comments)
+                                       (seq @top-level-comments)
+                                       (into [paragraph-comment])
+                                       true
+                                       (mapv #(assoc % :start start :end (dec start)))))
+             comments              (concat @top-level-comments inline-comments)]
          (swap! top-level-comments (constantly []))
          (swap! sub-level-comments (constantly []))
          (if (empty? comments)
            [code]
            (vec (concat comments [code])))))))))
 
-(defn strip-docstring [docstring raw]
+(defn- strip-docstring [docstring raw]
   (-> raw
-      (replace (str \" (-> docstring
-                           str
-                           (replace "\"" "\\\""))
-                    \")
-               "")
-      (replace #"#?\^\{\s*:doc\s*\}" "")
-      (replace #"\n\s*\n" "\n")
-      (replace #"\n\s*\)" ")")))
+      (str/replace (str \" (-> docstring
+                               str
+                               (str/replace "\"" "\\\""))
+                        \")
+                   "")
+      (str/replace #"#?\^\{\s*:doc\s*\}" "")
+      (str/replace #"\n\s*\n" "\n")
+      (str/replace #"\n\s*\)" ")")))
 
-(defn get-var-docstring [nspace-sym sym]
+(defn- get-var-docstring [nspace-sym sym]
   (let [s (if nspace-sym
             (symbol (str nspace-sym) (str sym))
             (symbol (str sym)))]
@@ -242,34 +253,40 @@
       ;; HACK: to handle types
       (catch Exception _))))
 
-(defmulti dispatch-form (fn [form _ _]
-                          (if (seq? form) (first form) form)))
+(defmulti dispatch-form "TODO: document"
+  (fn [form _ _]
+    (if (seq? form)
+      (first form)
+      form)))
 
 (defn- extract-common-docstring
   [form raw nspace-sym]
   (let [sym (second form)]
     (if (symbol? sym)
-      (let [maybe-metadocstring (:doc (meta sym))]
-        (let [nspace (find-ns sym)
-              [maybe-ds remainder] (let [[_ _ ? & more?] form] [? more?])
-              docstring (if (and (string? maybe-ds) remainder)
-                          maybe-ds
-                          (if (= (first form) 'ns)
-                            (if (not maybe-metadocstring)
-                              (when (string? maybe-ds) maybe-ds)
-                              maybe-metadocstring)
-                            (if-let [ds maybe-metadocstring]
-                              ds
-                              (when nspace
-                                (-> nspace meta :doc)
-                                (get-var-docstring nspace-sym sym)))))]
-          [(when docstring
-             ;; Exclude flush left docstrings from adjustment:
-             (if (re-find #"\n[^\s]" docstring)
-               docstring
-               (replace docstring #"\n  " "\n")))
-           (strip-docstring docstring raw)
-           (if (or (= 'ns (first form)) nspace) sym nspace-sym)]))
+      (let [maybe-metadocstring  (:doc (meta sym))
+            nspace               (find-ns sym)
+            [maybe-ds remainder] (let [[_ _ ? & more?] form] [? more?])
+            docstring            (if (and (string? maybe-ds) remainder)
+                                   maybe-ds
+                                   (if (= (first form) 'ns)
+                                     (if (not maybe-metadocstring)
+                                       (when (string? maybe-ds) maybe-ds)
+                                       maybe-metadocstring)
+                                     (if-let [ds maybe-metadocstring]
+                                       ds
+                                       (when nspace
+                                         (-> nspace meta :doc)
+                                         (get-var-docstring nspace-sym sym)))))]
+        [#_form
+         (when docstring
+           ;; Exclude flush left docstrings from adjustment:
+           (if (re-find #"\n[^\s]" docstring)
+             docstring
+             (str/replace docstring #"\n  " "\n")))
+         #_raw
+         (strip-docstring docstring raw)
+         #_nspace-sym
+         (if (or (= 'ns (first form)) nspace) sym nspace-sym)])
       [nil raw nspace-sym])))
 
 (defn- extract-impl-docstring
@@ -278,25 +295,25 @@
 
 (defn- extract-internal-docstrings
   [body]
-  (mapcat #(extract-impl-docstring %)
+  (mapcat extract-impl-docstring
           body))
 
 (defmethod dispatch-form 'defprotocol
   [form raw nspace-sym]
-  (let [[ds r s] (extract-common-docstring form raw nspace-sym)
+  (let [[ds r s]      (extract-common-docstring form raw nspace-sym)
         ;; Clojure 1.10 added `:extend-via-metadata` to the `defprotocol` macro.
         ;; If the flag is present, `extract-internal-docstrings` needs to start
         ;; 2 forms later, to account for the presence of a keyword,
         ;; `:extend-via-metadata` and a boolean `true` in the macro body.
-        evm      (contains? (set form) :extend-via-metadata)]
-    (let [internal-dses (cond
-                          (and evm ds) (extract-internal-docstrings (nthnext form 5))
-                          evm          (extract-internal-docstrings (nthnext form 4))
-                          ds           (extract-internal-docstrings (nthnext form 3))
-                          :else        (extract-internal-docstrings (nthnext form 2)))]
-      (with-meta
-        [ds r s]
-        {:internal-docstrings internal-dses}))))
+        evm           (contains? (set form) :extend-via-metadata)
+        internal-dses (cond
+                        (and evm ds) (extract-internal-docstrings (nthnext form 5))
+                        evm          (extract-internal-docstrings (nthnext form 4))
+                        ds           (extract-internal-docstrings (nthnext form 3))
+                        :else        (extract-internal-docstrings (nthnext form 2)))]
+    (with-meta
+      [ds r s]
+      {:internal-docstrings internal-dses})))
 
 (defmethod dispatch-form 'ns
   [form raw nspace-sym]
@@ -319,10 +336,10 @@
   (extract-common-docstring form raw nspace-sym))
 
 (defmethod dispatch-form 'defmethod
-  [form raw nspace-sym]
+  [_form raw nspace-sym]
   [nil raw nspace-sym])
 
-(defn dispatch-inner-form
+(defn- dispatch-inner-form
   [form raw nspace-sym]
   (conj
    (reduce (fn [[adoc araw] inner-form]
@@ -337,7 +354,7 @@
    nspace-sym))
 
 (defn- dispatch-literal
-  [form raw nspace-sym]
+  [_form raw _nspace-sym]
   [nil raw])
 
 (defn- literal-form? [form]
@@ -355,25 +372,25 @@
         :else
           (dispatch-inner-form form raw nspace-sym)))
 
-(defn extract-docstring [{:keys [start end form]} raw-lines nspace-sym]
-  (let [new-lines (join "\n" (subvec raw-lines (dec start) (min end (count raw-lines))))]
+(defn- extract-docstring [{:keys [start end form]} raw-lines nspace-sym]
+  (let [new-lines (str/join "\n" (subvec raw-lines (dec start) (min end (count raw-lines))))]
     (dispatch-form form new-lines nspace-sym)))
 
-(defn- ->str [m]
-  (-> (-> m :form .content)
-      (replace #"^;+\s(\s*)" "$1")
-      (replace #"^;+" "")))
+(defn- ->str [{:keys [form]}]
+  (-> (.content ^Comment form)
+      (str/replace #"^;+\s(\s*)" "$1")
+      (str/replace #"^;+" "")))
 
-(defn merge-comments [f s]
+(defn- merge-comments [f s]
   {:form (Comment. (str (->str f) "\n" (->str s)))
    :text (into (:text f) (:text s))
    :start (:start f)
    :end (:end s)})
 
-(defn comment? [{:keys [form]}]
+(defn- comment? [{:keys [form]}]
   (instance? Comment form))
 
-(defn code? [{:keys [form] :as o}]
+(defn- code? [{:keys [form] :as o}]
   (and (not (nil? form))
        (not (comment? o))))
 
@@ -382,7 +399,7 @@
   [{:keys [end] :as _first} {:keys [start] :as _second}]
   (= end (dec start)))
 
-(defn arrange-in-sections [parsed-code raw-code]
+(defn- arrange-in-sections [parsed-code raw-code]
   (loop [sections []
          f        (first parsed-code)
          s        (second parsed-code)
@@ -391,7 +408,7 @@
     (if f
       (cond
         ;; ignore comments with only one semicolon
-        (and (comment? f) (re-find #"^;(\s|$)" (-> f :form .content)))
+        (and (comment? f) (re-find #"^;(\s|$)" (.content ^Comment (:form f))))
         (recur sections s (first nn) (next nn) nspace)
         ;; merging comments block
         (and (comment? f) (comment? s) (adjacent? f s))
@@ -416,13 +433,13 @@
                                         ;; this is far from perfect but should work
                                         ;; for most cases: erase matching comments
                                         ;; and then remove lines that are blank
-                                        (-> (reduce (fn [raw comment]
-                                                      (replace raw
-                                                               (str comment "\n")
-                                                               "\n"))
+                                        (-> (reduce (fn [raw the-comment]
+                                                      (str/replace raw
+                                                                   (str the-comment "\n")
+                                                                   "\n"))
                                                     code
                                                     (:text f))
-                                            (replace #"\n\s+\n" "\n"))
+                                            (str/replace #"\n\s+\n" "\n"))
                                         code)
                                  :docstring (str doc "\n\n" (->str f)))
                  (first nn) (next nn) nspace))
@@ -443,12 +460,14 @@
                  s (first nn) (next nn) nspace)))
       sections)))
 
-(defn parse [source-string]
+(defn parse
+  "Return a parse tree for the given code (provided as a string)"
+  [source-string]
   (let [make-reader #(java.io.BufferedReader.
                       (java.io.StringReader. (str source-string "\n")))
         lines       (vec (line-seq (make-reader)))
         reader      (clojure.lang.LineNumberingPushbackReader. (make-reader))
-        old-cmt-rdr (aget (get-field clojure.lang.LispReader :macros nil) (int \;))]
+        old-cmt-rdr (aget ^"[Lclojure.lang.IFn;" (get-field LispReader :macros nil) (int \;))]
     (try
       (set-comment-reader read-comment)
       (set-keyword-reader read-keyword)
@@ -461,33 +480,37 @@
         (set-keyword-reader nil)
         (throw e)))))
 
-(defn cljs-file? [filepath]
-  (.endsWith (lower-case filepath) "cljs"))
+(defn- cljs-file? [filepath]
+  (str/ends-with? (str/lower-case filepath) "cljs"))
 
-(defn cljx-file? [filepath]
-  (.endsWith (lower-case filepath) "cljx"))
+(defn- cljx-file? [filepath]
+  (str/ends-with? (str/lower-case filepath) "cljx"))
 
-(def cljx-data-readers {'+clj identity
+(def ^:private cljx-data-readers {'+clj identity
                         '+cljs identity})
 
-(defmacro with-readers-for [file & body]
+(defmacro ^:private with-readers-for [file & body]
   `(let [readers# (merge {}
-                        (when (cljs-file? ~file) *cljs-data-readers*)
+                        (when (cljs-file? ~file) cljs/*cljs-data-readers*)
                         (when (cljx-file? ~file) cljx-data-readers)
                         default-data-readers)]
      (binding [*data-readers* readers#]
        ~@body)))
 
-(defn parse-file [fn]
-  (with-readers-for fn
+(defn parse-file
+  "Return a parse tree for the given `filename`"
+  [filename]
+  (with-readers-for filename
     (binding [*comments-enabled* (atom true)]
-      (parse (slurp fn)))))
+      (parse (slurp filename)))))
 
-(defn parse-ns [file]
+(defn parse-ns
+  "Return a parse tree for all the files in the namespace"
+  [^File file]
   (let [filename (.getName file)]
     (with-readers-for filename
-                      (or (not-empty (-> file
-                                         (read-file-ns-decl)
-                                         (second)
-                                         (str)))
-                          filename))))
+      (or (not-empty (-> file
+                         (tools.ns/read-file-ns-decl)
+                         (second)
+                         (str)))
+          filename))))
