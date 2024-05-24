@@ -33,10 +33,12 @@
 ;;
 (ns marginalia.core
   (:require
+   [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.string  :as str]
    [clojure.tools.cli :as cli]
    [marginalia.html :as html]
+   [marginalia.log :as log]
    [marginalia.parser :as parser])
   (:import
    (java.io File FileReader)))
@@ -94,9 +96,8 @@
        (map #(.getCanonicalPath ^File %))))
 
 ;; ## Project Info Parsing
-;; Marginalia will parse info out of your project.clj to display in
+;; Marginalia will parse info out of your `project.clj` to display in
 ;; the generated html file's header.
-
 
 (defn parse-project-form
   "Parses a project.clj file and returns a map in the following form
@@ -132,6 +133,23 @@
                   (str
                    "There was a problem reading the project definition from "
                    path)))))))
+
+;; ## Config dir
+;; Marginalia will also look in `.marginalia/config.edn` for config
+
+(def cfg-dir "Where Marginalia keeps project-specific config" ".marginalia")
+
+(defn- config-from-file
+  "Returns any config that could be read from the config file (c.f. `cfg-dir`)."
+  []
+  (let [f (io/file cfg-dir "config.edn")]
+    (if (.exists f)
+      (try
+        (edn/read-string (slurp f))
+        (catch Exception e
+          (log/error "Could not read config file: %s" (.getMessage e))
+          {}))
+      {})))
 
 ;; ## Output Generation
 
@@ -205,6 +223,89 @@
     true
     false))
 
+(def ^:private cli-flags
+  ;; If these are modified, update the README and the `select-keys` allowlist in `resolved-opts+sources` as well
+  [["-d" "--dir"
+    "Directory into which the documentation will be written" :default "./docs"]
+   ["-f" "--file"
+    "File into which the documentation will be written" :default "uberdoc.html"]
+   ["-n" "--name"
+    "Project name - if not given will be taken from project.clj"]
+   ["-v" "--version"
+    "Project version - if not given will be taken from project.clj"]
+   ["-D" "--desc"
+    "Project description - if not given will be taken from project.clj"]
+   ["-a" "--deps"
+    "Project dependencies in the form <group1>:<artifact1>:<version1>;<group2>...
+                 If not given will be taken from project.clj"]
+   ["-c" "--css"
+    "Additional css resources <resource1>;<resource2>;...
+                 If not given will be taken from project.clj."]
+   ["-j" "--js"
+    "Additional javascript resources <resource1>;<resource2>;...
+                 If not given will be taken from project.clj"]
+   ["-m" "--multi"
+    "Generate each namespace documentation as a separate file" :flag true]
+   ["-l" "--leiningen"
+    "Generate the documentation for a Leiningen project file."]
+   ["-e" "--exclude"
+    "Exclude source file(s) from the document generation process <file1>;<file2>;...
+                 If not given will be taken from project.clj"]
+   ["-L" "--lift-inline-comments"
+    "Lift ;; inline comments to the top of the enclosing form.
+                 They will be treated as if they preceded the enclosing form." :flag true]
+   ["-X" "--exclude-lifted-comments"
+    "If ;; inline comments are being lifted into documentation
+                 then also exclude them from the source code display." :flag true]])
+
+(defn resolved-opts+sources
+  "Parse CLI args and incorporate them with additional options specified in `project.clj` and `.marginalia/config.edn`.
+
+   Displays a help message and returns `nil` if the CLI args are invalid, otherwise returns a tuple of `[opts sources]`.
+
+   The precedence is CLI > config.edn > project.clj."
+  [args project]
+  (let [[cli-config files help]       (apply cli/cli args cli-flags)
+        choose                        #(or %1 %2)
+        {:keys        [css
+                       deps
+                       desc
+                       exclude
+                       js]
+         lein         :leiningen
+         ;; The precedence is CLI args > config.edn > project.clj
+         ;; CLI args and config.edn are handled here; project.clj is dealt with below
+         :as          cli+edn-config} (merge-with choose cli-config (config-from-file))
+        sources                       (cond->> (distinct (format-sources (seq files)))
+                                        lein (cons lein))]
+    (if-not sources
+      (do (println "Wrong number of arguments passed to Marginalia.")
+          (println help)
+          nil) ; be explicit about needing to return `nil` here
+      (let [project-clj      (or project
+                                 (when (.exists (io/file "project.clj"))
+                                   (parse-project-file)))
+            marg-opts        (merge-with choose
+                                         {:css        (when css (str/split css #";"))
+                                          :javascript (when js (str/split js #";"))
+                                          :exclude    (when exclude (str/split exclude #";"))
+                                          :leiningen  lein}
+                                         (:marginalia project-clj))
+            opts             (merge-with choose
+                                         ;; Config from the CLI/EDN file that we can pass on transparently
+                                         (select-keys cli+edn-config [:dir :file :name :version :multi :exclude
+                                                                      :lift-inline-comments :exclude-lifted-comments])
+                                         ;; Config from the CLI/EDN file with renames or processing
+                                         {:description  desc
+                                          :dependencies (split-deps deps)
+                                          :marginalia   marg-opts}
+                                         ;; project.clj has the lowest priority
+                                         project-clj)
+            included-sources (->> sources
+                                  (filter #(not (source-excluded? % opts)))
+                                  (into []))]
+        [opts included-sources]))))
+
 (defn run-marginalia
   "Default generation: given a collection of filepaths in a project, find the .clj
    files at these paths and, if Clojure source files are found:
@@ -216,80 +317,18 @@
 
    If no source files are found, complain with a usage message."
   [args & [project]]
-  (let [[{:keys [dir file version desc deps css js multi
-                 leiningen exclude
-                 lift-inline-comments exclude-lifted-comments]
-          project-name :name}
-         files help]
-        (cli/cli args
-                 ["-d" "--dir"
-                  "Directory into which the documentation will be written" :default "./docs"]
-                 ["-f" "--file"
-                  "File into which the documentation will be written" :default "uberdoc.html"]
-                 ["-n" "--name"
-                  "Project name - if not given will be taken from project.clj"]
-                 ["-v" "--version"
-                  "Project version - if not given will be taken from project.clj"]
-                 ["-D" "--desc"
-                  "Project description - if not given will be taken from project.clj"]
-                 ["-a" "--deps"
-                  "Project dependencies in the form <group1>:<artifact1>:<version1>;<group2>...
-                 If not given will be taken from project.clj"]
-                 ["-c" "--css"
-                  "Additional css resources <resource1>;<resource2>;...
-                 If not given will be taken from project.clj."]
-                 ["-j" "--js"
-                  "Additional javascript resources <resource1>;<resource2>;...
-                 If not given will be taken from project.clj"]
-                 ["-m" "--multi"
-                  "Generate each namespace documentation as a separate file" :flag true]
-                 ["-l" "--leiningen"
-                  "Generate the documentation for a Leiningen project file."]
-                 ["-e" "--exclude"
-                  "Exclude source file(s) from the document generation process <file1>;<file2>;...
-                 If not given will be taken from project.clj"]
-                 ["-L" "--lift-inline-comments"
-                  "Lift ;; inline comments to the top of the enclosing form.
-                 They will be treated as if they preceded the enclosing form." :flag true]
-                 ["-X" "--exclude-lifted-comments"
-                  "If ;; inline comments are being lifted into documentation
-                 then also exclude them from the source code display." :flag true])
-        sources (distinct (format-sources (seq files)))
-        sources (if leiningen (cons leiningen sources) sources)]
-    (if-not sources
-      (do
-        (println "Wrong number of arguments passed to Marginalia.")
-        (println help))
+  (let [[{:keys [dir file lift-inline-comments exclude-lifted-comments] :as opts}
+         sources :as valid?] (resolved-opts+sources args project)]
+    (when valid?
       (binding [parser/*lift-inline-comments*   lift-inline-comments
                 parser/*delete-lifted-comments* exclude-lifted-comments]
-        (let [project-clj (or project
-                              (when (.exists (io/file "project.clj"))
-                                (parse-project-file)))
-              choose #(or %1 %2)
-              marg-opts (merge-with choose
-                                    {:css        (when css (str/split css #";"))
-                                     :javascript (when js (str/split js #";"))
-                                     :exclude    (when exclude (str/split exclude #";"))
-                                     :leiningen  leiningen}
-                                    (:marginalia project-clj))
-              opts (merge-with choose
-                               {:name         project-name
-                                :version      version
-                                :description  desc
-                                :dependencies (split-deps deps)
-                                :multi        multi
-                                :marginalia   marg-opts}
-                               project-clj)
-              sources (->> sources
-                           (filter #(not (source-excluded? % opts)))
-                           (into []))]
-          (println "Generating Marginalia documentation for the following source files:")
-          (doseq [s sources]
-            (println "  " s))
-          (println)
-          (ensure-directory! dir)
-          (if multi
-            (multidoc! dir sources opts)
-            (uberdoc! (str dir "/" file) sources opts))
-          (println "Done generating your documentation in" dir)
-          (println ""))))))
+        (println "Generating Marginalia documentation for the following source files:")
+        (doseq [s sources]
+          (println "  " s))
+        (println)
+        (ensure-directory! dir)
+        (if (:multi opts)
+          (multidoc! dir sources opts)
+          (uberdoc! (str dir "/" file) sources opts))
+        (println "Done generating your documentation in" dir)
+        (println "")))))

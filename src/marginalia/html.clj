@@ -209,14 +209,14 @@
   [anchor?]
   (link-to-namespace "toc" anchor? {:class "toc-link"}))
 
-(defn- toc-html [props docs]
+(defn- toc-html [{:keys [uberdoc?] :as _props} docs]
   (html
    [:tr
     [:td {:class "docs"}
      [:div {:class "toc"}
       [:a {:name "toc"} [:h3 "namespaces"]]
       [:ul
-       (map #(vector :li (link-to-namespace (:ns %) (:uberdoc? props)))
+       (map #(vector :li (link-to-namespace (:ns %) uberdoc?))
             docs)]]]
     [:td {:class "codes"} "&nbsp;"]]))
 
@@ -228,20 +228,21 @@
                   (:ns %))
          docs)]])
 
+
 (defn- groups-html [props doc]
   (html
-   [:tr
-    [:td {:class "docs"}
-     [:div {:class "docs-header"}
-      [:a {:class "anchor" :name (:ns doc) :href (str "#" (:ns doc))}
-       [:h1 {:class "project-name"}
-        (:ns doc)]
-       (link-to-toc (:uberdoc? props))]]]
-    [:td {:class "codes"}]]
-   (map section-to-html (:groups doc))
-   [:tr
-    [:td {:class "spacer docs"} "&nbsp;"]
-    [:td {:class "codes"}]]))
+      [:tr
+       [:td {:class "docs"}
+        [:div {:class "docs-header"}
+         [:a {:class "anchor" :name (:ns doc) :href (str "#" (:ns doc))}
+          [:h1 {:class "project-name"}
+           (:ns doc)]
+          (link-to-toc (:uberdoc? props))]]]
+       [:td {:class "codes"}]]
+      (map section-to-html (:groups doc))
+      [:tr
+       [:td {:class "spacer docs"} "&nbsp;"]
+       [:td {:class "codes"}]]))
 
 (def ^:private reset-css
   (css [:html {:margin 0 :padding 0}]
