@@ -73,6 +73,8 @@ Marginalia accepts options as described below:
 | -L   | --lift-in-line-comments   | disabled | Lift ;; inline comments to the top of the enclosing form.                         |
 | -X   | --exclude-lifted-comments | disabled | If inline comments are being lifted, then also exclude them from the source code display |
 
+Options can also be added to `.marginalia/config.edn` (a map with keys taken from the second column of the table).
+
 ### Maven
 
 The [zi plugin](https://github.com/pallet/zi) supports Marginalia.
