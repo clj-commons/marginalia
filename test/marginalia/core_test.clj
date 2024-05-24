@@ -5,4 +5,4 @@
 
 (deftest parse-project-file-simple
   (is (= "project-name"
-         (:name (marginalia/parse-project-file "test/marginalia/resources/multi-def-project.clj.txt")))))
+         (:name (marginalia/parse-project-file "test/marginalia/resources/multi-def-project.clj")))))
