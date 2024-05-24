@@ -45,6 +45,11 @@
 
 (set! *warn-on-reflection* true)
 
+(def ^:dynamic *working-directory*
+  "What to use as the base directory. This is used in tests and is unlikely to be useful otherwise.
+  Defaults to `nil`, which will result in the normal working directory being used."
+  nil)
+
 ;; ## File System Utilities
 
 (defn- ls
@@ -119,20 +124,20 @@
    assembled according to the logic in parse-project-form."
   ([] (parse-project-file "./project.clj"))
   ([path]
-      (try
-        (let [rdr (clojure.lang.LineNumberingPushbackReader.
-                    (FileReader.
-                     (io/file path)))]
-          (loop [line (read rdr)]
-            (let [found-project? (= 'defproject (first line))]
-              (if found-project?
-                (parse-project-form line)
-                (recur (read rdr))))))
-	(catch Exception _
-          (throw (Exception.
-                  (str
-                   "There was a problem reading the project definition from "
-                   path)))))))
+   (try
+     (let [rdr (clojure.lang.LineNumberingPushbackReader.
+                (FileReader.
+                 (io/file path)))]
+       (loop [line (read rdr)]
+         (let [found-project? (= 'defproject (first line))]
+           (if found-project?
+             (parse-project-form line)
+             (recur (read rdr))))))
+     (catch Exception _
+       (throw (Exception.
+               (str
+                "There was a problem reading the project definition from "
+                path)))))))
 
 ;; ## Config dir
 ;; Marginalia will also look in `.marginalia/config.edn` for config
@@ -142,7 +147,7 @@
 (defn- config-from-file
   "Returns any config that could be read from the config file (c.f. `cfg-dir`)."
   []
-  (let [f (io/file cfg-dir "config.edn")]
+  (let [f (io/file *working-directory* cfg-dir "config.edn")]
     (if (.exists f)
       (try
         (edn/read-string (slurp f))
@@ -199,7 +204,7 @@
    recursively for files."
   [sources]
   (if (nil? sources)
-    (find-processable-file-paths "./src" file-extensions)
+    (find-processable-file-paths (.getAbsolutePath (io/file *working-directory* "src")) file-extensions)
     (->> sources
          (mapcat #(if (dir? %)
                     (find-processable-file-paths % file-extensions)
@@ -281,10 +286,11 @@
     (if-not sources
       (do (println "Wrong number of arguments passed to Marginalia.")
           (println help)
-          nil) ; be explicit about needing to return `nil` here
+          nil)                          ; be explicit about needing to return `nil` here
       (let [project-clj      (or project
-                                 (when (.exists (io/file "project.clj"))
-                                   (parse-project-file)))
+                                 (let [proj (io/file *working-directory* "project.clj")]
+                                   (when (.exists proj)
+                                     (parse-project-file (.getAbsolutePath proj)))))
             marg-opts        (merge-with choose
                                          {:css        (when css (str/split css #";"))
                                           :javascript (when js (str/split js #";"))

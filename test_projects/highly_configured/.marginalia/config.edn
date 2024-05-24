@@ -1,0 +1,3 @@
+{:desc "Overridden description"
+ :lift-inline-comments false
+ :multi false}
