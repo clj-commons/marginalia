@@ -3,7 +3,9 @@
    [clojure.java.io :as io]
    [clojure.test :refer :all]
    [marginalia.core :as marginalia]
-   [marginalia.html :as html]))
+   [marginalia.html :as html])
+  (:import
+   [java.io File]))
 
 (set! *warn-on-reflection* true)
 
@@ -29,6 +31,17 @@
   [dir]
   (seq (.listFiles (io/file dir))))
 
+(defn ^File test-project
+  "Returns a file object pointed at the given test project's directory"
+  [project-name]
+  (io/file "test_projects" project-name))
+
+(defmacro in-project
+  "Runs `body` in the context of the given test project"
+  [project-name & body]
+  `(binding [marginalia/*working-directory* ~(.getAbsolutePath (test-project project-name))]
+     ~@body))
+
 (defmacro with-project
   "Runs assertions in the context of a project set up for testing in the `test_projects` directory.
    Anaphorically provides the following variables to the assertion context:
@@ -45,7 +58,7 @@
 
    * `tests` - assertions to be run after the output has been produced"
   [project-name doc-generator & tests]
-  (let [project             (io/file "test_projects" project-name)
+  (let [project             (test-project project-name)
         test-project-src    (str (io/file project "src"))
         test-project-target (str (io/file project "docs"))
         test-metadata       {:dependencies     [["some/dep" "0.0.1"]]
