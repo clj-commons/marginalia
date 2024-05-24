@@ -31,7 +31,7 @@
   [dir]
   (seq (.listFiles (io/file dir))))
 
-(defn ^File test-project
+(defn test-project
   "Returns a file object pointed at the given test project's directory"
   [project-name]
   (io/file "test_projects" project-name))
@@ -39,7 +39,7 @@
 (defmacro in-project
   "Runs `body` in the context of the given test project"
   [project-name & body]
-  `(binding [marginalia/*working-directory* ~(.getAbsolutePath (test-project project-name))]
+  `(binding [marginalia/*working-directory* ~(.getAbsolutePath ^File (test-project project-name))]
      ~@body))
 
 (defmacro with-project
