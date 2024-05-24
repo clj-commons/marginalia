@@ -1,4 +1,5 @@
 (defn some-other-form
+  "There was a bug where we didn't support forms before the `defproject`"
   []
   (= 1 1))
 
