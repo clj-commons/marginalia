@@ -31,26 +31,28 @@
 
 (defmacro with-project
   "Runs assertions in the context of a project set up for testing in the `test_projects` directory.
-   Provides the following variables to the assertion context:
+   Anaphorically provides the following variables to the assertion context:
 
    * `number-of-generated-pages` - result of running the `doc-generator`
       function (which should ultimately call one of the Marginalia's own
       functions.
 
    * `project-name` - the name of the project
+
    * `doc-generator` - function which invokes marginalia (actually produces
                        output). Function accepts three arguments: path to source files, path to
                        output files and test project metadata
+
    * `tests` - assertions to be run after the output has been produced"
   [project-name doc-generator & tests]
   (let [project             (io/file "test_projects" project-name)
         test-project-src    (str (io/file project "src"))
         test-project-target (str (io/file project "docs"))
-        test-metadata       {:dependencies [["some/dep" "0.0.1"]]
-                             :description "Test project"
-                             :name "test"
+        test-metadata       {:dependencies     [["some/dep" "0.0.1"]]
+                             :description      "Test project"
+                             :name             "test"
                              :dev-dependencies []
-                             :version "0.0.1"}]
+                             :version          "0.0.1"}]
 
     `(do
        (delete-file-recursively ~test-project-target true)
