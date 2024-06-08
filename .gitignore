@@ -10,7 +10,6 @@
 /.clj-kondo/.cache
 /.lsp/.cache
 /.portal/vs-code.edn
-/site/uberdoc.html
 classes
 lib
 out
