@@ -125,7 +125,7 @@ I would like to thank Zachary Kim for taking a pile of incoherent code and makin
 
 I would also like to thank Justin Balthrop and Brenton Ashworth for their support and code contributions.
 
-Marginalia is currently maintained by Tim Macdonald and Sean Corfield.
+Marginalia is currently maintained by Tim Macdonald.
 
 Notes
 -----
