@@ -21,8 +21,7 @@
                                       :sign-releases false}]]
 
   ;; updated to match the latest mathjax website information:
-  :marginalia {:javascript ["https://polyfill.io/v3/polyfill.min.js?features=es6"
-                            "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"]}
+  :marginalia {:javascript ["https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"]}
 
   ;; lein docs assumes the lein-marginalia repo is a sibling of this
   ;; marginalia repo -- and that there is a marginalia-gh-pages sibling
