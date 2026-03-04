@@ -26,6 +26,38 @@
     (is (= :code the-type))
     (is (= "the docstring" docstring))))
 
+(def schema-return-type-fn
+  "(defn some-fn :- :string
+  \"the docstring\"
+  [x]
+  (str x))")
+
+(def schema-return-type-qualified-fn
+  "(defn some-fn :- ::output/schema
+  \"the docstring\"
+  [x]
+  (str x))")
+
+(def schema-return-type-vector-fn
+  "(defn some-fn :- [:maybe :int]
+  \"the docstring\"
+  [x]
+  (str x))")
+
+(deftest test-parse-schema-return-type-docstring
+  (testing "simple keyword return type"
+    (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse schema-return-type-fn))]
+      (is (= :code the-type))
+      (is (= "the docstring" docstring))))
+  (testing "qualified keyword return type"
+    (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse schema-return-type-qualified-fn))]
+      (is (= :code the-type))
+      (is (= "the docstring" docstring))))
+  (testing "vector return type"
+    (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse schema-return-type-vector-fn))]
+      (is (= :code the-type))
+      (is (= "the docstring" docstring)))))
+
 (def reader-conditional-fn
   "(defn error
   \"Returns a language-appropriate error\"
