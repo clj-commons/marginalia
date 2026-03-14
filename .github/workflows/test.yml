@@ -32,6 +32,9 @@ jobs:
   kondo:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      checks: write
     steps:
     - uses: actions/checkout@v4.1.0
     - uses: DeLaGuardo/clojure-lint-action@master
