@@ -47,4 +47,8 @@
  :config-in-ns
  {tests
   {:linters
-   {:missing-docstring {:level :off}}}}}
+   {:missing-docstring {:level :off}}}}
+
+  :output
+ {:exclude-files
+  ["^test/marginalia/resources"]}}
