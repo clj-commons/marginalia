@@ -265,7 +265,10 @@
     (if (symbol? sym)
       (let [maybe-metadocstring  (:doc (meta sym))
             nspace               (find-ns sym)
-            [maybe-ds remainder] (let [[_ _ ? & more?] form] [? more?])
+            [maybe-ds remainder] (let [[_ _ ? & more?] form]
+                                      (if (= :- ?)
+                                        [(second more?) (nnext more?)]
+                                        [? more?]))
             docstring            (if (and (string? maybe-ds) remainder)
                                    maybe-ds
                                    (if (= (first form) 'ns)
