@@ -21,27 +21,14 @@ jobs:
     - name: Setup Clojure
       uses: DeLaGuardo/setup-clojure@12.3
       with:
-        lein: 2.11.1
+        lein: 2.12.0
+        clj-kondo: 2026.04.15
     - name: Cache dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v5.0.5
       with:
         path: ~/.m2/repository
         key: "m2-${{ hashFiles('project.clj') }}"
+    - name: "Lint with clj-kondo"
+      run: clj-kondo --lint src/marginalia test
     - name: Run tests
       run: lein test
-  kondo:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      checks: write
-    steps:
-    - uses: actions/checkout@v4.1.0
-    - uses: DeLaGuardo/clojure-lint-action@master
-      with:
-        check-name: Run clj-kondo
-        clj-kondo-args: >-
-          --lint
-          src/marginalia
-          test
-        github_token: ${{ secrets.GITHUB_TOKEN }}
