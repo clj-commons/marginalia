@@ -8,9 +8,9 @@
   :dependencies
   [[org.clojure/clojure "1.11.1"]
    [org.clojure/clojurescript "1.11.132"]
-   [org.clojure/tools.namespace "1.4.5"]
-   [org.clojure/tools.cli "1.0.219"]
-   [org.markdownj/markdownj-core "0.4"]
+   [org.clojure/tools.namespace "1.5.1"]
+   [org.clojure/tools.cli "1.4.256"]
+   [com.vladsch.flexmark/flexmark-all "0.64.8"]
    [de.ubercode.clostache/clostache "1.4.0"]]
 
   :resource-paths ["vendor"]

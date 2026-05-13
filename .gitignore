@@ -5,6 +5,7 @@
 .cpcache
 .lein-deps-sum
 .lein-failures
+.lein-repl-history
 .nrepl-port
 /.calva/output-window/
 /.clj-kondo/.cache

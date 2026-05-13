@@ -5,26 +5,47 @@
    [marginalia.parser :as p]))
 
 (deftest test-inline-literals
-  (is (= (count (marginalia.parser/parse "(ns test)")) 1))
-  (is (= (count (marginalia.parser/parse "(ns test)\n123")) 1))
-  (is (= (count (marginalia.parser/parse "(ns test)\n123\n")) 1))
-  (is (= (count (marginalia.parser/parse "(ns test)\n\"string\"")) 1))
-  (is (= (count (marginalia.parser/parse "(ns test)\n\"some string\"")) 1))
-  (is (= (count (marginalia.parser/parse "(ns test (:require [marginalia.parser :as parser]))\n(defn foo [] ::parser/foo)")) 1)))
+  (is (= 1 (count (p/parse "(ns test)"))))
+  (is (= 1 (count (p/parse "(ns test)\n123"))))
+  (is (= 1 (count (p/parse "(ns test)\n123\n"))))
+  (is (= 1 (count (p/parse "(ns test)\n\"string\""))))
+  (is (= 1 (count (p/parse "(ns test)\n\"some string\""))))
+  (is (= 1 (count (p/parse "(ns test (:require [marginalia.parser :as parser]))\n(defn foo [] ::parser/foo)")))))
 
-(deftest extend-via-metadata
-  (is (marginalia.parser/parse "(ns test)\n(defprotocol Foo \"Does a Foo\" :extend-via-metadata true (do-foo! [_ opts] \"Foo!\"))")))
+(def def-docstring
+  "(def PI \"a docstring\" 3.1415926)")
 
-(def simple-fn
+(def defn-docstring
   "(defn some-fn
   \"the docstring\"
   [x]
   (* x x))")
 
-(deftest test-parse-fn-docstring
-  (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse simple-fn))]
-    (is (= :code the-type))
-    (is (= "the docstring" docstring))))
+(def markdown-docstring-fn
+  "(defn some-fn
+  \"the docstring
+
+  ```clojure
+  (some-fn 1 :abc #{['foo \\\"bar\\\"]})
+  ```\"
+  [& args]
+  (vec args))")
+
+(def defmulti-docstring
+  "(defmulti bazfoo
+  \"This is a defmulti docstring\"
+  class)")
+
+(def defmethod-docstring
+  "(defmethod bazfoo
+  \"This is a defmethod docstring\"
+  String [s]
+  (vec (seq s)))")
+
+(def defprotocol-docstring
+  "(defprotocol Foo \"Does a Foo\"
+    :extend-via-metadata true
+    (do-foo! [_ opts] \"Foo!\"))")
 
 (def schema-return-type-fn
   "(defn some-fn :- :string
@@ -44,20 +65,6 @@
   [x]
   (str x))")
 
-(deftest test-parse-schema-return-type-docstring
-  (testing "simple keyword return type"
-    (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse schema-return-type-fn))]
-      (is (= :code the-type))
-      (is (= "the docstring" docstring))))
-  (testing "qualified keyword return type"
-    (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse schema-return-type-qualified-fn))]
-      (is (= :code the-type))
-      (is (= "the docstring" docstring))))
-  (testing "vector return type"
-    (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse schema-return-type-vector-fn))]
-      (is (= :code the-type))
-      (is (= "the docstring" docstring)))))
-
 (def reader-conditional-fn
   "(defn error
   \"Returns a language-appropriate error\"
@@ -65,10 +72,21 @@
   #?(:clj  (Exception. msg)
      :cljs (js/Error. msg)))")
 
-(deftest test-reader-conditional
-  (let [{docstring :docstring the-type :type} (first (marginalia.parser/parse reader-conditional-fn))]
-    (is (= :code the-type))
-    (is (= "Returns a language-appropriate error" docstring))))
+(deftest test-parse-fn-docstring
+  (are [input expected] (let [{docstring :docstring the-type :type} (first (p/parse input))]
+                          (is (= :code the-type))
+                          (is (= expected docstring))
+                          true)
+    def-docstring "a docstring"
+    defn-docstring "the docstring"
+    markdown-docstring-fn "the docstring\n\n```clojure\n(some-fn 1 :abc #{['foo \"bar\"]})\n```"
+    defmulti-docstring "This is a defmulti docstring"
+    defmethod-docstring "This is a defmethod docstring"
+    defprotocol-docstring "Does a Foo"
+    schema-return-type-fn "the docstring"
+    schema-return-type-qualified-fn "the docstring"
+    schema-return-type-vector-fn "the docstring"
+    reader-conditional-fn "Returns a language-appropriate error"))
 
 (deftest inline-comments
   (testing "inline comments ignored by default"

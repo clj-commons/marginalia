@@ -107,11 +107,13 @@
 (defn parse-project-form
   "Parses a project.clj file and returns a map in the following form
 
-       {:name
-        :version
-        :dependencies
-        :dev-dependencies
-        etc...}
+  ```clojure
+  {:name
+   :version
+   :dependencies
+   :dev-dependencies
+   etc...}
+  ```
   by merging into the name and version information the rest of the defproject
   forms (`:dependencies`, etc)"
   [[_ project-name version-number & attributes]]
@@ -120,7 +122,7 @@
 	 (apply hash-map attributes)))
 
 (defn parse-project-file
-  "Parses a project file -- './project.clj' by default -- and returns a map
+  "Parses a project file -- `./project.clj` by default -- and returns a map
    assembled according to the logic in parse-project-form."
   ([] (parse-project-file "./project.clj"))
   ([path]
@@ -175,7 +177,7 @@
         pages        (map #(filename-contents props output-dir parsed-files %) parsed-files)]
     (doseq [f (conj pages {:name     (io/file output-dir "toc.html")
                            :contents index})]
-           (spit (:name f) (:contents f)))))
+      (spit (:name f) (:contents f)))))
 
 (defn uberdoc!
   "Generates an uberdoc html file from 3 pieces of information:
@@ -183,8 +185,8 @@
    2. The path to spit the result (`output-file-name`)
    1. Results from processing source files (`path-to-doc`)
    3. Project metadata as a map, containing at a minimum the following:
-     - :name
-     - :version"
+     - `:name`
+     - `:version`"
   [output-file-name files-to-analyze props]
   (let [source (html/uberdoc-html
                 props
@@ -220,13 +222,9 @@
 (defn source-excluded?
   "Check if a source file is excluded from the generated documentation"
   [source opts]
-  (if-not (empty?
-           (filter #(if (re-find (re-pattern %) source)
-                      true
-                      false)
-                   (-> opts :marginalia :exclude)))
-    true
-    false))
+  (boolean
+   (seq (filter #(re-find (re-pattern %) source)
+                (-> opts :marginalia :exclude)))))
 
 (def ^:private cli-flags
   ;; If these are modified, update the README and the `select-keys` allowlist in `resolved-opts+sources` as well
@@ -308,7 +306,7 @@
                                          ;; project.clj has the lowest priority
                                          project-clj)
             included-sources (->> sources
-                                  (filter #(not (source-excluded? % opts)))
+                                  (remove #(source-excluded? % opts))
                                   (into []))]
         [opts included-sources]))))
 
