@@ -1,9 +1,12 @@
 (ns marginalia.html
   "Utilities for converting parse results into html."
   (:require
+   [clojure.java.io :as io]
    [marginalia.hiccup :as hiccup :refer [html]])
   (:import
-   [com.petebevin.markdown MarkdownProcessor]))
+   (com.vladsch.flexmark.html HtmlRenderer)
+   (com.vladsch.flexmark.parser Parser)
+   [com.vladsch.flexmark.util.data MutableDataSet]))
 
 (set! *warn-on-reflection* true)
 
@@ -18,9 +21,10 @@
 (defn css
   "Quick and dirty dsl for inline css rules, similar to hiccup.
 
-   ex. `(css [:h1 {:color \"blue\"}] [:div.content p {:text-indent \"1em\"}])`
-
-   -> `h1 {color: blue;} div.content p {text-indent: 1em;}`"
+   ```clojure
+  (css [:h1 {:color \"blue\"}] [:div.content p {:text-indent \"1em\"}])
+  ;; => h1 {color: blue;} div.content p {text-indent: 1em;}
+  ```"
   [& rules]
   (html [:style {:type "text/css"}
          (apply str (map css-rule rules))]))
@@ -29,19 +33,13 @@
   "Stolen from leiningen"
   [resource-name]
   (try
-    (-> (.getContextClassLoader (Thread/currentThread))
-        (.getResourceAsStream resource-name)
-        (java.io.InputStreamReader.)
-        (slurp))
+    (slurp (io/resource resource-name))
     (catch java.lang.NullPointerException _
       (println (str "Could not locate resources at " resource-name))
       (println "    ... attempting to fix.")
       (let [resource-name (str *resources* resource-name)]
         (try
-          (-> (.getContextClassLoader (Thread/currentThread))
-              (.getResourceAsStream resource-name)
-              (java.io.InputStreamReader.)
-              (slurp))
+          (slurp (io/resource resource-name))
           (catch java.lang.NullPointerException _
             (println (str "    STILL could not locate resources at " resource-name ". Giving up!"))))))))
 
@@ -59,42 +57,48 @@
 ;; The following functions handle preparation of doc text (both comment and docstring
 ;; based) for display through html & css.
 
-;; Markdown processor.
-(def ^:private ^MarkdownProcessor mdp (MarkdownProcessor.))
+;; Two parsing options for the markdown processor are set:
+;; * If a numbered list doesn't start at 1, ignore all numbers and start at 1
+;; * If a numbered list has an entry with a dash or * instead, treat it as a sublist
+(def ^:private ^MutableDataSet format-opts
+  (doto (MutableDataSet.)
+    (.set Parser/LISTS_ORDERED_LIST_MANUAL_START false)
+    (.set Parser/LISTS_ITEM_TYPE_MISMATCH_TO_SUB_LIST true)))
+(def ^:private ^Parser parser (.build (Parser/builder format-opts)))
+(def ^:private ^HtmlRenderer renderer (.build (HtmlRenderer/builder format-opts)))
 
 (defn md
-  "Markdown string to html converter. Translates strings like:
+  "Markdown string to html converter.
 
-   \"# header!\" -> `\"<h1>header!</h1>\"`
+  ```clojure
+  (md \"# header!\")
+  ;; => \"<h1>header!</h1>\"
 
-   \"## header!\" -> `\"<h2>header!</h2>\"`
-
-   ..."
+  (md \"## header!\")
+  ;; => \"<h2>header!</h2>\"
+  ```"
   [^String s]
-  (.markdown mdp s))
+  (->> s
+       (.parse parser)
+       (.render renderer)))
 
-;; As a result of docifying then grouping, you'll end up with a seq like this one:
-;; <pre><code>[...
-;; {:docs [{:docs-text "Some doc text"}]
-;;  :codes [{:code-text "(def something \"hi\")"}]}
-;; ...]</code></pre>
-;;
-;; `docs-to-html` and `codes-to-html` convert their respective entries into html,
-;; and `group-to-html` calls them on each seq item to do so.
+;; `docs-to-html` and `codes-to-html` convert their respective entries into html..
 
 (defn docs-to-html
-  "Converts a docs section to html by threading each doc line through the forms
-   outlined above.
+  "Parse a string (docstring) as Markdown and then render it as html.
 
-   ex. (docs-to-html [{:doc-text \"# hello world!\"} {:docstring-text \"I'm a docstring!}])
-
-   ->  `\"<h1>hello world!</h1><br />\"`"
+  ```clojure
+  (docs-to-html \"# hello world!\")
+  ;; => \"<h1>hello world!</h1>\n\"
+  ```"
   [docs]
   (-> docs
       str
       (md)))
 
-(defn- codes-to-html [code-block]
+(defn codes-to-html
+  "Render a code-block to html."
+  [code-block]
   (html [:pre {:class "brush: clojure"}
          (hiccup/escape-html code-block)]))
 
@@ -142,7 +146,9 @@
 ;; [MathJax](http://www.mathjax.org/) Javascript library to the docs
 ;; directory and then add
 ;;
-;;     :marginalia {:javascript ["mathjax/MathJax.js"]}
+;; ```clojure
+;; :marginalia {:javascript ["mathjax/MathJax.js"]}
+;; ```
 ;;
 ;; to project.clj. :javascript and :css accept a vector of paths or URLs
 ;;
@@ -151,9 +157,10 @@
 ;; Optionally, you can put the MathJax CDN URL directly as a value of `:javascript`
 ;; like this:
 ;;
-;;     :marginalia {
-;;       :javascript
-;;         ["http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"]}
+;; ```clojure
+;; :marginalia
+;; {:javascript
+;;  ["http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"]}
 ;;
 ;; That way you won't have to download and carry around the MathJax library.
 ;;
@@ -168,7 +175,7 @@
            (when-let [js (:javascript options)]
              (map #(vector :script {:type "text/javascript" :src %}) js))
            (when-let [the-css (:css options)]
-             (map #(vector :link {:tyle "text/css" :rel "stylesheet" :href %}) the-css))))))
+             (map #(vector :link {:style "text/css" :rel "stylesheet" :href %}) the-css))))))
 
 ;; Is &lt;h1/&gt; overloaded?  Maybe we should consider redistributing
 ;; header numbers instead of adding classes to all the h1 tags.
@@ -337,8 +344,6 @@
             :margin-bottom "10px"}]
    [:code {:display "inline"}]
    [:p {:margin-top "8px"}]
-   [:tr {:margin "0px"
-         :padding "0px"}]
    [:td.docs {:width "410px"
               :max-width "410px"
               :vertical-align "top"
@@ -348,7 +353,7 @@
               :border "none"
               :background-color "#FFF"}]
    [:td.docs :pre {:font-size "12px"
-                   :overflow "hidden"}]
+                   :overflow "auto"}]
    [:td.codes {:width "55%"
                :background-color "#F5F5FF"
                :vertical-align "top"
@@ -359,7 +364,7 @@
                :font-size "10pt"
                :border-left "solid #E5E5EE 1px"}]
    [:td.spacer {:padding-bottom "40px"}]
-   [:pre :code {:display "block"
+   [:pre :code {:display "inline-block"
                 :padding "4px"}]
    [:code {:background-color "ghostWhite"
            :border "solid #DEDEDE 1px"
@@ -437,7 +442,8 @@
    (header-html project-metadata)
    (toc-html {:uberdoc? false} docs)
    ""   ;; no contents
-   "")) ;; no floating toc
+   ""   ;; no floating toc
+   ,)) 
 
 (defn single-page-html
   "Generate a given page's HTML"
@@ -449,4 +455,4 @@
    "" ;; no toc
    (groups-html {:uberdoc? false} doc)
    "" ;; no floating toc
-   ))
+   ,))

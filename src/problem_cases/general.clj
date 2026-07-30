@@ -47,14 +47,15 @@
   "This is a defmulti docstring, it should also be on the left"
   class)
 
-(defmethod bazfoo String [s]
-  "This is a defmethod docstring.  It should be on the left."
+(defmethod bazfoo
+  "This is a defmethod docstring. It should be on the left."
+  String [s]
   (vec (seq s)))
 
 (bazfoo "abc")
 
 (defprotocol Foo
-  "This is a protocol docstring.  It should be on the left."
+  "This is a protocol docstring. It should be on the left."
   (lookup  [cache e])
   (has?    [cache e] )
   (hit     [cache e])

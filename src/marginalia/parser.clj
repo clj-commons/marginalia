@@ -6,7 +6,7 @@
   (:require
    [cljs.tagged-literals :as cljs]
    [clojure.string :as str]
-   [clojure.tools.namespace :as tools.ns])
+   [clojure.tools.namespace.file :as tools.ns])
   (:import
    [clojure.lang LineNumberingPushbackReader LispReader]
    [java.io File Reader Writer]))
@@ -339,8 +339,8 @@
   (extract-common-docstring form raw nspace-sym))
 
 (defmethod dispatch-form 'defmethod
-  [_form raw nspace-sym]
-  [nil raw nspace-sym])
+  [form raw nspace-sym]
+  (extract-common-docstring form raw nspace-sym))
 
 (defn- dispatch-inner-form
   [form raw nspace-sym]
